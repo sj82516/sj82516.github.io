@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Posts on Yuanchieh&#39;s Blog</title>
+		<link>https://yuanchieh.page/posts/</link>
+		<description>Recent content in Posts on yuanchieh.page</description>
+		<generator>Hugo -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Thu, 21 Jan 2021 08:21:40 +0000</lastBuildDate>
+		
+		<atom:link href="https://yuanchieh.page/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>如何打造安全的 production ready Node.js Docker Image</title>
+			<link>https://yuanchieh.page/posts/2021-01-21-%E5%A6%82%E4%BD%95%E6%89%93%E9%80%A0%E5%AE%89%E5%85%A8%E7%9A%84-production-nodejs-docker-image/</link>
+			<pubDate>Thu, 21 Jan 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021-01-21-%E5%A6%82%E4%BD%95%E6%89%93%E9%80%A0%E5%AE%89%E5%85%A8%E7%9A%84-production-nodejs-docker-image/</guid>
+			<description>
+				
+				近日常把舊有的 Node.js 專案打包成 Docker Image 部署，過程中不斷思考怎樣的打包過程才是安全、有效率的，分享一些好文與發現
+				
+			</description>
+		</item>
+		<item>
+			<title>【工程師看商業】量化行銷的流量思維講座心得</title>
+			<link>https://yuanchieh.page/posts/2021-01-19-%E5%B7%A5%E7%A8%8B%E5%B8%AB%E7%9C%8B%E5%95%86%E6%A5%AD%E9%87%8F%E5%8C%96%E8%A1%8C%E9%8A%B7%E7%9A%84%E6%B5%81%E9%87%8F%E6%80%9D%E7%B6%AD%E8%AC%9B%E5%BA%A7%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Tue, 19 Jan 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021-01-19-%E5%B7%A5%E7%A8%8B%E5%B8%AB%E7%9C%8B%E5%95%86%E6%A5%AD%E9%87%8F%E5%8C%96%E8%A1%8C%E9%8A%B7%E7%9A%84%E6%B5%81%E9%87%8F%E6%80%9D%E7%B6%AD%E8%AC%9B%E5%BA%A7%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				關於 KKday 營銷長 Yuki 老師分享量化行銷的觀念與實務經驗的心得分享
+				
+			</description>
+		</item>
+		<item>
+			<title>MySQL Deadlock 問題排查與處理</title>
+			<link>https://yuanchieh.page/posts/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/</link>
+			<pubDate>Sat, 26 Dec 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/</guid>
+			<description>
+				
+				週末寫點簡單的 SQL 遇到了 Deadlock，才發現 foreign key 會有額外的 lock 效果導致 Deadlock，重新翻閱 MySQL 文件並分享排查過程
+				
+			</description>
+		</item>
+		<item>
+			<title>UUID 原理與實作分析 - 該如何挑選適合的 UUID 版本</title>
+			<link>https://yuanchieh.page/posts/2020-12-01_uuid-%E5%8E%9F%E7%90%86%E8%88%87%E5%AF%A6%E4%BD%9C%E5%88%86%E6%9E%90-%E8%A9%B2%E5%A6%82%E4%BD%95%E6%8C%91%E9%81%B8%E9%81%A9%E5%90%88%E7%9A%84-uuid-%E7%89%88%E6%9C%AC/</link>
+			<pubDate>Tue, 01 Dec 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-12-01_uuid-%E5%8E%9F%E7%90%86%E8%88%87%E5%AF%A6%E4%BD%9C%E5%88%86%E6%9E%90-%E8%A9%B2%E5%A6%82%E4%BD%95%E6%8C%91%E9%81%B8%E9%81%A9%E5%90%88%E7%9A%84-uuid-%E7%89%88%E6%9C%AC/</guid>
+			<description>
+				
+				斯斯有好幾種，UUID 總共有 v1~v5，本篇將從 RFC 文件開始，並介紹 js 中 uuid 的實作方式，幫助大家找到適合的 UUID 方案
+				
+			</description>
+		</item>
+		<item>
+			<title>一人備戰環花東365挑戰賽 - 備賽、比賽過程分享</title>
+			<link>https://yuanchieh.page/posts/2020-11-30_%E7%92%B0%E8%8A%B1%E6%9D%B1365%E6%8C%91%E6%88%B0%E8%B3%BD%E5%88%86%E4%BA%AB-%E5%A6%82%E4%BD%95%E4%B8%80%E4%BA%BA%E5%82%99%E8%B3%BD%E8%88%87%E6%AF%94%E8%B3%BD%E9%81%8E%E7%A8%8B/</link>
+			<pubDate>Mon, 30 Nov 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-11-30_%E7%92%B0%E8%8A%B1%E6%9D%B1365%E6%8C%91%E6%88%B0%E8%B3%BD%E5%88%86%E4%BA%AB-%E5%A6%82%E4%BD%95%E4%B8%80%E4%BA%BA%E5%82%99%E8%B3%BD%E8%88%87%E6%AF%94%E8%B3%BD%E9%81%8E%E7%A8%8B/</guid>
+			<description>
+				
+				八月底購入自行車後，在九月便腦衝報名了環花東 365 挑戰賽，在沒有加入車隊、也沒有太多資料搜集的狀況下，自己瞎練並硬著頭皮完賽了，希望完整分享自己的備賽過程與比賽的經歷，能夠分享給一個人想要挑戰環花東 365 的車友
+				
+			</description>
+		</item>
+		<item>
+			<title>Sketch Data Structure - Bloom Filter 介紹與實作</title>
+			<link>https://yuanchieh.page/posts/2020-11-17-sketch-data-algorthm-bloom-filter-%E4%BB%8B%E7%B4%B9%E8%88%87%E5%AF%A6%E4%BD%9C/</link>
+			<pubDate>Tue, 17 Nov 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-11-17-sketch-data-algorthm-bloom-filter-%E4%BB%8B%E7%B4%B9%E8%88%87%E5%AF%A6%E4%BD%9C/</guid>
+			<description>
+				
+				犧牲部分準確性，Bloom Filter 用少量的記憶體與 O(1) 的查詢時間回答「某值是否曾經出現過」的問題
+				
+			</description>
+		</item>
+		<item>
+			<title>Raft 演算法介紹與《In Search of an Understandable Consensus Algorithm》摘要</title>
+			<link>https://yuanchieh.page/posts/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</link>
+			<pubDate>Tue, 03 Nov 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</guid>
+			<description>
+				
+				Raft 演算法是一種 Consensus 演算法，提供分散式系統中可容錯的「強一致性」資料同步的方式，意圖取代複雜難懂的 Paxos，主要由三個機制 Leader / Log Replication / Safety 三塊組成
+				
+			</description>
+		</item>
+		<item>
+			<title>Gossip Protocol 介紹 (下) - 《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文摘要</title>
+			<link>https://yuanchieh.page/posts/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</link>
+			<pubDate>Wed, 28 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</guid>
+			<description>
+				
+				延續上篇的研究，接著閱讀了《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文理解 Gossip Protocol 的原理以及應用
+				
+			</description>
+		</item>
+		<item>
+			<title>Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用</title>
+			<link>https://yuanchieh.page/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</link>
+			<pubDate>Mon, 26 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</guid>
+			<description>
+				
+				在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理
+				
+			</description>
+		</item>
+		<item>
+			<title>Redis Cluster 介紹</title>
+			<link>https://yuanchieh.page/posts/2020-10-19-redis-cluster-%E4%BB%8B%E7%B4%B9/</link>
+			<pubDate>Mon, 19 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-19-redis-cluster-%E4%BB%8B%E7%B4%B9/</guid>
+			<description>
+				
+				參考文件摘要 Redis Cluster 使用與架構
+				
+			</description>
+		</item>
+		<item>
+			<title>使用 Redis 當作 API Rate limit 的三種方法</title>
+			<link>https://yuanchieh.page/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</link>
+			<pubDate>Sun, 18 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</guid>
+			<description>
+				
+				API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket
+				
+			</description>
+		</item>
+		<item>
+			<title>公路車新手上路 - 入坑一個月的心得</title>
+			<link>https://yuanchieh.page/posts/2020-10-08_%E5%85%AC%E8%B7%AF%E8%BB%8A%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF-%E5%85%A5%E5%9D%91%E4%B8%80%E5%80%8B%E6%9C%88%E7%9A%84%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Thu, 08 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-08_%E5%85%AC%E8%B7%AF%E8%BB%8A%E6%96%B0%E6%89%8B%E4%B8%8A%E8%B7%AF-%E5%85%A5%E5%9D%91%E4%B8%80%E5%80%8B%E6%9C%88%E7%9A%84%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				在同事的推坑下，買個公路車開始在台北走跳，分享一些當時購車至今的一些心得與建議
+				
+			</description>
+		</item>
+		<item>
+			<title>配眼鏡推薦 - 靈魂之窗與光明分子</title>
+			<link>https://yuanchieh.page/posts/2020-10-04_-%E9%85%8D%E7%9C%BC%E9%8F%A1%E6%8E%A8%E8%96%A6-%E9%9D%88%E9%AD%82%E4%B9%8B%E7%AA%97%E8%88%87%E5%85%89%E6%98%8E%E5%88%86%E5%AD%90/</link>
+			<pubDate>Sun, 04 Oct 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-10-04_-%E9%85%8D%E7%9C%BC%E9%8F%A1%E6%8E%A8%E8%96%A6-%E9%9D%88%E9%AD%82%E4%B9%8B%E7%AA%97%E8%88%87%E5%85%89%E6%98%8E%E5%88%86%E5%AD%90/</guid>
+			<description>
+				
+				分享靈魂之窗與光明分子的配眼鏡心得
+				
+			</description>
+		</item>
+		<item>
+			<title>RFC 5389 - STUN 協定介紹</title>
+			<link>https://yuanchieh.page/posts/2020-09-22_rfc-5389-stun-%E5%8D%94%E5%AE%9A%E4%BB%8B%E7%B4%B9/</link>
+			<pubDate>Tue, 22 Sep 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-09-22_rfc-5389-stun-%E5%8D%94%E5%AE%9A%E4%BB%8B%E7%B4%B9/</guid>
+			<description>
+				
+				STUN 主要是應用於 NAT 穿越技術中，本篇為 RFC 5389 的閱讀心得，分享 STUN 背後的設計原理與結構
+				
+			</description>
+		</item>
+		<item>
+			<title>Coturn Server 架設教學 - on AWS</title>
+			<link>https://yuanchieh.page/posts/2020-09-21_aws-coturn-server-%E6%9E%B6%E8%A8%AD%E6%95%99%E5%AD%B8/</link>
+			<pubDate>Mon, 21 Sep 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-09-21_aws-coturn-server-%E6%9E%B6%E8%A8%AD%E6%95%99%E5%AD%B8/</guid>
+			<description>
+				
+				Coturn 是知名的 open source STUN/TURN server，本篇分享如何在 AWS 上架設與遇到的坑，以及設定檔的撰寫等
+				
+			</description>
+		</item>
+		<item>
+			<title>《一千零一個點子之後：NETFLIX創始的祕密》閱讀心得</title>
+			<link>https://yuanchieh.page/posts/2020-09-17-%E4%B8%80%E5%8D%83%E9%9B%B6%E4%B8%80%E5%80%8B%E9%BB%9E%E5%AD%90%E4%B9%8B%E5%BE%8Cnetflix%E5%89%B5%E5%A7%8B%E7%9A%84%E7%A5%95%E5%AF%86%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Thu, 17 Sep 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-09-17-%E4%B8%80%E5%8D%83%E9%9B%B6%E4%B8%80%E5%80%8B%E9%BB%9E%E5%AD%90%E4%B9%8B%E5%BE%8Cnetflix%E5%89%B5%E5%A7%8B%E7%9A%84%E7%A5%95%E5%AF%86%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				扎實的 Netflix 共同創辦人 Mark Randolph 心路歷程
+				
+			</description>
+		</item>
+		<item>
+			<title>Elasticsearch 教學 - API 操作</title>
+			<link>https://yuanchieh.page/posts/2020-07-15_elasticsearch-%E6%95%99%E5%AD%B8-api-%E6%93%8D%E4%BD%9C/</link>
+			<pubDate>Wed, 15 Jul 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-07-15_elasticsearch-%E6%95%99%E5%AD%B8-api-%E6%93%8D%E4%BD%9C/</guid>
+			<description>
+				
+				主要針對 Elasticsearch 的實作與 API 操作
+				
+			</description>
+		</item>
+		<item>
+			<title>Elasticsearch 系統介紹與評估</title>
+			<link>https://yuanchieh.page/posts/2020-07-08_elasticsearch-%E4%BB%8B%E7%B4%B9%E8%88%87%E8%A9%95%E4%BC%B0/</link>
+			<pubDate>Wed, 08 Jul 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-07-08_elasticsearch-%E4%BB%8B%E7%B4%B9%E8%88%87%E8%A9%95%E4%BC%B0/</guid>
+			<description>
+				
+				Elasticsearch 系統架構分析
+				
+			</description>
+		</item>
+		<item>
+			<title>gRPC 介紹與 Nodejs 實作分享</title>
+			<link>https://yuanchieh.page/posts/2020-06-07_grpc-%E4%BB%8B%E7%B4%B9%E8%88%87-js-%E5%AF%A6%E4%BD%9C%E5%88%86%E4%BA%AB/</link>
+			<pubDate>Sun, 07 Jun 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-06-07_grpc-%E4%BB%8B%E7%B4%B9%E8%88%87-js-%E5%AF%A6%E4%BD%9C%E5%88%86%E4%BA%AB/</guid>
+			<description>
+				
+				gRPC 是一種由 Google 推出的 Client / Server 通訊協定，有別於一般常見的 HTTP &#43; JSON 的 API Endpoint，gRPC 帶來了協作與效率上改進
+				
+			</description>
+		</item>
+		<item>
+			<title>JS Proxy / Reflect 實戰 - 實作 API 自動 retry 機制</title>
+			<link>https://yuanchieh.page/posts/2020-05-27_js-proxy-%E8%88%87-reflect-%E4%BD%BF%E7%94%A8/</link>
+			<pubDate>Wed, 27 May 2020 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-05-27_js-proxy-%E8%88%87-reflect-%E4%BD%BF%E7%94%A8/</guid>
+			<description>
+				
+				介紹 ES6 推出的 Proxy 與 Reflect，並分享使用場景 - console log 於正式環境複寫功能與API 自動 retry 機制
+				
+			</description>
+		</item>
+		<item>
+			<title>Vault 教學-集中化管理機敏資料(上)</title>
+			<link>https://yuanchieh.page/posts/2020-04-20_vault-%E6%95%99%E5%AD%B8-%E9%9B%86%E4%B8%AD%E5%8C%96%E7%AE%A1%E7%90%86%E6%A9%9F%E6%95%8F%E8%B3%87%E6%96%99-%E4%B8%8A/</link>
+			<pubDate>Thu, 23 Apr 2020 20:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-04-20_vault-%E6%95%99%E5%AD%B8-%E9%9B%86%E4%B8%AD%E5%8C%96%E7%AE%A1%E7%90%86%E6%A9%9F%E6%95%8F%E8%B3%87%E6%96%99-%E4%B8%8A/</guid>
+			<description>
+				
+				初步介紹 Vault 的基本功能，包含 Secrets 管理 / Authentication / Authorization 在 Vault 當中的實踐
+				
+			</description>
+		</item>
+		<item>
+			<title>Packer教學-打造 Image</title>
+			<link>https://yuanchieh.page/posts/2020-04-15_packer-%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image/</link>
+			<pubDate>Wed, 15 Apr 2020 02:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-04-15_packer-%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image/</guid>
+			<description>
+				
+				使用 Packer 打造建制步驟透明的 Image 流程
+				
+			</description>
+		</item>
+		<item>
+			<title>Vagrant 教學- 從本地端開發到 AWS 部署</title>
+			<link>https://yuanchieh.page/posts/2020-04-12_vagrant-%E6%95%99%E5%AD%B8-%E4%B8%80%E9%8D%B5%E5%95%9F%E5%8B%95%E9%85%8D%E7%BD%AE%E9%96%8B%E7%99%BC%E7%92%B0%E5%A2%83/</link>
+			<pubDate>Sun, 12 Apr 2020 11:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-04-12_vagrant-%E6%95%99%E5%AD%B8-%E4%B8%80%E9%8D%B5%E5%95%9F%E5%8B%95%E9%85%8D%E7%BD%AE%E9%96%8B%E7%99%BC%E7%92%B0%E5%A2%83/</guid>
+			<description>
+				
+				
+				
+			</description>
+		</item>
+		<item>
+			<title>Infrusture as Code 挑戰賽 - Hashicorp 工具鏈全教學</title>
+			<link>https://yuanchieh.page/posts/2020-04-12_infrusture-as-code-%E6%8C%91%E6%88%B0%E8%B3%BD-hashicorp-%E5%B7%A5%E5%85%B7%E9%8F%88%E5%85%A8%E6%95%99%E5%AD%B8/</link>
+			<pubDate>Sun, 12 Apr 2020 02:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-04-12_infrusture-as-code-%E6%8C%91%E6%88%B0%E8%B3%BD-hashicorp-%E5%B7%A5%E5%85%B7%E9%8F%88%E5%85%A8%E6%95%99%E5%AD%B8/</guid>
+			<description>
+				
+				
+				
+			</description>
+		</item>
+		<item>
+			<title>閱讀心得《Designing with Data 善用數據幫你打造好設計》</title>
+			<link>https://yuanchieh.page/posts/2020-04-05_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97%E5%96%84%E7%94%A8%E6%95%B8%E6%93%9A%E5%B9%AB%E4%BD%A0%E6%89%93%E9%80%A0%E5%A5%BD%E8%A8%AD%E8%A8%88/</link>
+			<pubDate>Sun, 05 Apr 2020 11:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-04-05_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97%E5%96%84%E7%94%A8%E6%95%B8%E6%93%9A%E5%B9%AB%E4%BD%A0%E6%89%93%E9%80%A0%E5%A5%BD%E8%A8%AD%E8%A8%88/</guid>
+			<description>
+				
+				
+				
+			</description>
+		</item>
+		<item>
+			<title>DNS over HTTPs 分享</title>
+			<link>https://yuanchieh.page/posts/2020-02-29_dns-over-https-%E5%88%86%E4%BA%AB/</link>
+			<pubDate>Sat, 29 Feb 2020 07:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-02-29_dns-over-https-%E5%88%86%E4%BA%AB/</guid>
+			<description>
+				
+				DNS 查詢可以基於 UDP 或 TCP 查詢域名的對應紀錄，但是目前沒有過多的保證與安全性，基於個人隱私與安全性考量，如今推出了 DNS over HTTPs，基於 HTTPS 安全性與隱密性保護 DNS 查詢
+				
+			</description>
+		</item>
+		<item>
+			<title>Expressjs Middleware 如何在 Response 結束觸發</title>
+			<link>https://yuanchieh.page/posts/2020-02-07_expressjs-middleware-%E5%A6%82%E4%BD%95%E5%9C%A8-reponse-%E7%B5%90%E6%9D%9F%E8%A7%B8%E7%99%BC/</link>
+			<pubDate>Thu, 06 Feb 2020 22:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-02-07_expressjs-middleware-%E5%A6%82%E4%BD%95%E5%9C%A8-reponse-%E7%B5%90%E6%9D%9F%E8%A7%B8%E7%99%BC/</guid>
+			<description>
+				
+				因為 express.js 設計因素，如果要自行設計一個 Middleware 在 response 結束時才觸發會比較麻煩些，透過研究紀錄 response time 相關的 middleware 參考他人怎麼實作的
+				
+			</description>
+		</item>
+		<item>
+			<title>MongoDB 批次處理大量數據</title>
+			<link>https://yuanchieh.page/posts/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/</link>
+			<pubDate>Thu, 06 Feb 2020 22:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/</guid>
+			<description>
+				
+				在大量查詢時必須小心使用語法，避免 MongoDB 反應不來
+				
+			</description>
+		</item>
+		<item>
+			<title>Redis Lock (Redlock) 分散式 lock 原理分析與實作</title>
+			<link>https://yuanchieh.page/posts/2020-01-14_redis-lock-redlock-%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E8%88%87%E5%AF%A6%E4%BD%9C/</link>
+			<pubDate>Tue, 14 Jan 2020 05:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-01-14_redis-lock-redlock-%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E8%88%87%E5%AF%A6%E4%BD%9C/</guid>
+			<description>
+				
+				Redlock 是一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制
+				
+			</description>
+		</item>
+		<item>
+			<title>Webassembly 教學 - 基本運算、陣列處理與指針</title>
+			<link>https://yuanchieh.page/posts/2020-01-01_webassembly-%E6%95%99%E5%AD%B8-%E5%9F%BA%E6%9C%AC%E9%81%8B%E7%AE%97%E9%99%A3%E5%88%97%E8%99%95%E7%90%86%E8%88%87%E6%8C%87%E9%87%9D/</link>
+			<pubDate>Wed, 01 Jan 2020 05:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2020-01-01_webassembly-%E6%95%99%E5%AD%B8-%E5%9F%BA%E6%9C%AC%E9%81%8B%E7%AE%97%E9%99%A3%E5%88%97%E8%99%95%E7%90%86%E8%88%87%E6%8C%87%E9%87%9D/</guid>
+			<description>
+				
+				Webassembly 實戰分享
+				
+			</description>
+		</item>
+		<item>
+			<title>[閱讀心得] 《原子習慣》細微改變帶來巨大成就的實證法則</title>
+			<link>https://yuanchieh.page/posts/2019-12-14_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97%E5%8E%9F%E5%AD%90%E7%BF%92%E6%85%A3/</link>
+			<pubDate>Sat, 14 Dec 2019 05:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-12-14_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97%E5%8E%9F%E5%AD%90%E7%BF%92%E6%85%A3/</guid>
+			<description>
+				
+				有意識的培養自己的潛意識
+				
+			</description>
+		</item>
+		<item>
+			<title>初試 Terraform - 基本介紹與用程式碼部署 Lambda (下)</title>
+			<link>https://yuanchieh.page/posts/2019-11-04_try-terraform-2/</link>
+			<pubDate>Mon, 04 Nov 2019 00:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-11-04_try-terraform-2/</guid>
+			<description>
+				
+				Terraform 提供跨雲平台的 Infrastructure as code 方案，用 DSL 編寫檔案管理雲端架構
+				
+			</description>
+		</item>
+		<item>
+			<title>初試 Terraform - 基本介紹與用程式碼部署 Lambda (上)</title>
+			<link>https://yuanchieh.page/posts/2019-10-31_try-terraform/</link>
+			<pubDate>Wed, 30 Oct 2019 00:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-10-31_try-terraform/</guid>
+			<description>
+				
+				Terraform 提供跨雲平台的 Infrastructure as code 方案，用 DSL 編寫檔案管理雲端架構
+				
+			</description>
+		</item>
+		<item>
+			<title>SDP Spec 閱讀筆記</title>
+			<link>https://yuanchieh.page/posts/2019-10-02-sdp-spec-review/</link>
+			<pubDate>Wed, 02 Oct 2019 00:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-10-02-sdp-spec-review/</guid>
+			<description>
+				
+				SDP 被應用於多種媒體串流協定中，主要是用來協議雙方所支援的媒體通訊格式
+				
+			</description>
+		</item>
+		<item>
+			<title>《How Javascript Works》讀後整理 上</title>
+			<link>https://yuanchieh.page/posts/2019-09-30_how-javascript-works-review-%E4%B8%8A/</link>
+			<pubDate>Wed, 02 Oct 2019 00:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-09-30_how-javascript-works-review-%E4%B8%8A/</guid>
+			<description>
+				
+				Douglas 思考著 The Next Language 下一代的程式語言該具備的樣貌，延伸前作 《JavaScript- The Good Parts》，Douglas 頗析 JS的每一個環節，先解構 JS現有的存在，再重構出一門他覺得最接近下個世代程式語言的雛形
+				
+			</description>
+		</item>
+		<item>
+			<title>如何設計 REST API</title>
+			<link>https://yuanchieh.page/posts/2019-09-18_%E5%A6%82%E4%BD%95%E8%A8%AD%E8%A8%88-rest-api/</link>
+			<pubDate>Wed, 18 Sep 2019 00:08:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-09-18_%E5%A6%82%E4%BD%95%E8%A8%AD%E8%A8%88-rest-api/</guid>
+			<description>
+				
+				後端工程師最基本的技能要求是設計符合 HTTP-based REST 的API，對你來說 REST API 的第一印象又是什麼呢? 面對一些特殊狀況沒辦法很好用現有的 REST 表達，你又會如何設計呢?
+				
+			</description>
+		</item>
+		<item>
+			<title>讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹</title>
+			<link>https://yuanchieh.page/posts/2019-08-18_es4x_graalvm/</link>
+			<pubDate>Sun, 18 Aug 2019 11:31:29 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-08-18_es4x_graalvm/</guid>
+			<description>
+				
+				認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性
+				
+			</description>
+		</item>
+		<item>
+			<title>V8 內的排序演算法 — Timsort</title>
+			<link>https://yuanchieh.page/posts/2019-08-09_v8-%E5%85%A7%E7%9A%84%E6%8E%92%E5%BA%8F%E6%BC%94%E7%AE%97%E6%B3%95-timsort/</link>
+			<pubDate>Fri, 09 Aug 2019 05:41:03 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-08-09_v8-%E5%85%A7%E7%9A%84%E6%8E%92%E5%BA%8F%E6%BC%94%E7%AE%97%E6%B3%95-timsort/</guid>
+			<description>
+				
+				Timsort 廣泛應用在 Python / Android，現在 V8 JS Engine 也改用 Timsort 當作預設的排序法，此篇分享 Timsort實作的細節 
+				
+			</description>
+		</item>
+		<item>
+			<title>龍舟第二年 — 關於自信</title>
+			<link>https://yuanchieh.page/posts/2019-06-10_%E9%BE%8D%E8%88%9F%E9%9A%8A%E7%AC%AC%E4%BA%8C%E5%B9%B4/</link>
+			<pubDate>Mon, 10 Jun 2019 23:08:00 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-06-10_%E9%BE%8D%E8%88%9F%E9%9A%8A%E7%AC%AC%E4%BA%8C%E5%B9%B4/</guid>
+			<description>
+				
+				划龍舟邁入第二年，開始習慣三月到六月以划龍舟當作一年的開端，重新調整自己的心態與體態；邁過第一年痛苦的入門期，第二年漸入佳境，開始可以享受划船的樂趣與比賽的刺激，也開始在這過程體會到一些其他心境上的成長，關於自信與團隊這件事。
+				
+			</description>
+		</item>
+		<item>
+			<title>龍舟舵手研習營心得</title>
+			<link>https://yuanchieh.page/posts/2019-05-25_%E8%88%B5%E6%89%8B%E7%A0%94%E7%BF%92/</link>
+			<pubDate>Sat, 25 May 2019 03:13:32 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-05-25_%E8%88%B5%E6%89%8B%E7%A0%94%E7%BF%92/</guid>
+			<description>
+				
+				划龍舟邁入槳手二年級生，體能與划槳上慢慢可以跟上大家，雖然還有很多需要調整的細節與磨練，每次練習也都是累得半死，但確實比較得心應手些，慢慢享受龍舟的樂趣；
+				
+			</description>
+		</item>
+		<item>
+			<title>Route53 Latency-Based Routing 機制 — DNS 如何評估延遲</title>
+			<link>https://yuanchieh.page/posts/2019-04-29_route53-latency-based-routing/</link>
+			<pubDate>Mon, 29 Apr 2019 00:18:14 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-04-29_route53-latency-based-routing/</guid>
+			<description>
+				
+				前陣子做全球不同地區 API Server 的部署，希望用戶基於延遲性選擇最靠近的 API Server，透過 Route53 &#43; API Gateway 實作非常簡單。
+				
+			</description>
+		</item>
+		<item>
+			<title>Http persistent connection 研究與 proxy — server keep-alive timeout 不一致的 502 錯誤</title>
+			<link>https://yuanchieh.page/posts/2019-04-08_keep-alive-error/</link>
+			<pubDate>Mon, 08 Apr 2019 23:46:01 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-04-08_keep-alive-error/</guid>
+			<description>
+				
+				架構上使用 elb 當作 load balancer proxy，後端接 nodejs api server，但是偶爾拋出 502 錯誤，後來發現是 proxy 與 server 間 keep-alive 差異所造成
+				
+			</description>
+		</item>
+		<item>
+			<title>Linux Traffic Control (tc) 研究</title>
+			<link>https://yuanchieh.page/posts/2019-04-05_linux-traffic-control/</link>
+			<pubDate>Fri, 05 Apr 2019 12:20:15 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-04-05_linux-traffic-control/</guid>
+			<description>
+				
+				以下介紹如何使用 Linux Kernel 內建的工具 tc ，完成
+				
+			</description>
+		</item>
+		<item>
+			<title>CS50 — lecture 0</title>
+			<link>https://yuanchieh.page/posts/2019-02-19_cs50-lecture-0/</link>
+			<pubDate>Tue, 19 Feb 2019 00:00:17 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-02-19_cs50-lecture-0/</guid>
+			<description>
+				
+				最近在教人寫程式，發現自己雖然有寫部落格的習慣，但是要如何用口語表達卻還有很大一段的落差，更困難的是「我不知道從何教起」
+				
+			</description>
+		</item>
+		<item>
+			<title>AWS-CDK教學 — Infrastructore As Code 用程式碼管理架構</title>
+			<link>https://yuanchieh.page/posts/2019-01-27_aws-cdk-infrastructore-as-code/</link>
+			<pubDate>Sun, 27 Jan 2019 03:29:50 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-01-27_aws-cdk-infrastructore-as-code/</guid>
+			<description>
+				
+				最近陸陸續續在看 AWS re:invent 2018 的影片，主要專注於 CI/CD這一部分，以下內容主要出自於，不得不說看完真的是非常振奮人心啊！
+				
+			</description>
+		</item>
+		<item>
+			<title>如何用解除授權攻擊強迫裝置斷線 Wifi 連線</title>
+			<link>https://yuanchieh.page/posts/2019-01-20_wifi-attack/</link>
+			<pubDate>Sun, 20 Jan 2019 01:12:22 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-01-20_wifi-attack/</guid>
+			<description>
+				
+				內容參考 @Brandon Skerritt 的創作，以下僅為個人轉譯成中文，執行平台從作者的 Kali Linux 改為 Mac，紀錄一些執行的細節。
+				
+			</description>
+		</item>
+		<item>
+			<title>菜鳥茶客-從路人到入門</title>
+			<link>https://yuanchieh.page/posts/2019-01-05_tea/</link>
+			<pubDate>Sat, 05 Jan 2019 14:35:28 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-01-05_tea/</guid>
+			<description>
+				
+				開始學泡茶也學了三個月，想說培養興趣最困難的其實是第一步，在學茶的過程有些經歷蠻有趣，覺得分享出來供對茶葉感到好奇的路人，跟我一起入門體驗喝茶的樂趣。
+				
+			</description>
+		</item>
+		<item>
+			<title>V8 Zero Stack Async Stack Trace 研究</title>
+			<link>https://yuanchieh.page/posts/2019-01-01_v8-zero-stack-async-stack-trace/</link>
+			<pubDate>Tue, 01 Jan 2019 10:27:29 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2019-01-01_v8-zero-stack-async-stack-trace/</guid>
+			<description>
+				
+				這份是在 2018/11/20 由 V8 Team 釋出的文件，主要描述用一種新的Async 錯誤追蹤機制，此新機制僅適用於 async await
+				
+			</description>
+		</item>
+		<item>
+			<title>愛用 async / await 而非 promise!</title>
+			<link>https://yuanchieh.page/posts/2018-12-28_async-await-instead-of-promise/</link>
+			<pubDate>Fri, 28 Dec 2018 01:39:30 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-12-28_async-await-instead-of-promise/</guid>
+			<description>
+				
+				近期看不到少關於 async / await 的好文章，這裡特別摘錄兩篇總結
+				
+			</description>
+		</item>
+		<item>
+			<title>V8 如何優化 async / await</title>
+			<link>https://yuanchieh.page/posts/2018-12-25_v8-async-await/</link>
+			<pubDate>Tue, 25 Dec 2018 13:06:04 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-12-25_v8-async-await/</guid>
+			<description>
+				
+				JS 基於事件驅動，大量的 Promise 充斥在應用程式中，其後在 ES2017 加入了 async/ await 語法糖後，讓非同步代碼更加簡潔與直覺
+				
+			</description>
+		</item>
+		<item>
+			<title>Stripe 串金流教學 (上)</title>
+			<link>https://yuanchieh.page/posts/2018-11-17_stripe/</link>
+			<pubDate>Sat, 17 Nov 2018 07:53:08 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-11-17_stripe/</guid>
+			<description>
+				
+				Stripe 是一間國際的金流支付公司，提供 client (Web / Android / iOS等)支付介面與 server-side API，用最短的時間就可以讓服務接上金流
+				
+			</description>
+		</item>
+		<item>
+			<title>MongoDB Isolation 與 Transaction</title>
+			<link>https://yuanchieh.page/posts/2018-10-14_mongodb-isolation-transaction-132ab29731c2/</link>
+			<pubDate>Sun, 14 Oct 2018 01:39:58 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-10-14_mongodb-isolation-transaction-132ab29731c2/</guid>
+			<description>
+				
+				在 MongoDB中，其 Isolation 與 SQL標準定義的 Isolation Level不同，畢竟NoSQL注重於海量讀寫 、集群式的應用場景，自然所面對的問題也就差異很多，但也因此在面臨 Concurrency 時的讀寫保證問題，以下是閱讀官方文件並整理的結果。
+				
+			</description>
+		</item>
+		<item>
+			<title>[筆記] AWS s3 性能提升小撇步 — Amazon S3 Performance Tips &amp; Tricks</title>
+			<link>https://yuanchieh.page/posts/2018-09-25_amazon-s3-performance-tips/</link>
+			<pubDate>Tue, 25 Sep 2018 21:34:31 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-09-25_amazon-s3-performance-tips/</guid>
+			<description>
+				
+				AWS S3 用來做靜態資源管理，可以用來儲存非常大量的資料且有很高保持性(duribility:99.9999999%)的保證；在這篇官方的部落格中記載著S3內部的一些儲存機制以及優化的小技巧。
+				
+			</description>
+		</item>
+		<item>
+			<title>HLS 教學 (上) — 從閱讀Spec 開始</title>
+			<link>https://yuanchieh.page/posts/2018-09-24_hls-spec/</link>
+			<pubDate>Mon, 24 Sep 2018 09:54:09 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-09-24_hls-spec/</guid>
+			<description>
+				
+				在數位內容的時代，影音的閱讀比例也越來越高，相關的直播與影音串流服務越來越多，而其中最常使用的串流技術規格便是HLS；近日工作上開始使用不少HLS服務，決定自己翻Spec搞懂整個技術架構，並整理成筆記分享。
+				
+			</description>
+		</item>
+		<item>
+			<title>MongoDB Shard Cluster 架設</title>
+			<link>https://yuanchieh.page/posts/2018-09-08_mongodb-shard-cluster/</link>
+			<pubDate>Sat, 08 Sep 2018 07:53:36 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-09-08_mongodb-shard-cluster/</guid>
+			<description>
+				
+				在大量資料需要儲存下，可以將 MongoDB做 Sharding 與 Replica Set 設置，增加DB的吞吐量與可用性。
+				
+			</description>
+		</item>
+		<item>
+			<title>Express 與 Koa 如何處理錯誤</title>
+			<link>https://yuanchieh.page/posts/2018-08-27_express-koa-error-handling-comapre/</link>
+			<pubDate>Mon, 27 Aug 2018 07:20:36 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-08-27_express-koa-error-handling-comapre/</guid>
+			<description>
+				
+				以前只注重把功能寫出來而已，慢慢地開始維護後發現一開始的系統規劃很重要，包含基本的 Loggin / Debugging / Error Handling，以及是否能將每個物件函式乾淨拆分避免過多副作用無法編寫測試(詳見另一篇網誌)
+				
+			</description>
+		</item>
+		<item>
+			<title>PostgreSQL json 操作</title>
+			<link>https://yuanchieh.page/posts/2018-08-23_postgresql-json-76ba596faab3/</link>
+			<pubDate>Thu, 23 Aug 2018 08:36:20 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-08-23_postgresql-json-76ba596faab3/</guid>
+			<description>
+				
+				Postgresql 可以用欄位 jsonb型別儲存 json格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。
+				
+			</description>
+		</item>
+		<item>
+			<title>新店同心救難隊 52期救生員訓練心得</title>
+			<link>https://yuanchieh.page/posts/2018-08-21_safe-gaurd/</link>
+			<pubDate>Tue, 21 Aug 2018 12:28:19 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-08-21_safe-gaurd/</guid>
+			<description>
+				
+				平常喜歡水上活動，但沒特別喜歡游泳，所以泳技、水性都很差，一開始先從捷式重新學起，兩個禮拜加強後學會換氣勉強可以遊完50公尺，接著就直接挑戰救生員訓練，真的是生不如死啊XD
+				
+			</description>
+		</item>
+		<item>
+			<title>使用 Jest 做API 單元測試的範例與細節</title>
+			<link>https://yuanchieh.page/posts/2018-08-06_jest-api/</link>
+			<pubDate>Mon, 06 Aug 2018 10:42:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-08-06_jest-api/</guid>
+			<description>
+				
+				nojest 之前寫測試因為沒有注意細節，導致非常難編寫單元測試；改以 End-to-End測試，直接用docker 開DB輸入假資料，接著執行 Server App 對API一隻一隻測試。
+				
+			</description>
+		</item>
+		<item>
+			<title>MySQL Explain分析與Index設定查詢優化</title>
+			<link>https://yuanchieh.page/posts/2018-07-30_mysql-explain/</link>
+			<pubDate>Mon, 30 Jul 2018 10:14:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-07-30_mysql-explain/</guid>
+			<description>
+				
+				資料庫日積月累資料量逐步攀升，MySQL在一般查詢是透過全表搜尋，所以大量的資料會導致查詢等方式越來越慢
+				
+			</description>
+		</item>
+		<item>
+			<title>DNSSEC 基本原理介紹</title>
+			<link>https://yuanchieh.page/posts/2018-07-30_dnssec-%E4%BB%8B%E7%B4%B9/</link>
+			<pubDate>Mon, 30 Jul 2018 10:14:21 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-07-30_dnssec-%E4%BB%8B%E7%B4%B9/</guid>
+			<description>
+				
+				前陣子在看 Cloudflare一些相關設定，剛好看到 DNSSEC這個技術名詞，以下是認識後的筆記。
+				
+			</description>
+		</item>
+		<item>
+			<title>為什麼要理解 Nodejs Event Loop：Dataloader 源碼解讀與分析如何解決 Graphql N&#43;1問題</title>
+			<link>https://yuanchieh.page/posts/2018-07-16_nodejs-event-loop-to-fix-graphql-n-1/</link>
+			<pubDate>Mon, 16 Jul 2018 12:35:50 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-07-16_nodejs-event-loop-to-fix-graphql-n-1/</guid>
+			<description>
+				
+				Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。
+				
+			</description>
+		</item>
+		<item>
+			<title>HTTPS不代表安全：Cloudflare SSL 研究從Server到Cloudflare</title>
+			<link>https://yuanchieh.page/posts/2018-07-11_cloudflare-ssl/</link>
+			<pubDate>Wed, 11 Jul 2018 01:37:07 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-07-11_cloudflare-ssl/</guid>
+			<description>
+				
+				網頁瀏覽時出現HTTPS的綠色鎖看了令人放心，這似乎代表著我們在網站瀏覽的資料有受到「完整的加密保護」，不用擔心資料被偷窺與被調包等等MitM中間人攻擊的風險，但事實當然沒有這麼簡單。
+				
+			</description>
+		</item>
+		<item>
+			<title>Jonathan Martin: Async patterns to scale your multicore JavaScript elegantly 總結與試驗</title>
+			<link>https://yuanchieh.page/posts/2018-06-27_async-patterns-to-scale-your-multicore-javascript-elegantly/</link>
+			<pubDate>Wed, 27 Jun 2018 04:03:50 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-06-27_async-patterns-to-scale-your-multicore-javascript-elegantly/</guid>
+			<description>
+				
+				利用Async Pattern 提升JS在多核心上的執行速度
+				
+			</description>
+		</item>
+		<item>
+			<title>龍舟比賽初體驗 — 一些關於訓練、比賽的心路歷程</title>
+			<link>https://yuanchieh.page/posts/2018-06-23_dragon-boat/</link>
+			<pubDate>Sat, 23 Jun 2018 10:11:14 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-06-23_dragon-boat/</guid>
+			<description>
+				
+				2018/03/13，參加了新店同心救難隊的龍舟訓練團，每天清晨 05:30 ~ 06:30 在碧潭操練，假日不停一路練到 2018/06/15 總計99天的訓練，為自己的人生熱血一次
+				
+			</description>
+		</item>
+		<item>
+			<title>MySQL 關於地理位置的儲存與運算</title>
+			<link>https://yuanchieh.page/posts/2018-06-21_mysql-location/</link>
+			<pubDate>Thu, 21 Jun 2018 22:15:22 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-06-21_mysql-location/</guid>
+			<description>
+				
+				最近突然好奇如何做LBS服務，最基本的應用場景就是找出某經緯度位置內方圓距離多少內的所有資料，所以就來研究一下MySQL如何處理地理位置。
+				
+			</description>
+		</item>
+		<item>
+			<title>Google Sheet API 與Google OAuth2 API授權研究</title>
+			<link>https://yuanchieh.page/posts/2018-06-01_google-sheet-api-%E8%88%87google-oauth2-api/</link>
+			<pubDate>Fri, 01 Jun 2018 13:03:55 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-06-01_google-sheet-api-%E8%88%87google-oauth2-api/</guid>
+			<description>
+				
+				Google 提供可以大量用 API介接的服務，本篇整理 Google 常用的幾種 API授權，與 Google Sheet API 如何使用
+				
+			</description>
+		</item>
+		<item>
+			<title>資料庫 Isolation level 與實際應用情境處理</title>
+			<link>https://yuanchieh.page/posts/2018-05-28_db-isolation-level/</link>
+			<pubDate>Mon, 28 May 2018 09:29:27 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-05-28_db-isolation-level/</guid>
+			<description>
+				
+				Transaction 交易機制，可以讓單一或多筆操作聚合為單一的原子性操作，一次性成功寫入或失敗回滾，避免資料庫出現資料不一致的狀況。
+				
+			</description>
+		</item>
+		<item>
+			<title>The Twelve-Factor App 閱讀筆記</title>
+			<link>https://yuanchieh.page/posts/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</link>
+			<pubDate>Sat, 19 May 2018 07:02:08 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</guid>
+			<description>
+				
+				The Twelve-Factor App 是由一群有豐富經驗的工程師，整理開發一個Web應用程式(或是所謂的SAAS software-as-a-service)開發方針
+				
+			</description>
+		</item>
+		<item>
+			<title>Chrome extension 開發分享</title>
+			<link>https://yuanchieh.page/posts/2018-05-15_chrome-extension-%E9%96%8B%E7%99%BC%E5%88%86%E4%BA%AB/</link>
+			<pubDate>Tue, 15 May 2018 09:56:14 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-05-15_chrome-extension-%E9%96%8B%E7%99%BC%E5%88%86%E4%BA%AB/</guid>
+			<description>
+				
+				基本的 Chrome 插件開發分享，擴充網頁滑鼠控制的功能
+				
+			</description>
+		</item>
+		<item>
+			<title>[閱讀心得]《我們》、《1984》、《美麗新世界》反烏托邦三部曲</title>
+			<link>https://yuanchieh.page/posts/2018-05-06_-utopia-review/</link>
+			<pubDate>Sun, 06 May 2018 02:11:33 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-05-06_-utopia-review/</guid>
+			<description>
+				
+				思考「外在環境與內在基因如何影響人類思維」這類型的議題，這一系列反烏托邦的書籍讓人去正視環境與體制對個體的影響與危害
+				
+			</description>
+		</item>
+		<item>
+			<title>MySQL FOREIGN KEY Constraints 整理</title>
+			<link>https://yuanchieh.page/posts/2018-04-24_mysql-foreign-key-constraints-%E6%95%B4%E7%90%86/</link>
+			<pubDate>Tue, 24 Apr 2018 10:16:08 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-04-24_mysql-foreign-key-constraints-%E6%95%B4%E7%90%86/</guid>
+			<description>
+				
+				整理閱讀MySQL v5.7的FOREIGN KEY Constraints文件，並針對細節在DB Fiddle加上範例。
+				
+			</description>
+		</item>
+		<item>
+			<title>[技術筆記] Designing Data-Intensive Applications 下</title>
+			<link>https://yuanchieh.page/posts/2018-04-19_designing-data-intensive-applications-%E4%B8%8B/</link>
+			<pubDate>Thu, 19 Apr 2018 04:08:48 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-04-19_designing-data-intensive-applications-%E4%B8%8B/</guid>
+			<description>
+				
+				《Designing Data-Intensive Applications》是我目前看過應用程式開發最推薦的一本書，隨著網路時代的發展，資料量越來越龐大，處理資料成了應用程式擴展的瓶頸。 這本書從資料庫本身、資料庫常見問題、跨機器的資料同步問題等，他不是介紹單一的資料庫如何使用，而是更仔細的介紹每個高大上又令人困惑的 Buzzword，對儲存資料的設計有更深的理解。
+				
+			</description>
+		</item>
+		<item>
+			<title>[技術筆記] Designing Data-Intensive Applications 上</title>
+			<link>https://yuanchieh.page/posts/2018-03-28_designing-data-intensive-applications-%E4%B8%8A/</link>
+			<pubDate>Wed, 28 Mar 2018 10:23:52 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-03-28_designing-data-intensive-applications-%E4%B8%8A/</guid>
+			<description>
+				
+				《Designing Data-Intensive Applications》是我目前看過應用程式開發最推薦的一本書，隨著網路時代的發展，資料量越來越龐大，處理資料成了應用程式擴展的瓶頸。 這本書從資料庫本身、資料庫常見問題、跨機器的資料同步問題等，他不是介紹單一的資料庫如何使用，而是更仔細的介紹每個高大上又令人困惑的 Buzzword，對儲存資料的設計有更深的理解。
+				
+			</description>
+		</item>
+		<item>
+			<title>[閱讀心得] 娛樂至死</title>
+			<link>https://yuanchieh.page/posts/2018-03-27_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97-%E5%A8%9B%E6%A8%82%E8%87%B3%E6%AD%BB/</link>
+			<pubDate>Tue, 27 Mar 2018 12:10:32 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2018-03-27_%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97-%E5%A8%9B%E6%A8%82%E8%87%B3%E6%AD%BB/</guid>
+			<description>
+				
+				一開始會想讀這本書是因為看到學長的心得文，簡略提到印刷時代的思想比腳深層完整，而電視(網路)時代則是片斷瑣碎；當初看完心得不太認同，因為我會直覺地認為說「媒體只是載具，重點是人的思想」，也就是膚淺的人不論在哪個時代都是膚淺的；…
+				
+			</description>
+		</item>
+		
+	</channel>
+</rss>

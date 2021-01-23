@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Postgresql 可以用欄位 jsonb型別儲存 json格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。"><meta property="og:title" content="PostgreSQL json 操作" />
+<meta property="og:description" content="Postgresql 可以用欄位 jsonb型別儲存 json格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018-08-23_postgresql-json-76ba596faab3/" />
+<meta property="article:published_time" content="2018-08-23T08:36:20+00:00" />
+<meta property="article:modified_time" content="2018-08-23T08:36:20+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="PostgreSQL json 操作"/>
+<meta name="twitter:description" content="Postgresql 可以用欄位 jsonb型別儲存 json格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>PostgreSQL json 操作 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">23</span>
+				<span class="rest">Aug 2018</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">PostgreSQL json 操作</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>Postgresql 可以用欄位 jsonb 型別儲存 json 格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。</p>
+<h3 id="示範資料庫">示範資料庫</h3>
+<p><a href="https://www.db-fiddle.com/f/vk8sCioCh1RstjSWXsZnWr/4"><strong>DB Fiddle - SQL Database Playground</strong></a></p>
+<p>基本就是是 Orders / Products 兩張表，Orders 中資料用 data jsonb 格式存儲，Products 則是常規的欄位定義。</p>
+<p>Orders 資料大約長這樣</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">1</span>,
+  <span style="color:#268bd2">&#34;cost&#34;</span>: <span style="color:#2aa198">200</span>,
+  <span style="color:#268bd2">&#34;products&#34;</span>: [{<span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">1</span>, <span style="color:#268bd2">&#34;nums&#34;</span>: <span style="color:#2aa198">5</span>}, {<span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">2</span>, <span style="color:#268bd2">&#34;nums&#34;</span>: <span style="color:#2aa198">3</span>}],
+  <span style="color:#268bd2">&#34;details&#34;</span>: {<span style="color:#268bd2">&#34;title&#34;</span>: <span style="color:#2aa198">&#34;memo&#34;</span>}
+}
+</code></pre></div><h4 id="操作-json">操作 JSON</h4>
+<p>如果是要做 json 的欄位索取，可以用 <code>-&gt;</code> ，如果要回傳字串結果用 <code>-&gt;&gt;</code></p>
+<p>例如說 <code>data-&gt;’details’-&gt;&gt;’title’</code> 就會回傳 <code>“memo”</code></p>
+<p>陣列也可以指定哪個位置，例如 <code>data-&gt;’product’-&gt;0-&gt;’id’</code></p>
+<p>使用上如果是 key 用 <code>`</code> 單引號括著，如果是陣列位置才不需要，不然會一直回傳 null</p>
+<p>另外要特別注意的是<code>-&gt;&gt;</code> 都是回傳字串，所以如果要跟其他類型做比對，需要自己做格式轉換，例如 <code>Cast( data-&gt;&gt;”id” as int ) = id</code> 拿 data.id 跟 int 型別的自增主鍵做比對</p>
+<h4 id="陣列長度">陣列長度</h4>
+<p>如果是想要知道陣列的長度是多少，可以用 jsonb_array_elements</p>
+<p>例如 <code>jsonb_array_length(data-&gt;’products’) &gt; 2</code> ，這會直接回傳 int</p>
+<h4 id="key-是否存在">Key 是否存在</h4>
+<p>有三種用法，<code>?’比對key’ ?|[’比對key1’, ’比對key2’] ?&amp;[’比對key1’, ’比對key2’]</code> ，結果回傳 boolean</p>
+<p>例如找出 data 中包含`detail`欄位的資料<br>
+ <code>select * from Orders where data?’detail’;</code></p>
+<p>?| 則是後者陣列中只要命中一個就為 true，?&amp; 則是要陣列中所有的元素都存在才是 true。</p>
+<h4 id="攤平陣列">攤平陣列</h4>
+<p>算是做第一正規化，我希望透過 Join Products 計算每筆訂單的總額，但因為 Orders 中的 data-&gt;product 是陣列，所以需要 <code>jsonb_array_elements</code> ，<code>jsonb_array_elements</code> 會直接回傳 set</p>
+<p><code>select jsonb_array_elements(data-&gt;’products’) as product_item from Orders;</code> 這樣就可以做到第一正規化</p>
+<p>接著蠻神奇的是可以直接將 Order 與 <code>jsonb_array_elements</code> 做 CROSS JOIN</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">select</span> Orders.id,  
+<span style="color:#719e07">Sum</span>(<span style="color:#719e07">Cast</span>(product_item<span style="color:#719e07">-&gt;&gt;</span><span style="color:#2aa198">&#39;nums&#39;</span> <span style="color:#719e07">as</span> <span style="color:#b58900">int</span>) \<span style="color:#719e07">*</span> Products.price) <span style="color:#719e07">from</span> Orders,  
+ jsonb_array_elements(<span style="color:#719e07">data</span><span style="color:#719e07">-&gt;</span><span style="color:#2aa198">&#39;products&#39;</span>) <span style="color:#719e07">as</span> product_item  
+ <span style="color:#719e07">left</span> <span style="color:#719e07">join</span> Products <span style="color:#719e07">on</span> <span style="color:#719e07">Cast</span>(product_item<span style="color:#719e07">-&gt;&gt;</span><span style="color:#2aa198">&#39;id&#39;</span> <span style="color:#719e07">as</span> <span style="color:#b58900">int</span>) <span style="color:#719e07">=</span> Products.id  
+ <span style="color:#719e07">group</span> <span style="color:#719e07">by</span> Orders.id;
+</code></pre></div><p>但結果竟然不是預期的笛卡爾積 N*M，而是會自動幫你把屬於該訂單的 product 對應好，到現在還想不透怎麼會這樣。</p>
+<h4 id="json-vsjsonb">json vs jsonb</h4>
+<p>Postgresql 支援兩種合法 json 可插入的格式 <code>json</code> <code>jsonb</code> ，但兩者有些微的差異</p>
+<ol>
+<li>json<br>
+以純文字型態插入，包含空白、換行，同時保持原本的鍵值順序</li>
+<li>jsonb<br>
+以二進制方式儲存，會把重複的鍵值去除(後者覆蓋前者)</li>
+</ol>
+<p>jsonb 支援 index，在插入時需要較長的時間，但是查詢速度較快，是比較通用的選擇格式。</p>
+<p>但如果有需要保持原本鍵值順序、或是單純想保留原本的 json 格式才使用 <code>json</code> 格式</p>
+<p>參考資料<br>
+<a href="https://my.oschina.net/swingcoder/blog/489769">https://my.oschina.net/swingcoder/blog/489769</a>、<a href="https://stackoverflow.com/questions/22654170/explanation-of-jsonb-introduced-by-postgresql">https://stackoverflow.com/questions/22654170/explanation-of-jsonb-introduced-by-postgresql</a></p>
+<h3 id="結語">結語</h3>
+<p>有看到一些實驗是把 Postgresql 當作 NoSQL 使用，但個人覺得還是偏玩票性質，關聯式資料庫還是遵守正規化設計，僅把 json 當作額外的彈性就好</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

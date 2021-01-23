@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket"><meta property="og:title" content="使用 Redis 當作 API Rate limit 的三種方法" />
+<meta property="og:description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/" />
+<meta property="article:published_time" content="2020-10-18T08:21:40+00:00" />
+<meta property="article:modified_time" content="2020-10-18T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="使用 Redis 當作 API Rate limit 的三種方法"/>
+<meta name="twitter:description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>使用 Redis 當作 API Rate limit 的三種方法 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">18</span>
+				<span class="rest">Oct 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">使用 Redis 當作 API Rate limit 的三種方法</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>最近公司 API 服務被 Client 不預期的高頻存取，造成後端 DB 很大的負擔，開始評估各種 API Rate Limit 的方案，其中一個最常見的作法就是靠 Redis，但具體的方案其實有蠻多種，參考以下影片整理三種作法<br>
+
+
+<iframe width="100%" height="315" src="https://www.youtube.com/embed/HnSb8DFU5UA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</p>
+<p>順便推薦一下 RedisLabs 所推出的 GUI 管理工具 <code>RedisInsights</code>，可以快速分析 Redis 中 Key Space 的使用 / Profiling 一段時間內哪些 Key 被大量存取等等，基本的 Redis CLI 操作就更不用提了，對比之前用的 <code>medis</code> 功能強化不少，尤其是<code>管理/監控這一塊的功能</code><br>
+目前是免費的，支援 Cluster Mode，連接 AWS ElasticCache 也沒問題，十分推薦</p>
+<h2 id="rate-limit-全觀">Rate Limit 全觀</h2>
+<p>要設計 Rate Limit 機制時需要考量幾個面向</p>
+<h3 id="who">Who</h3>
+<p>該如何識別要限制的對象？<br>
+最直覺是透過 IP，但是使用 IP 最大的風險是 如果是大客戶，他一個人的流量遠超過其他小客戶，對公司的價值顯然也是遠遠重要，如果用 IP 很容易有誤殺的情況，把有價值的用戶阻擋在外</p>
+<p>其他的作法可以用 JWT Token / API Key 等個別用戶識別的方式，需要針對自家的業務場景去判斷</p>
+<h3 id="how">How</h3>
+<p>該使用怎樣的方式計算限制的方式？<br>
+通常是在某個時間區段內，限制只能存取多少次的計算模式，有三種方式可以參考</p>
+<h3 id="static-time-window---固定時間區段">static time window - 固定時間區段</h3>
+<p>例如說每一分鐘為一個單位，這一分鐘內只能存取五次<br>
+這樣的方式十分簡單，但可能會有短時間內超量的問題，例如說 0:59 存取 4 次，接著 1:01 存取4 次，分開在兩個時間區段都是合法，但是才隔兩秒就存取 8 次，這可能不會是希望的結果</p>
+<p>實作方式，以目前每週 160 k 下載的 <code>express-rate-limit</code> 中 redis 版本 <a href="https://www.npmjs.com/package/rate-limit-redis">rate-limit-redis</a> 是以下做法</p>
+<ol>
+<li>先計算出該時間段的鍵值，例如 01:00 ~ 01:59 的鍵值都是 <code>01</code></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> expiryMs <span style="color:#719e07">=</span> <span style="color:#b58900">Math</span>.round(<span style="color:#2aa198">1000</span> <span style="color:#719e07">*</span> options.expiry);
+</code></pre></div><ol start="2">
+<li>增加 key 並更新 ttl 時間，incr 會回傳當下增加後的值，藉此判斷是否超過限制</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">options.client.multi()
+      .incr(rdskey)
+      .pttl(rdskey)
+      .exec()
+</code></pre></div><p>因為有 ttl，所以不用擔心 key 的刪除，這個方法簡單直覺儲存成本也很低</p>
+<p>為了嚴格限制<code>任意時間區段內的最大存取數量</code>，參考以下文章提及兩種做法 <a href="https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/">Better Rate Limiting With Redis Sorted Sets
+</a></p>
+<h3 id="token-bucket">token bucket</h3>
+<p>每一個用戶都有一個對應的 bucket，只有 token 足夠時可以進行操作，每隔一段時間會回補 token 數量，好處是可以制定多種操作的 token 需要數量，像是更繁雜的操作需要消耗更多的 token ，更有彈性應對不同的限制方案</p>
+<p>資料結構使用 Redis 的 <code>Hash</code>，演算法大致如下</p>
+<ol>
+<li>用戶要操作的時候，如果此時沒有紀錄，先插入一筆 Hash <code>user: 當下 的 timestamp =&gt; token 初始化數量</code></li>
+<li>後續操作時，取出上一次操作的 timestamp，接著回補這一段時間需要補充的 Token 數量</li>
+<li>接著扣除操作所需的 Token 數，查看是否有符合限制</li>
+</ol>
+<p>需注意這種做法會有 <code>Race Condition</code> 問題，如果一個用戶同時有兩個操作，在第三步驟檢查時，會誤以為自己都有足夠的 token，除非使用 <code>Lua script</code>，Redis 才會將<code>多個操作視為 atomic 避免 Race Condition</code></p>
+<p><a href="https://github.com/BitMEX/node-redis-token-bucket-ratelimiter">node-redis-token-bucket-ratelimiter</a> 便是採用 Lua script 作法，讓我們來欣賞一下</p>
+<ol>
+<li>取得參數，並指定 <code>redis.replicate_commands()</code>，這是在調用 <code>$ redis eval</code> 時要產生隨機 IO 時需要提前執行的指令 <a href="https://redis.io/commands/eval">Redis - EVAL script numkeys key</a>，這一篇有易懂的解釋 <a href="http://mysql.taobao.org/monthly/2019/01/06/">Redis · 引擎特性 · Lua脚本新姿势</a>，基本上就是為了符合 Redis 在持久化以及副本資料時的功能，在 5.0 以後是默認選項； <br>
+接著就是分別計算上一次更新時間 <code>initialUpdateMS</code> / 殘留的 token 數 <code>prevTokens</code></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#586e75">-- valueKey timestampKey | limit intervalMS nowMS [amount]</span>
+<span style="color:#268bd2">local</span> valueKey     <span style="color:#719e07">=</span> KEYS[<span style="color:#2aa198">1</span>] <span style="color:#586e75">-- &#34;limit:1:V&#34;</span>
+<span style="color:#268bd2">local</span> timestampKey <span style="color:#719e07">=</span> KEYS[<span style="color:#2aa198">2</span>] <span style="color:#586e75">-- &#34;limit:1:T&#34;</span>
+<span style="color:#268bd2">local</span> limit      <span style="color:#719e07">=</span> tonumber(ARGV[<span style="color:#2aa198">1</span>])
+<span style="color:#268bd2">local</span> intervalMS <span style="color:#719e07">=</span> tonumber(ARGV[<span style="color:#2aa198">2</span>])
+<span style="color:#268bd2">local</span> amount     <span style="color:#719e07">=</span> math.max(tonumber(ARGV[<span style="color:#2aa198">3</span>]), <span style="color:#2aa198">0</span>)
+<span style="color:#268bd2">local</span> force      <span style="color:#719e07">=</span> ARGV[<span style="color:#2aa198">4</span>] <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;true&#34;</span>
+
+<span style="color:#268bd2">local</span> lastUpdateMS
+<span style="color:#268bd2">local</span> prevTokens
+
+<span style="color:#586e75">-- Use effects replication, not script replication;; this allows us to call &#39;TIME&#39; which is non-deterministic</span>
+redis.replicate_commands()
+
+<span style="color:#268bd2">local</span> time <span style="color:#719e07">=</span> redis.call(<span style="color:#2aa198">&#39;TIME&#39;</span>)
+<span style="color:#268bd2">local</span> nowMS <span style="color:#719e07">=</span> math.floor((time[<span style="color:#2aa198">1</span>] <span style="color:#719e07">*</span> <span style="color:#2aa198">1000</span>) <span style="color:#719e07">+</span> (time[<span style="color:#2aa198">2</span>] <span style="color:#719e07">/</span> <span style="color:#2aa198">1000</span>))
+<span style="color:#268bd2">local</span> initialTokens <span style="color:#719e07">=</span> redis.call(<span style="color:#2aa198">&#39;GET&#39;</span>,valueKey)
+<span style="color:#268bd2">local</span> initialUpdateMS <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>
+
+
+<span style="color:#268bd2">if</span> initialTokens <span style="color:#719e07">==</span> <span style="color:#cb4b16">false</span> <span style="color:#268bd2">then</span>
+   <span style="color:#586e75">-- If we found no record, we temporarily rewind the clock to refill</span>
+   <span style="color:#586e75">-- via addTokens below</span>
+   prevTokens <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
+   lastUpdateMS <span style="color:#719e07">=</span> nowMS <span style="color:#719e07">-</span> intervalMS
+<span style="color:#268bd2">else</span>
+   prevTokens <span style="color:#719e07">=</span> initialTokens
+   initialUpdateMS <span style="color:#719e07">=</span> redis.call(<span style="color:#2aa198">&#39;GET&#39;</span>,timestampKey)
+
+   <span style="color:#268bd2">if</span>(initialUpdateMS <span style="color:#719e07">==</span> <span style="color:#cb4b16">false</span>) <span style="color:#268bd2">then</span> <span style="color:#586e75">-- this is a corruption</span>
+      <span style="color:#586e75">-- 如果資料有問題，需要回推 lastUpdateMS 時間，也就是用現在時間回推殘存 Token 數量的回補時間</span>
+      lastUpdateMS <span style="color:#719e07">=</span> nowMS <span style="color:#719e07">-</span> ((prevTokens <span style="color:#719e07">/</span> limit) <span style="color:#719e07">*</span> intervalMS)
+   <span style="color:#268bd2">else</span>
+      lastUpdateMS <span style="color:#719e07">=</span> initialUpdateMS
+   <span style="color:#268bd2">end</span>
+<span style="color:#268bd2">end</span>
+</code></pre></div><ol start="2">
+<li>接著計算上一次到現在需要回補的 Token <code>addTokens</code> / 這一次運算配額夠不夠 <code>netTokens</code> / 如果下一次要嘗試需要等多久的時間 <code>retryDelta</code></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#268bd2">local</span> addTokens <span style="color:#719e07">=</span> math.max(((nowMS <span style="color:#719e07">-</span> lastUpdateMS) <span style="color:#719e07">/</span> intervalMS) <span style="color:#719e07">*</span> limit, <span style="color:#2aa198">0</span>)
+
+<span style="color:#586e75">-- calculated token balance coming into this transaction</span>
+<span style="color:#268bd2">local</span> grossTokens <span style="color:#719e07">=</span> math.min(prevTokens <span style="color:#719e07">+</span> addTokens, limit)
+
+<span style="color:#586e75">-- token balance after trying this transaction</span>
+<span style="color:#268bd2">local</span> netTokens <span style="color:#719e07">=</span> grossTokens <span style="color:#719e07">-</span> amount
+
+<span style="color:#586e75">-- time to fill enough to retry this amount</span>
+<span style="color:#268bd2">local</span> retryDelta <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
+
+<span style="color:#268bd2">local</span> rejected <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>
+<span style="color:#268bd2">local</span> forced <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>
+
+<span style="color:#268bd2">if</span> netTokens <span style="color:#719e07">&lt;</span> <span style="color:#2aa198">0</span> <span style="color:#268bd2">then</span> <span style="color:#586e75">-- we used more than we have</span>
+   <span style="color:#268bd2">if</span> force <span style="color:#268bd2">then</span>
+      forced <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>
+      netTokens <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span> <span style="color:#586e75">-- drain the swamp</span>
+   <span style="color:#268bd2">else</span>
+      rejected <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>
+      netTokens <span style="color:#719e07">=</span> grossTokens <span style="color:#586e75">-- rejection doesn&#39;t eat tokens</span>
+   <span style="color:#268bd2">end</span>
+   <span style="color:#586e75">-- == percentage of `intervalMS` required before you have `amount` tokens</span>
+   retryDelta <span style="color:#719e07">=</span> math.ceil(((amount <span style="color:#719e07">-</span> netTokens) <span style="color:#719e07">/</span> limit) <span style="color:#719e07">*</span> intervalMS)
+<span style="color:#268bd2">else</span> <span style="color:#586e75">-- polite transaction</span>
+   <span style="color:#586e75">-- nextNet == pretend we did this again...</span>
+   <span style="color:#268bd2">local</span> nextNet <span style="color:#719e07">=</span> netTokens <span style="color:#719e07">-</span> amount
+   <span style="color:#268bd2">if</span> nextNet <span style="color:#719e07">&lt;</span> <span style="color:#2aa198">0</span> <span style="color:#268bd2">then</span> <span style="color:#586e75">-- ...we would need to wait to repeat</span>
+      <span style="color:#586e75">-- == percentage of `invervalMS` required before you would have `amount` tokens again</span>
+      retryDelta <span style="color:#719e07">=</span> math.ceil((math.abs(nextNet) <span style="color:#719e07">/</span> limit) <span style="color:#719e07">*</span> intervalMS)
+   <span style="color:#268bd2">end</span>
+<span style="color:#268bd2">end</span>
+</code></pre></div><ol start="3">
+<li>如果成功操作 ( rejected == false )，則延長 key 的過期時間</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#268bd2">if</span> rejected <span style="color:#719e07">==</span> <span style="color:#cb4b16">false</span> <span style="color:#268bd2">then</span>
+   redis.call(<span style="color:#2aa198">&#39;PSETEX&#39;</span>,valueKey,intervalMS,netTokens)
+   <span style="color:#268bd2">if</span> addTokens <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span> <span style="color:#719e07">or</span> initialUpdateMS <span style="color:#719e07">==</span> <span style="color:#cb4b16">false</span> <span style="color:#268bd2">then</span>
+      <span style="color:#586e75">-- we filled some tokens, so update our timestamp</span>
+      redis.call(<span style="color:#2aa198">&#39;PSETEX&#39;</span>,timestampKey,intervalMS,nowMS)
+   <span style="color:#268bd2">else</span>
+      <span style="color:#586e75">-- we didn&#39;t fill any tokens, so just renew the timestamp so it survives with the value</span>
+      redis.call(<span style="color:#2aa198">&#39;PEXPIRE&#39;</span>,timestampKey,intervalMS)
+   <span style="color:#268bd2">end</span>
+<span style="color:#268bd2">end</span>
+</code></pre></div><h3 id="sliding-time-window---滑動時間區段">sliding time window - 滑動時間區段</h3>
+<p>最後一個是使用 sorted set，可以使用 <code>$ redis.multi</code> 將多個 sorted set 的指令串再一起 Atomic 執行所以能夠避免 Race Condition 狀況<br>
+具體想法是</p>
+<ol>
+<li>用一個 sorted set 儲存所有的 timestamp</li>
+<li>request 進來後，先用 <code>ZREMRANGEBYSCORE</code> 捨棄 time window 以外的 key</li>
+<li>取得 sorted set 剩餘的所有元素 <code>ZRANGE(0, -1)</code></li>
+<li>加上這一次的操作 <code>ZADD</code>，並延長 sorted set 的 ttl</li>
+<li>接著算整個 sorted set 的元素量，就知道存取幾次了</li>
+</ol>
+<p>需要特別注意，這邊如果第五步判斷失敗也會被計算在 limit 當中，因為第四步已經先加上去了，如果<code>在第三步先判斷數量夠不夠再去更新 sorted set，中間的時間差就有可能發生 Race Condition</code>，所以要嚴格限制必須要這麼做，除非又要包成 lua script</p>
+<p>這會導致一個風險，如果 Client 真的失控一直打，那他會無止盡的失敗，因為每一次的失敗操作都會被加入 sorted set 當中，但其實都沒有真的執行到</p>
+<p>模組請參考 <a href="https://github.com/peterkhayes/rolling-rate-limiter">rolling-rate-limiter</a>，程式碼在這</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> batch <span style="color:#719e07">=</span> <span style="color:#719e07">this</span>.client.multi();
+batch.zremrangebyscore(key, <span style="color:#2aa198">0</span>, clearBefore);
+<span style="color:#719e07">if</span> (addNewTimestamp) {
+    batch.zadd(key, <span style="color:#b58900">String</span>(now), uuid());
+}
+batch.zrange(key, <span style="color:#2aa198">0</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>, <span style="color:#2aa198">&#39;WITHSCORES&#39;</span>);
+batch.expire(key, <span style="color:#719e07">this</span>.ttl);
+
+<span style="color:#719e07">return</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>((resolve, reject) =&gt; {
+    batch.exec((err, result) =&gt; {
+        <span style="color:#719e07">if</span> (err) <span style="color:#719e07">return</span> reject(err);
+
+        <span style="color:#586e75">// 加完後才來計算是不是扣打足夠
+</span><span style="color:#586e75"></span>        <span style="color:#268bd2">const</span> zRangeOutput <span style="color:#719e07">=</span> (addNewTimestamp <span style="color:#719e07">?</span> result[<span style="color:#2aa198">2</span>] <span style="color:#719e07">:</span> result[<span style="color:#2aa198">1</span>]) as <span style="color:#b58900">Array</span><span style="color:#719e07">&lt;</span>unknown<span style="color:#719e07">&gt;</span>;
+        <span style="color:#268bd2">const</span> zRangeResult <span style="color:#719e07">=</span> <span style="color:#719e07">this</span>.getZRangeResult(zRangeOutput);
+        <span style="color:#268bd2">const</span> timestamps <span style="color:#719e07">=</span> <span style="color:#719e07">this</span>.extractTimestampsFromZRangeResult(zRangeResult);
+        <span style="color:#719e07">return</span> resolve(timestamps);
+    });
+});
+</code></pre></div><h2 id="結論">結論</h2>
+<p>Rate Limit 看似簡單，但也有不少的眉角要去考量，之前一直都沒有客製 Redis 中 lua script 的部分，也是蠻有趣的</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e7%b3%bb%e7%b5%b1%e6%9e%b6%e6%a7%8b/"> 系統架構 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

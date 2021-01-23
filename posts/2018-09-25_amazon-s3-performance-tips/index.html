@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="AWS S3 用來做靜態資源管理，可以用來儲存非常大量的資料且有很高保持性(duribility:99.9999999%)的保證；在這篇官方的部落格中記載著S3內部的一些儲存機制以及優化的小技巧。"><meta property="og:title" content="[筆記] AWS s3 性能提升小撇步 — Amazon S3 Performance Tips &amp; Tricks" />
+<meta property="og:description" content="AWS S3 用來做靜態資源管理，可以用來儲存非常大量的資料且有很高保持性(duribility:99.9999999%)的保證；在這篇官方的部落格中記載著S3內部的一些儲存機制以及優化的小技巧。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018-09-25_amazon-s3-performance-tips/" />
+<meta property="article:published_time" content="2018-09-25T21:34:31+00:00" />
+<meta property="article:modified_time" content="2018-09-25T21:34:31+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[筆記] AWS s3 性能提升小撇步 — Amazon S3 Performance Tips &amp; Tricks"/>
+<meta name="twitter:description" content="AWS S3 用來做靜態資源管理，可以用來儲存非常大量的資料且有很高保持性(duribility:99.9999999%)的保證；在這篇官方的部落格中記載著S3內部的一些儲存機制以及優化的小技巧。"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>[筆記] AWS s3 性能提升小撇步 — Amazon S3 Performance Tips &amp; Tricks | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">25</span>
+				<span class="rest">Sep 2018</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">[筆記] AWS s3 性能提升小撇步 — Amazon S3 Performance Tips &amp; Tricks</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p><a href="https://aws.amazon.com/tw/blogs/aws/amazon-s3-performance-tips-tricks-seattle-hiring-event/"><strong>Amazon S3 Performance Tips &amp; Tricks + Seattle S3 Hiring Event | Amazon Web Services</strong></a></p>
+<p>AWS S3 用來做靜態資源管理，可以用來儲存非常大量的資料且有很高保持性(duribility:99.9999999%)的保證；<br>
+在這篇官方的部落格中記載著S3內部的一些儲存機制以及優化的小技巧。</p>
+<p>如果是每秒 API Request小於 50者，其實不太會有影響，S3 有自動的監控程序(Agent)，試著去平衡資源與增加系統的平均附載。</p>
+<p>S3在內部維護了一張 Map，Map對應的Key 是 Bucket 中物件的名稱，S3會用物件的初始名稱當作 Key；<br>
+實際物件的儲存會被分散到不同的 parition中，而 S3為了提供依照按字典順序排列的API， 在做 partitioning 的依據同樣是透過 Bucket的物件初始名稱；</p>
+<p>所以如何取 <code>Bucket的物件名稱</code>就是影響性能的關鍵，在S3內部 Map的key<br>
+<code>bucketname/keyname</code> ，S3會自動取前綴</p>
+<p>有些人會習慣用 user ID / game ID/ 日期 / 遞增數字等，這些 Key的共通特性是前綴類似，這當作S3 Key會導致幾個問題<br>
+1. 傾向儲存在同一個 partition中<br>
+2. 所有的 partition 會有漸冷的效果，例如用日期儲存，通常越近的日期資料越容易存取，也就是partition 的使用量不平均</p>
+<p>以下就是不好的示範</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">2134857/gamedata/start.png  
+2134857/gamedata/resource.rsrc  
+2134857/gamedata/results.txt  
+2134858/gamedata/start.png  
+2134858/gamedata/resource.rsrc  
+2134858/gamedata/results.txt  
+2134859/gamedata/start.png  
+2134859/gamedata/resource.rsrc  
+2134859/gamedata/results.txt
+</code></pre></div><p>有個非常簡單的方法可以做到，也就是在開頭加 hash，或是將日期字串反轉，總之要確保前兩到三位是不重複字串且寫入的物件數雷同</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">7584312/gamedata/start.png  
+7584312/gamedata/resource.rsrc  
+7584312/gamedata/results.txt  
+8584312/gamedata/start.png  
+8584312/gamedata/resource.rsrc  
+8584312/gamedata/results.txt  
+9584312/gamedata/start.png  
+9584312/gamedata/resource.rsrc  
+9584312/gamedata/results.txt
+</code></pre></div><p>S3會自動識別 prefix並分散到不同的 partition</p>
+<p>/7<br>
+/8<br>
+/9</p>
+<p>至於 prefix 真正到底如何取值文章並沒有說明，僅提到 prefix 理論上只有兩到三位即可，根據另一篇 AWS官方文章 <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/request-rate-perf-considerations.html">Request Rate and Performance Guidelines</a>，應用程式存取S3的API限制為</p>
+<blockquote>
+<p>3,500 PUT/POST/DELETE and 5,500 GET requests per second per <code>prefix</code> in a bucket</p>
+</blockquote>
+<p>所以 hex hash 三位，最大讀取值可達 16 * 16 * 16 * 5500 GET API Call /per second，這理論上可以滿足絕大多數的產品需求了；<br>
+甚至大多數的產品還不需要 prefix的命名優化。</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e9%9b%b2%e7%ab%af%e8%88%87%e7%b3%bb%e7%b5%b1%e6%9e%b6%e6%a7%8b/"> 雲端與系統架構 </a>
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content=""><meta property="og:title" content="資料庫" />
+<meta property="og:description" content="生命是長期而持續的累積" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://yuanchieh.page/categories/%E8%B3%87%E6%96%99%E5%BA%AB/" />
+<meta property="og:updated_time" content="2020-12-26T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="資料庫"/>
+<meta name="twitter:description" content="生命是長期而持續的累積"/>
+<link rel="alternate" type="application/rss+xml" href="https://yuanchieh.page/categories/%E8%B3%87%E6%96%99%E5%BA%AB/index.xml" title="Yuanchieh's Blog">
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>資料庫 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main>
+<h2 class="page-title">資料庫</h2>
+
+<ul class="posts flat"><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">26</span>
+					<span class="rest">Dec 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/">MySQL Deadlock 問題排查與處理</a></h3>
+				<span class="description">
+					
+					週末寫點簡單的 SQL 遇到了 Deadlock，才發現 foreign key 會有額外的 lock 效果導致 Deadlock，重新翻閱 MySQL 文件並分享排查過程
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">03</span>
+					<span class="rest">Nov 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/">Raft 演算法介紹與《In Search of an Understandable Consensus Algorithm》摘要</a></h3>
+				<span class="description">
+					
+					Raft 演算法是一種 Consensus 演算法，提供分散式系統中可容錯的「強一致性」資料同步的方式，意圖取代複雜難懂的 Paxos，主要由三個機制 Leader / Log Replication / Safety 三塊組成
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">28</span>
+					<span class="rest">Oct 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/">Gossip Protocol 介紹 (下) - 《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文摘要</a></h3>
+				<span class="description">
+					
+					延續上篇的研究，接著閱讀了《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文理解 Gossip Protocol 的原理以及應用
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">26</span>
+					<span class="rest">Oct 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/">Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用</a></h3>
+				<span class="description">
+					
+					在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">19</span>
+					<span class="rest">Oct 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-10-19-redis-cluster-%E4%BB%8B%E7%B4%B9/">Redis Cluster 介紹</a></h3>
+				<span class="description">
+					
+					參考文件摘要 Redis Cluster 使用與架構
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">18</span>
+					<span class="rest">Oct 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/">使用 Redis 當作 API Rate limit 的三種方法</a></h3>
+				<span class="description">
+					
+					API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">15</span>
+					<span class="rest">Jul 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-07-15_elasticsearch-%E6%95%99%E5%AD%B8-api-%E6%93%8D%E4%BD%9C/">Elasticsearch 教學 - API 操作</a></h3>
+				<span class="description">
+					
+					主要針對 Elasticsearch 的實作與 API 操作
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">08</span>
+					<span class="rest">Jul 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-07-08_elasticsearch-%E4%BB%8B%E7%B4%B9%E8%88%87%E8%A9%95%E4%BC%B0/">Elasticsearch 系統介紹與評估</a></h3>
+				<span class="description">
+					
+					Elasticsearch 系統架構分析
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">06</span>
+					<span class="rest">Feb 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/">MongoDB 批次處理大量數據</a></h3>
+				<span class="description">
+					
+					在大量查詢時必須小心使用語法，避免 MongoDB 反應不來
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">14</span>
+					<span class="rest">Jan 2020</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2020-01-14_redis-lock-redlock-%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E8%88%87%E5%AF%A6%E4%BD%9C/">Redis Lock (Redlock) 分散式 lock 原理分析與實作</a></h3>
+				<span class="description">
+					
+					Redlock 是一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">14</span>
+					<span class="rest">Oct 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-10-14_mongodb-isolation-transaction-132ab29731c2/">MongoDB Isolation 與 Transaction</a></h3>
+				<span class="description">
+					
+					在 MongoDB中，其 Isolation 與 SQL標準定義的 Isolation Level不同，畢竟NoSQL注重於海量讀寫 、集群式的應用場景，自然所面對的問題也就差異很多，但也因此在面臨 Concurrency 時的讀寫保證問題，以下是閱讀官方文件並整理的結果。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">08</span>
+					<span class="rest">Sep 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-09-08_mongodb-shard-cluster/">MongoDB Shard Cluster 架設</a></h3>
+				<span class="description">
+					
+					在大量資料需要儲存下，可以將 MongoDB做 Sharding 與 Replica Set 設置，增加DB的吞吐量與可用性。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">23</span>
+					<span class="rest">Aug 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-08-23_postgresql-json-76ba596faab3/">PostgreSQL json 操作</a></h3>
+				<span class="description">
+					
+					Postgresql 可以用欄位 jsonb型別儲存 json格式的資料，並提供不少內建的函式可以協助查詢，以下稍微整理一些常用的情景。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">30</span>
+					<span class="rest">Jul 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-07-30_mysql-explain/">MySQL Explain分析與Index設定查詢優化</a></h3>
+				<span class="description">
+					
+					資料庫日積月累資料量逐步攀升，MySQL在一般查詢是透過全表搜尋，所以大量的資料會導致查詢等方式越來越慢
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">21</span>
+					<span class="rest">Jun 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-06-21_mysql-location/">MySQL 關於地理位置的儲存與運算</a></h3>
+				<span class="description">
+					
+					最近突然好奇如何做LBS服務，最基本的應用場景就是找出某經緯度位置內方圓距離多少內的所有資料，所以就來研究一下MySQL如何處理地理位置。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">28</span>
+					<span class="rest">May 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-05-28_db-isolation-level/">資料庫 Isolation level 與實際應用情境處理</a></h3>
+				<span class="description">
+					
+					Transaction 交易機制，可以讓單一或多筆操作聚合為單一的原子性操作，一次性成功寫入或失敗回滾，避免資料庫出現資料不一致的狀況。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">24</span>
+					<span class="rest">Apr 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-04-24_mysql-foreign-key-constraints-%E6%95%B4%E7%90%86/">MySQL FOREIGN KEY Constraints 整理</a></h3>
+				<span class="description">
+					
+					整理閱讀MySQL v5.7的FOREIGN KEY Constraints文件，並針對細節在DB Fiddle加上範例。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">19</span>
+					<span class="rest">Apr 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-04-19_designing-data-intensive-applications-%E4%B8%8B/">[技術筆記] Designing Data-Intensive Applications 下</a></h3>
+				<span class="description">
+					
+					《Designing Data-Intensive Applications》是我目前看過應用程式開發最推薦的一本書，隨著網路時代的發展，資料量越來越龐大，處理資料成了應用程式擴展的瓶頸。 這本書從資料庫本身、資料庫常見問題、跨機器的資料同步問題等，他不是介紹單一的資料庫如何使用，而是更仔細的介紹每個高大上又令人困惑的 Buzzword，對儲存資料的設計有更深的理解。
+					
+				</span>
+			</div>
+		</div>
+	</li><li class="post">
+		<div class="post-header">
+			<div class="meta">
+				<div class="date">
+					<span class="day">28</span>
+					<span class="rest">Mar 2018</span>
+				</div>
+			</div>
+			<div class="matter">
+				<h3 class="title small"><a href="/posts/2018-03-28_designing-data-intensive-applications-%E4%B8%8A/">[技術筆記] Designing Data-Intensive Applications 上</a></h3>
+				<span class="description">
+					
+					《Designing Data-Intensive Applications》是我目前看過應用程式開發最推薦的一本書，隨著網路時代的發展，資料量越來越龐大，處理資料成了應用程式擴展的瓶頸。 這本書從資料庫本身、資料庫常見問題、跨機器的資料同步問題等，他不是介紹單一的資料庫如何使用，而是更仔細的介紹每個高大上又令人困惑的 Buzzword，對儲存資料的設計有更深的理解。
+					
+				</span>
+			</div>
+		</div>
+	</li></ul>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理"><meta property="og:title" content="Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用" />
+<meta property="og:description" content="在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/" />
+<meta property="article:published_time" content="2020-10-26T08:21:40+00:00" />
+<meta property="article:modified_time" content="2020-10-26T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用"/>
+<meta name="twitter:description" content="在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">26</span>
+				<span class="rest">Oct 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>Gossip Protocol 是一種通訊機制，應用於同一網路內機器與機器間交換訊息，原理類似於辦公室傳謠言一樣，一個傳一個，最終每一個機器都擁有相同的資訊，又稱 <code>Epidemic Protocol</code></p>
+<p>實務上有幾個好處</p>
+<ol>
+<li>去中心化:<br>
+機器與機器間直接溝通 (peer to peer)</li>
+<li>容錯率高:<br>
+即便節點與節點之間無法直接相連，只有有其他 節點 可以傳遞狀態，也可以維持一致的狀態</li>
+<li>效率高且可靠</li>
+</ol>
+<p>Gossip Protocol 被廣泛採納，如Cassandra / Redis Cluster / Consul 等集群架構，以下將從 Cassandra 的實作來理解 Gossip Protocol</p>
+<h2 id="apple-inc-cassandra-internals--understanding-gossip">Apple Inc.: Cassandra Internals — Understanding Gossip</h2>
+
+
+<iframe width="100%" src="https://www.youtube.com/embed/FuP1Fvrv6ZQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<p>先從實務面來看，Gossip Protocol 在 Cassandra 中主要用於同步 節點 的 Metadata，包含</p>
+<ol>
+<li>cluster membership</li>
+<li>heartbeat</li>
+<li>node status<br>
+同時每個節點都會保存一份其他節點狀態的 Mapping Table</li>
+</ol>
+<p>更具體來看節點狀態所保存的資料格式</p>
+<ol>
+<li>HeartbeatState:<br>
+每一個節點會有一個 HeartbeatState，紀錄 generation / version，<code>generation</code> 是節點啟動時的 timestamp，用來區分機器是否重新啟動過；<code>version</code> 則是遞增數值，每次 ApplicationState 有值更新時就會遞增</li>
+</ol>
+<blockquote>
+<p>所以同一個節點內的 ApplicationState version 不會重複，且 version 比較大一定代表這個鍵值比較新</p>
+</blockquote>
+<ol start="2">
+<li>ApplicationState: 一個由<code>{enum_name, value, version}</code>建立的 tuple，enum_name 代表固定的 key 名稱，version 則表示 value 的版本號碼，號碼大者則代表資料較新</li>
+<li>EndpointState:  紀錄某一個節點下所有的 ApplicationState</li>
+<li>EndpointStateMapping: 一個節點會有一張針對已知的節點所紀錄的 EndpointState，同時會包含自己的狀態</li>
+</ol>
+<p>如下圖</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version 325
+  ApplicationState &#34;load-information&#34;: 5.2, generation 1259909635, version 45
+  ApplicationState &#34;bootstrapping&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 56
+  ApplicationState &#34;normal&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+EndPointState 10.0.0.2
+  HeartBeatState: generation 1259911052, version 61
+  ApplicationState &#34;load-information&#34;: 2.7, generation 1259911052, version 2
+  ApplicationState &#34;bootstrapping&#34;: AujDMftpyUvebtnn, generation 1259911052, version 31
+.....
+</code></pre></div><p>這邊可以看到節點 10.0.0.1 所保存的 <code>EndPointStateMap</code> 有兩筆 EndPointState，其中 10.0.0.1 的 HeartBeatState 是 <code>generation 1259909635, version 325</code>，這代表 10.0.0.1 是在 1259909635 時啟動的，並且他目前保存欄位中最新的版本是 325；<br>
+接著看 <code>ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45</code>，這代表節點內 &ldquo;load-information&rdquo; 這個 Key 對應的值是 5.2 以及當時收到的 generation 與 version，後兩者用來決定 <code>這個 key 收到訊息後要不要更新的依據</code></p>
+<h3 id="gossip-messaging">Gossip Messaging</h3>
+<p>接著來看每次 Gossip 的實作流程，每個節點會在每一秒啟動一個新的 gossip 回合</p>
+<ol>
+<li>挑出 <code>1~3</code> 的節點，優先選擇 live 狀態的節點，接著會機率性選擇 Seed 節點 / 先前判定已經離綫的節點</li>
+<li>傳遞訊息的流程是 SYN / ACK / ACK2 (類似於 TCP 的3次交握)</li>
+</ol>
+<p>假設現在是節點 A 要傳訊息給 節點 B 關於節點 C 的 Gossip</p>
+<ol>
+<li><strong>GossipDigestSynMessage</strong> :<br>
+節點 A 要發送的 SYN 訊息包含 <code>{ipAddr, generation, heartbeat}</code>，需注意此時只要送 HeartbeatState，而沒有送詳細的 ApplicationState，避免多餘的資料傳輸</li>
+<li><strong>GossipDigestAckMessage</strong> :<br>
+節點 B 收到後，會去比對他自己暫存節點 C 的狀態，運算兩者差異 <br>
+a. 節點 A 的資料比較新，則節點 B 會準備跟節點 A 要新的資料<br>
+b. 節點 B 的資料比較新，打包要更新的 ApplicationState 回傳 <code>ACK</code> 通知節點 A</li>
+<li><strong>GossipDigestAck2Message</strong> :<br>
+節點 A 收到 ACK 後，更新自己暫存的資料，並且根據 (2.a) 中節點 B 所需要的 ApplicationState，回傳 <code>ACK2</code></li>
+</ol>
+<p>會多一個 <code>ACK2</code> 是為了讓通訊更穩定，達到更快收斂的作用，但這邊如果 節點 B 沒收到 ACK2 是否會重試等如同 TCP 作法就沒有提及</p>
+<blockquote>
+<p>總結來看傳送訊息的過程，在 Cluster 沒有節點狀態異動下，傳送的訊息量是固定的，不會有 <code>Gossip Storm</code> 網路封包突然爆量的情況； <br>
+除非是有節點 新加入，多個節點 希望同步資訊才有可能</p>
+</blockquote>
+<p>來看實際案例，假設
+目前有節點A (10.0.0.1)</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version 325
+  ApplicationState &#34;load-information&#34;: 5.2, generation 1259909635, version 45
+  ApplicationState &#34;bootstrapping&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 56
+  ApplicationState &#34;normal&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+EndPointState 10.0.0.2
+  HeartBeatState: generation 1259911052, version 61
+  ApplicationState &#34;load-information&#34;: 2.7, generation 1259911052, version 2
+  ApplicationState &#34;bootstrapping&#34;: AujDMftpyUvebtnn, generation 1259911052, version 31
+EndPointState 10.0.0.3
+  HeartBeatState: generation 1259912238, version 5
+  ApplicationState &#34;load-information&#34;: 12.0, generation 1259912238, version 3
+EndPointState 10.0.0.4
+  HeartBeatState: generation 1259912942, version 18
+  ApplicationState &#34;load-information&#34;: 6.7, generation 1259912942, version 3
+  ApplicationState &#34;normal&#34;: bj05IVc0lvRXw2xH, generation 1259912942, version 7
+</code></pre></div><p>以及節點B (10.0.0.2)</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version 324
+  ApplicationState &#34;load-information&#34;: 5.2, generation 1259909635, version 45
+  ApplicationState &#34;bootstrapping&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 56
+  ApplicationState &#34;normal&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+EndPointState 10.0.0.2
+  HeartBeatState: generation 1259911052, version 63
+  ApplicationState &#34;load-information&#34;: 2.7, generation 1259911052, version 2
+  ApplicationState &#34;bootstrapping&#34;: AujDMftpyUvebtnn, generation 1259911052, version 31
+  ApplicationState &#34;normal&#34;: AujDMftpyUvebtnn, generation 1259911052, version 62
+EndPointState 10.0.0.3
+  HeartBeatState: generation 1259812143, version 2142
+  ApplicationState &#34;load-information&#34;: 16.0, generation 1259812143, version 1803
+  ApplicationState &#34;normal&#34;: W2U1XYUC3wMppcY7, generation 1259812143, version 6 
+</code></pre></div><h4 id="節點a-決定向節點b-發起-gossip">節點A 決定向節點B 發起 Gossip</h4>
+<p>產生的 GossipDigestSynMessage 會是類似於 <code>10.0.0.1:1259909635:325 10.0.0.2:1259911052:61 10.0.0.3:1259912238:5 10.0.0.4:1259912942:18</code>，主要是傳送 <code>Node IP:generation:version</code></p>
+<h4 id="節點b-收到-gossipdigestsynmessage">節點B 收到 GossipDigestSynMessage</h4>
+<p>會有以下流程</p>
+<ol>
+<li>跟自己的狀態比較，從差異最多的遞減排序，這意味著優先處理差異最多的節點資訊</li>
+<li>接著檢驗每一個節點的資料
+-節點A 所保存的 <code>10.0.0.1:1259909635:325</code> 會大於節點B 所保存的<code>10.0.0.1:1259909635:324</code>，generation 一樣所以略過，但是 version 325 &gt; 324，則代表節點B 需要向節點 A 索取 10.0.0.1 在 ApplicationState 在版本 324 之後的資料
+<ul>
+<li><code>10.0.0.2:1259911052:61</code> 比節點B 保存的版本還要小，所以到時候會打包資料給節點A</li>
+<li><code>10.0.0.3:1259912238:5</code> 部分節點B generation 比較小，這意味著 10.0.0.3 有 reboot 過，所以節點B 需要更新全部的資料</li>
+<li><code>10.0.0.4:1259912942:18</code>節點B 根本沒有 10.0.0.4 的資料，所以需要全部的資料</li>
+</ul>
+</li>
+</ol>
+<p>組合以上結果 GossipDigestAckMessage的內容會是</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">10.0.0.1:1259909635:324
+10.0.0.3:1259912238:0
+10.0.0.4:1259912942:0
+10.0.0.2:[ApplicationState &#34;normal&#34;: AujDMftpyUvebtnn, generation 1259911052, version 62], [HeartBeatState, generation 1259911052, version 63]
+</code></pre></div><p>這代表著</p>
+<ul>
+<li>請給我 10.0.0.1 在 generation 1259909635 中 version 324 以後的更新資料</li>
+<li>請給我 10.0.0.3 在 generation 1259912238 全部資料 (version:0)</li>
+<li>10.0.0.4 同上</li>
+<li>這是你需要更新關於 10.0.0.2 的 ApplicationState 資料</li>
+</ul>
+<h4 id="節點a-回覆-gossipdigestack2message">節點A 回覆 GossipDigestAck2Message</h4>
+<p>節點A 收到後，更新完 10.0.0.2 的資訊後，接著回覆節點B 所要的資料</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">10.0.0.1:[ApplicationState &#34;load-information&#34;: 5.2, generation 1259909635, version 45], [ApplicationState &#34;bootstrapping&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 56], [ApplicationState &#34;normal&#34;: bxLpassF3XD8Kyks, generation 1259909635, version 87], [HeartBeatState, generation 1259909635, version 325]
+10.0.0.3:[ApplicationState &#34;load-information&#34;: 12.0, generation 1259912238, version 3], [HeartBeatState, generation 1259912238, version 3]
+10.0.0.4:[ApplicationState &#34;load-information&#34;: 6.7, generation 1259912942, version 3], [ApplicationState &#34;normal&#34;: bj05IVc0lvRXw2xH, generation 1259912942, version 7], [HeartBeatState: generation 1259912942, version 18]
+</code></pre></div><p>這樣就完成一輪的 Gossip 了</p>
+<blockquote>
+<p>可以看出為什麼 HeartbeatState 的 version 會與 ApplicationState 共享，這邊的共享指的是在<code>同一個節點下 ApplicationState 的 version 必須是獨一無二且遞增</code>，這樣才能在 SYN 時只傳送 HeartbeatState 直接判斷有哪些欄位需要更新</p>
+</blockquote>
+<p>以上範例整理自 <a href="https://cwiki.apache.org/confluence/display/CASSANDRA2/ArchitectureGossip">ArchitectureGossip</a></p>
+<h2 id="其他集群上的管理">其他集群上的管理</h2>
+<p>集群管理上，除了透過 Gossip Protocol 同步資訊外，還有幾個問題要解決</p>
+<ol>
+<li>誰在 Cluster 當中</li>
+<li>如何決定節點的狀態是 Up / Down，這又會帶來什麼影響</li>
+<li>何時要終止跟某節點的通訊</li>
+<li>應該要偏好與哪個節點通訓</li>
+<li>增加/移除/刪除/取代節點時如何實作</li>
+</ol>
+<h3 id="誰在-cluster-當中">誰在 Cluster 當中</h3>
+<p>當一個新的節點要啟動時，他必須要知道集群中有哪些節點去 Gossip，在 Cassandra 的設定檔中可以指定 <code>Seed</code>，有不同的作法可以指定，常見是寫死某一些節點的 ip addr，節點啟動後就跟 Seed 節點溝通，後續就透過 Gossip Protocol 取得所有節點的狀態與 IP</p>
+<blockquote>
+<p>在 Consul 中，會自己透過廣播在 LAN 裡面自動發現有沒有其他節點，在 EC2 上還可以指定 EC2 Tag 去找出其他節點</p>
+</blockquote>
+<h3 id="failure-detection-決定節點是-up-或-down">Failure Detection: 決定節點是 Up 或 Down</h3>
+<p>在 Cassandra 中，錯誤偵測是該節點在本地端決定某節點的狀態，而這個狀態不會隨著 Gossip 所傳送</p>
+<blockquote>
+<p>ex.節點A 覺得節點B 是 Down，當節點A 跟節點C Gossip 時，節點C 不會因為節點A 而把節點B 判斷成 Down，節點 C 會自行判斷</p>
+</blockquote>
+<p>偵測的方式透過 Heartbeat，Heartbeat 可以是節點跟節點直接用 Gossip 通訊，也可以是從其他節點間接取得 Gossip；<br>
+節點會計算每次 Heartbeat 的間隔，當超過 <code>phi_convict_threshold</code> 則判定為 Down，系統需要因應硬體狀態/網路環境去調整閥值，避免太敏感誤判或是太遲鈍而反應不及等狀況</p>
+<p>在節點斷線的時候，其他節點部分的寫入可能因此沒有收到 ACK 回覆，此時會暫存在本地當作 Hint，如果節點在一定時間內恢復，則會透過 Hint 重新傳送寫入，修復掉資料的可能</p>
+<p>如果節點重新恢復時，其他節點會定期重送 Gossip 給 Offline 節點，屆時就能把 Down 調整回 Up</p>
+<h3 id="節點偏好">節點偏好</h3>
+<p>除了錯誤偵測外，Cassandra 內部有模組 Dynamic Snitch 專門做節點間的通訊品質偵測，每 100 ms計算與其他節點的延遲，藉此找出表現較好的節點；<br>
+為了避免一時網路波動，每 10 分鐘就會重新計算</p>
+<p>其餘的節點管理就暫時略過，對於理解 Gossip Protocol 不大</p>
+<h2 id="結語">結語</h2>
+<p>在分散式系統中，節點的狀態同步十分基礎且重要，而 Gossip Protocol 目前是被廣泛應用的解法，模擬人類傳送八卦的方式，想不到在機器也一樣適用<br>
+整體最有趣的設計應該在於 <code>generation / version</code> 的實作，透過 generation 可以知道機器重啟過後要不要重新要資料；透過 version 可以快速 diff 僅有哪些資料要更新，避免額外的傳輸浪費，下一篇將從理論上去分析 Gossip Protocol</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e7%b3%bb%e7%b5%b1%e6%9e%b6%e6%a7%8b/"> 系統架構 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性"><meta property="og:title" content="讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹" />
+<meta property="og:description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2019-08-18_es4x_graalvm/" />
+<meta property="article:published_time" content="2019-08-18T11:31:29+00:00" />
+<meta property="article:modified_time" content="2019-08-18T11:31:29+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹"/>
+<meta name="twitter:description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">18</span>
+				<span class="rest">Aug 2019</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>文字版：<a href="https://dev.to/pmlopes/javascript-on-graalvm-120f">https://dev.to/pmlopes/javascript-on-graalvm-120f</a></p>
+<p>身為一名工程師，想辦法讓自己的程式碼執行的更快，似乎是一種天性，當我們想要優化 Node.js Server 的執行速度時，第一印象應該都是如何寫出更好的程式碼、用更快的演算法，這些當然都是優化的一環，但如果拉遠一點想，有沒有辦法去<code>優化 Node.js Runtime本身</code>呢 ?!</p>
+<p>作者提到在著名的 framework benchmark 中，JS 的執行效率排名很後面，如果用 FlameChart 分析，會發現絕大多數的時間是在底層也就是 V8 Engine 與 Libuv 上</p>
+<p><img src="/posts/img/0__8pUeUi9pzwXJ9tkz.png" alt=""></p>
+<p><img src="https://blog.zenika.com/2011/04/10/nodejs/" alt=""></p>
+<p>左圖：<a href="https://blog.zenika.com/2011/04/10/nodejs/">https://blog.zenika.com/2011/04/10/nodejs/</a> 右圖：截自影片</p>
+<p>所以我們再怎麼優化 JS code，就如同冰山一角般，是很難取得非常大幅度的效能提升，那該怎麼辦呢？</p>
+<p>Paulo Lopes 設計了<a href="https://github.com/reactiverse/es4x">ES4X</a> 專案，主要是用 <code>GraalVM 取代 V8</code> 與 <code>Vert.x 取代 Libuv</code> ，基本上就是將底層從 C/C++ 工具鍊換成了 JVM 為主的工具鍊，根據作者的 benchmark，在不同應用面可提升 120% ~ 700% 的效能</p>
+<p><a href="https://www.jetdrone.xyz/2018/08/06/ES4X-JavaScript.html"><strong>Run your JavaScript server 700% faster!</strong></a></p>
+<h2 id="vertx">Vert.x</h2>
+<p>Vertx 類似於 Libuv 的功能，提供 Event-Driven 與 Non-blocking 的框架，提供如 TCP / File 操作 / DNS / HTTP / Timer等 API支援，其核心概念是透過 Event Loop 方式達到事件驅動的開發方式，大概瞄過去跟 Javascript 的開發理念非常吻合，像是</p>
+<h3 id="callback-function">Callback Function</h3>
+<p>為每個事件註冊 Handler，等到事件完成後推進 Event Loop 等待執行， <code>Don't call us, we will call you.</code></p>
+<h3 id="never-block-eventloop">Never block Event Loop</h3>
+<p>這點雷同於 Node.js，但是有一點不同是 Node.js 採用 Single Event Loop，但是Vertx 採用 Multiple Event Loop，主要是更有效運用 multi-core 的機器；<br>
+雖然採用了 Multiple Event Loop，但是為了避免 Context Switch 與增進性能，如果 handler A 在 Event Loop1 執行，後續的 Callback 也都位在 Event Loop1 執行</p>
+<h3 id="how-to-run-blockingcode">How to run blocking code</h3>
+<p>現實上不可避免還是會需要執行耗時的運算或是運行用 sync 設計的函式庫，這時可以用 executeBlocking，類似於 Promise的設計，但會運作到從 Worker Thread Pool 取得的 Thread 上，避免卡住 Event Loop</p>
+<p>但文件描述到 executeBlocking 雖然是用於 blocking code execution，但建議超過 10s 的操作還是另外管理 Thread</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">vertx<span style="color:#719e07">.</span>executeBlocking<span style="color:#719e07">(</span>function <span style="color:#719e07">(</span>promise<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>    
+   <span style="color:#586e75">// Call some blocking API that takes a significant amount of time to return_     
+</span><span style="color:#586e75"></span>    var result <span style="color:#719e07">=</span> someAPI<span style="color:#719e07">.</span>blockingMethod<span style="color:#719e07">(</span><span style="color:#2aa198">&#34;hello&#34;</span><span style="color:#719e07">);</span>  
+    promise<span style="color:#719e07">.</span>complete<span style="color:#719e07">(</span>result<span style="color:#719e07">);</span>   
+<span style="color:#719e07">},</span> function <span style="color:#719e07">(</span>res<span style="color:#719e07">,</span> res_err<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>     
+   console<span style="color:#719e07">.</span>log<span style="color:#719e07">(</span><span style="color:#2aa198">&#34;The result is: &#34;</span> <span style="color:#719e07">+</span> res<span style="color:#719e07">);</span>   
+<span style="color:#719e07">});</span>
+</code></pre></div><h3 id="concurrent-composition">Concurrent composition</h3>
+<p>非同步操作一大要解決的問題就是操作順序，Vertx 提供像 <code>CompositeFuture.all、CompositeFuture.any</code> 等 API，從 JS 角度應該都不陌生</p>
+<p>直接使用 Vertx 的 JS 方案有一個很大的問題</p>
+<blockquote>
+<p>目前是基於 Nashorn 這套 JS Engine，僅支援到 ES 5.1並不支援 ES6 以後的語法，如果 Library 用 ES6 以後語法寫也都不支援</p>
+</blockquote>
+<p>這算是致命傷了吧，如果不能整合現在的 JS 生態系那應該很少人敢採用這套方案。</p>
+<p>所以 ES4X 是一個全新基於 Vertx 開發的 <code>JS Runtime</code>，加入了 ES6+ 的支援更好與現在 JS生態系整合，所以 Promise / async-await 等等都可以採用，同時 Vertx 的語法也同時支援，作者提到下一版的 Vertx 會棄用現有的 Vertx JS 改用 ES4X。</p>
+<blockquote>
+<p>題外話：<br>
+作者人很好，在文章底下提問很多疑惑都在 24 hr 內得到解答，真的是很感謝</p>
+</blockquote>
+<h2 id="graalvm">GraalVM</h2>
+<p>GraalVm 是一個提供多語言的運行環境，透過 Graal Compiler 編譯成 Java Bytecode 並執行於 Java HotSpot VM上，所以可以兼容於 JVM-based 的語言如 Java/Scala/Kotlin等；<br>
+透過 Truffer framework，可以兼容其他的程式語言，如JS/Python/R/Ruby等等</p>
+<p><img src="/posts/img/0__pH1347fH__vCQeKkD.jpg" alt=""></p>
+<p>許多程式語言都必須要有一個良好的運行環境 Runtime，但是要打造一個安全、高效的運行環境是非常困難且耗時的，例如說 JS的 V8 Engine 也是 Google多年的投入才有這麼好的成果，其他語言相較之下沒有這麼多資源，自然運行的速度就很慢；<br>
+所以 GraalVM希望透過通用化虛擬化技術，讓不同的程式語言只要用 Java 透過<a href="https://github.com/oracle/graal/tree/master/truffle">Truffle</a> Framework 實作該語言的 AST，後續的運行就交給 GraalVM，降低新語言開發的困難</p>
+<p>除了讓原本的程式語言執行得更快，採用 GraalVM另一大好處是可以混合語言(Polyglot)開發，例如 JS內使用 R的套件，讓不同的語言發揮各自的長處，而且<code>效能不受到跨語言的影響</code>，因為不同的語言最後都是通過 Truffle Framework 生成 Graal Compiler 了解的AST，最後 Compile 出來的機器碼不會因為不同語言而有所差異</p>
+<p>更多的細節可以參考這支影片</p>
+<h3 id="實作用網頁顯示圖表-採用-graalvm-與es4x">實作 — 用網頁顯示圖表 /採用 GraalVM 與 ES4X</h3>
+<p>簡單整合兩者的 Example Code，用 ES4X 執行一個 Web Server，並用 GraalVm 當作運行環境，採用 R繪製圖表。</p>
+<h4 id="安裝">安裝</h4>
+<p>到 <a href="https://github.com/oracle/graal/releases/tag/vm-19.1.1">https://github.com/oracle/graal/releases/tag/vm-19.1.1</a> 下載安裝檔，解壓縮後加入路徑</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span>&lt;檔案位置&gt;/graalvm-ce-19.1.1/Contents/Home/bin:<span style="color:#268bd2">$PATH</span>  
+$ <span style="color:#b58900">export</span> <span style="color:#268bd2">JAVA_HOME</span><span style="color:#719e07">=</span>&lt;檔案位置&gt;/Contents/Home
+</code></pre></div><p>設定好之後，可以使用以下幾個 command，node 改成用 GraalVM執行，預設僅支援 Java/Javascript，如果需要其他語言則要 <code>$gu install python</code> 等</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ js   
+runs a JavaScript console with GraalVM.
+
+$ node  
+replacement <span style="color:#719e07">for</span> Node.js, using GraalVM’s JavaScript engine.
+
+$ lli   
+is a high-performance LLVM bitcode interpreter integrated with GraalVM.
+
+$ gu <span style="color:#719e07">(</span>GraalVM Updater<span style="color:#719e07">)</span>   
+can be used to install language packs <span style="color:#719e07">for</span> Python, R, and Ruby.
+</code></pre></div><p>簡單試一下跨語言的特性</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 儲存成 test.js  
+</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> array <span style="color:#719e07">=</span> Polyglot.<span style="color:#b58900">eval</span>(<span style="color:#2aa198">&#34;python&#34;</span>, <span style="color:#2aa198">&#34;[1,2,42,4]&#34;</span>)  
+console.log(array[<span style="color:#2aa198">2</span>]);
+
+$ node <span style="color:#719e07">--</span>polyglot <span style="color:#719e07">--</span>jvm test.js
+</code></pre></div><p>使用 <code>Ployglot.eval</code> 可以執行其他指定語言的語法，</p>
+<p>剛執行時會需要花比較多的時間 warn up，所以如果要當作 Command line tool 或其他生命週期短的應用程式，就建議繼續使用 Nodejs 即可；<br>
+長時間運行的話，GraalVM 的效能與 V8 其實是差不多的，但如果多考量跨語言的特性，GraalVM 會是個不錯的選擇</p>
+<h2 id="es4x">ES4X</h2>
+<p>先安裝初始化</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm install -g es4x-pm  
+$ mkdir <span style="color:#b58900">test</span>  
+$ npm init  
+$ es4x init
+
+// 安裝所需套件  
+$ npm install @vertx/unit --save-dev  
+$ npm install @vertx/core --save-prod  
+$ npm install @vertx/web --save-prod  
+$ npm install
+</code></pre></div><p>index.js，接著用 <code>$npm run start</code> 執行</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">/// &lt;reference types=&#34;@vertx/core/runtime&#34; /&gt;  
+</span><span style="color:#586e75">// @ts-check
+</span><span style="color:#586e75"></span>
+vertx  
+  .createHttpServer()  
+  .requestHandler(async <span style="color:#268bd2">function</span> (req) {  
+    req.response().end(<span style="color:#2aa198">&#34;hello world.&#34;</span>);  
+   })  
+   .listen(<span style="color:#2aa198">8080</span>);
+</code></pre></div><p>需注意，如果要達到最佳性能的提升需要使用它提供的 web framework <code>@vertx/web</code>，如果是使用像 Express.js底層的 System API Call 就不會走 Vertx，而是用當下 Runtime 環境的處理方式 (Node.js or GraalVM)，細節還需要更近一步理解專案才能解釋，不過從作者的描述現況是如此，所以舊專案要移植會重寫的門檻</p>
+<p>另外目前不支援 GraalVM的 Polyglot，已回報給作者需要等他實作。</p>
+<h2 id="總結">總結</h2>
+<p>跳脫框架，以前沒想過透過替換 JS Runtime 可以換取性能的提升，也不曾接觸過像 GraalVM這樣多語言支援的 Runtime，細節有蠻多關於 Compiler 相關的知識，自己很多都忘了，需要在加強才行</p>
+<p>總結目前使用 GraalVM與 ES4X</p>
+<ol>
+<li>GraalVM 可以測試通過 npm 90%的 package，除了一些 native code 編寫的 library，其他不太需要擔心支援度問題；</li>
+<li>GraalVM 語法支援到最新的 ES2019/2020，這點還蠻不錯的</li>
+<li>GraalVM 性能對比與 V8不差多少，只是要一段 warm up 的時間，如果有跨語言整合需求，可以考慮看看</li>
+<li>ES4X 可以結合 Vert.x 與 GraalVM優點，得到大量的性能提升，但是專案還沒穩定，需要考量；<br>
+開發也必須用他的 Framework，使用 Express.js / Koa.js 等用戶無法無痛轉移</li>
+</ol>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

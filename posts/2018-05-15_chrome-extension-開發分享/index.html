@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="基本的 Chrome 插件開發分享，擴充網頁滑鼠控制的功能"><meta property="og:title" content="Chrome extension 開發分享" />
+<meta property="og:description" content="基本的 Chrome 插件開發分享，擴充網頁滑鼠控制的功能" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018-05-15_chrome-extension-%E9%96%8B%E7%99%BC%E5%88%86%E4%BA%AB/" />
+<meta property="article:published_time" content="2018-05-15T09:56:14+00:00" />
+<meta property="article:modified_time" content="2018-05-15T09:56:14+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Chrome extension 開發分享"/>
+<meta name="twitter:description" content="基本的 Chrome 插件開發分享，擴充網頁滑鼠控制的功能"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Chrome extension 開發分享 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">15</span>
+				<span class="rest">May 2018</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Chrome extension 開發分享</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>昨天在 Android 手機上用 Youtube 分享影片到 LINE 聊天室給朋友，突然靈機一動覺得 APP 有這麼方便的分享機制，那我是不是可以在 Chrome 用 Extension 方式整合社群分享，按一個按鈕就可以把當前頁面的連結或文字快速分享；<br>
+正好之前也沒有開發過 Chrome extension，正好拿來練練技術，但果不其然在 Chrome extension shop 有看到很大量的社交分享工具了 OTZ <br>
+但還是不死心想要自己動手玩玩看</p>
+<p>參考資料：</p>
+<p>Chrome team 本身的官方教學還不賴</p>
+<p><a href="https://developer.chrome.com/extensions/getstarted"><strong>Getting Started Tutorial — Google Chrome</strong></a></p>
+<p>強者 <a href="https://ithelp.ithome.com.tw/users/20079450/ironman">羅拉拉</a>在 2016 年 IThome 鐵人賽的系列文，前半段把官方教學翻譯，後續加上作者個人開發分享，非常棒的教學。</p>
+<p><a href="https://ithelp.ithome.com.tw/users/20079450/ironman/1149"><strong>Chrome Extension 開發與實作 系列文章列表  — iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天</strong> </a></p>
+<p>以下為個人開發簡略與簡化過後的筆記，所以要看詳細版還是看上附兩個文件</p>
+<h2 id="基本介紹">基本介紹</h2>
+<p>基本上開發 Chrome extension 跟寫網頁很類似，只是改了檔案結構、發布機制、API 調用多增加了 chrome.* 函式</p>
+<p>在 extension 開發中，目錄下必須先宣告 manifest.json，裡頭會註明 extension 的名稱/icon/所需權限等資料，還有不同時機對應執行的不同腳本</p>
+<p>基本上開發會有幾個頁面可以選擇</p>
+<ol>
+<li>background page 背景頁面：<br>
+基本上是常駐，從安裝插件之後就一直執行到插件被移除(不完全正確的描述，但基本上可以這樣理解)<br>
+所以會在 background 指定的 script 中執行套件安裝或更新，又或是初始化的一些程序</li>
+<li>popup page 彈出頁面：<br>
+也就是右上角的小圖標，點擊後產生的頁面，又細分成 browser-action / page-action；<br>
+browser-action 代表 Extesion 是普遍性在每個網站都可以用，而 page-action 則代表只針對某些特定網站使用，平常會自動呈現灰暗的 icon 直到顯示宣告 pageAction.show()，像是 vue-devtool 只有在網站使用 vue.js 才能使用。</li>
+<li>option page 選項頁面：<br>
+應用程式如果太過於複雜，希望有個選項頁可以供客戶客製化行為，可以採用</li>
+<li>content script：<br>
+在 Extension 中，只要有索取權限就可以對每個頁面注入 content script，進行 DOM 操作等一般 js script 會執行的動作，可以看成合法的 XSS 注入。</li>
+</ol>
+<h2 id="實戰分享">實戰分享</h2>
+<p><a href="https://github.com/sj82516/quick-share"><strong>sj82516/quick-share</strong></a></p>
+<h3 id="定義與載入其他-script">定義與載入其他 script</h3>
+<p>可以參考 manifest.json，這裡我用了<br>
+background：event.js，主要註冊與定義右鍵按下出現的選單行為<br>
+popup page：分成 popup.html / popup.js，主要是定義瀏覽器右上角的工具列跳出視窗行為，並定義為 browser-action</p>
+<p>因為右鍵行為跟 popup 行為類似，所以我將行為收整成 util/handleShare.js，需注意在 background 中要使用其他 script 必須宣告在 manifest.json 中；</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#2aa198">&#34;background&#34;</span>: {
+    <span style="color:#268bd2">&#34;scripts&#34;</span>: [<span style="color:#2aa198">&#34;util/handleShare.js&#34;</span>, <span style="color:#2aa198">&#34;event.js&#34;</span>],
+    <span style="color:#268bd2">&#34;persistent&#34;</span>: <span style="color:#cb4b16">true</span>
+}
+</code></pre></div><p>而在 popup page 則以 <code>&lt;script src=&quot;util/handleShare&quot;&gt;</code>加入 html 中即可。</p>
+<h3 id="另開新頁popup-script-與-content-script-溝通">另開新頁、Popup script 與 Content script 溝通</h3>
+<p>社群媒體分享必須另開該網站的新頁面，同時為了可以自動把反白選取的文字自動插入，在開啟新頁，首先要設法取得新頁面的 Tab，之後要執行 content script</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 先取得所有的分頁資料，可以透過 tab 的 url / title 找到指定頁面
+</span><span style="color:#586e75"></span>chrome.tabs.query({
+  active<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>
+}, <span style="color:#268bd2">function</span>(tabs){})
+
+<span style="color:#586e75">// 必須確保分頁已經加載完成，這樣 content script 才有用
+</span><span style="color:#586e75"></span>chrome.tabs.onUpdated.addListener(<span style="color:#268bd2">function</span> (tabId, info) {
+ <span style="color:#719e07">if</span> (tabId <span style="color:#719e07">==</span> factoryTab.id <span style="color:#719e07">&amp;&amp;</span> info.status <span style="color:#719e07">==</span> <span style="color:#2aa198">&#39;complete&#39;</span>) {
+ <span style="color:#586e75">// 在該分頁注入 content script
+</span><span style="color:#586e75"></span> chrome.tabs.executeScript(factoryTab.id, {
+ file<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;content/share.js&#34;</span>
+ })
+ ....
+</code></pre></div><p>上面有個小 tricky 是必須要等到新分頁加載完成才可以執行 <code>chrome.tabs.executeScript</code> ，否則會出現 tab is closed 之類的錯誤訊息!</p>
+<p>在跨 script 傳輸資料一次性可以使用<code>sendMessage(tabId, message)</code>/ <code>chrome.runtime.onMessage.addListener((message, sender, sendResponse)=&gt;{})</code> <br>
+其餘方式可以在查詢文件。</p>
+<h3 id="結語">結語</h3>
+<p>開發一個簡單的 Chrome Extension 蠻有趣的，但也意外發現 Extension 的威力極為強大，尤其是可以注入 content script 這塊，所以搜尋一下 chrome store 可以找到例如密碼管理工具等應用，突然覺得一陣害怕因為整個 DOM 都被摸光了，甚至 cookie 再不小心授權出去後也都可以被讀取，在安裝插件上務必小心啊！ 尤其是沒有開源、非官方的插件更需要小心。</p>
+<p>不過我上傳的插件被 Google 認定為 Spam 不給上架……</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
