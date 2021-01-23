@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="因為 express.js 設計因素，如果要自行設計一個 Middleware 在 response 結束時才觸發會比較麻煩些，透過研究紀錄 response time 相關的 middleware 參考他人怎麼實作的"><meta property="og:title" content="Expressjs Middleware 如何在 Response 結束觸發" />
+<meta property="og:description" content="因為 express.js 設計因素，如果要自行設計一個 Middleware 在 response 結束時才觸發會比較麻煩些，透過研究紀錄 response time 相關的 middleware 參考他人怎麼實作的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-02-07_expressjs-middleware-%E5%A6%82%E4%BD%95%E5%9C%A8-reponse-%E7%B5%90%E6%9D%9F%E8%A7%B8%E7%99%BC/" />
+<meta property="article:published_time" content="2020-02-06T22:21:40+00:00" />
+<meta property="article:modified_time" content="2020-02-06T22:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Expressjs Middleware 如何在 Response 結束觸發"/>
+<meta name="twitter:description" content="因為 express.js 設計因素，如果要自行設計一個 Middleware 在 response 結束時才觸發會比較麻煩些，透過研究紀錄 response time 相關的 middleware 參考他人怎麼實作的"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Expressjs Middleware 如何在 Response 結束觸發 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">06</span>
+				<span class="rest">Feb 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Expressjs Middleware 如何在 Response 結束觸發</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>在使用 express.js 當作 Nodejs server 框架時，時常會需要寫一些 Middleware 處理 Token 驗證、用戶權限檢查等等，也會套用很多第三方的模組去建構程式<br>
+但突然某天在思考<code>如何自己寫一個紀錄response time</code>的 Middleware，發現自己沒辦法用一個 Middleware 註冊就完成這件事，因為 express.js 不像是 Koa 的 middleware 是用 promise based 實作，所以當某個環節是非同步，執行的順序就會錯亂</p>
+<p>後來查看了 <code>morgan</code> 被大量使用的 express log middleware，才發現其中設計的小巧思，以下是整理的內容</p>
+<h2 id="expressjs-middleware-設計">Expressjs Middleware 設計</h2>
+<p>先來看最基本的 Middleware 設計</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> express <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#34;express&#34;</span>);
+
+<span style="color:#268bd2">const</span> app <span style="color:#719e07">=</span> express();
+
+app.use(<span style="color:#268bd2">function</span>(req, res, next){
+    console.log(<span style="color:#2aa198">&#34;middleware 1 start&#34;</span>);
+    next();
+    console.log(<span style="color:#2aa198">&#34;middleware 1 end&#34;</span>);
+});
+
+app.use(<span style="color:#268bd2">function</span>(req, res, next){
+    console.log(<span style="color:#2aa198">&#34;middleware 2 start&#34;</span>);
+    next();
+    console.log(<span style="color:#2aa198">&#34;middleware 2 end&#34;</span>);
+});
+
+app.get(<span style="color:#2aa198">&#34;/&#34;</span>, async <span style="color:#268bd2">function</span>(req, res){
+    console.log(<span style="color:#2aa198">&#34;request started&#34;</span>)
+    await delay();
+    console.log(<span style="color:#2aa198">&#34;request finished&#34;</span>)
+    res.send();
+});
+
+async <span style="color:#268bd2">function</span> delay(){
+    <span style="color:#719e07">return</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>((res)=&gt;{
+        setTimeout(()=&gt;{
+            res()
+        }, <span style="color:#2aa198">1000</span>)
+    })
+}
+
+app.listen(<span style="color:#2aa198">3000</span>);
+</code></pre></div><p>目前的 log 會變成</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">middleware 1 start
+middleware 2 start
+request started
+middleware 2 end
+middleware 1 end
+request finished
+</code></pre></div><p>如果我們希望在 Request 進來先紀錄開始時間，接著在 Response 結束時紀錄結束時間，就必須仰賴其他的實作方式</p>
+<h2 id="on-headers--on-finished">on-headers / on-finished</h2>
+<p>爬過 <code>morgan</code> 程式碼後，發現是透過這兩個模組去實作功能的<br>
+<a href="https://github.com/jshttp/on-headers">on-headers</a>：註冊事件，當 header 被寫入時會觸發<br>
+<a href="https://github.com/jshttp/on-finished">on-finished</a>：註冊事件，當 request/response 結束時觸發<br>
+這兩個模組可以針對 Nodejs 原生的 http server 搭配使用，express.js 也是繼承原生的 http server</p>
+<p>在 <code>morgan</code> module 中，在 middleware 進入一開始標記 request 開始時間，在 on-headers 時紀錄 request 結束時間，在 on-finished 將訊息印出，pseudo code 大致如下</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">app.use(<span style="color:#268bd2">function</span> (req, res, next) {
+    res._startTime <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Date</span>().getTime();
+
+    onHeader(res, <span style="color:#268bd2">function</span> () {
+        res._endTime <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Date</span>().getTime();
+    })
+
+    onFinished(res, <span style="color:#268bd2">function</span> () {
+        console.log(<span style="color:#586e75">`req process time: </span><span style="color:#2aa198">${</span>res._endTime <span style="color:#719e07">-</span> res._startTime<span style="color:#2aa198">}</span><span style="color:#586e75"> ms`</span>)
+    })
+    next()
+})
+</code></pre></div><p>log 結果是</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">request started
+request finished
+req process time: 1010 ms
+</code></pre></div><h3 id="on-headers-實作">on-headers 實作</h3>
+<p>將原本的 response 中的 writeHead 複寫，只是多包一層觸發事件的機制</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">function</span> createWriteHead (prevWriteHead, listener) {
+  <span style="color:#268bd2">var</span> fired <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>
+
+  <span style="color:#586e75">// return function with core name and argument list
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#268bd2">function</span> writeHead (statusCode) {
+    <span style="color:#586e75">// set headers from arguments
+</span><span style="color:#586e75"></span>    <span style="color:#268bd2">var</span> args <span style="color:#719e07">=</span> setWriteHeadHeaders.apply(<span style="color:#719e07">this</span>, arguments)
+
+    <span style="color:#586e75">// fire listener
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>fired) {
+      fired <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>
+      listener.call(<span style="color:#719e07">this</span>)
+
+      ....
+    }
+
+    <span style="color:#719e07">return</span> prevWriteHead.apply(<span style="color:#719e07">this</span>, args)
+  }
+}
+
+<span style="color:#268bd2">function</span> onHeaders (res, listener) {
+  <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>res) {
+    <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> TypeError(<span style="color:#2aa198">&#39;argument res is required&#39;</span>)
+  }
+
+  <span style="color:#719e07">if</span> (<span style="color:#719e07">typeof</span> listener <span style="color:#719e07">!==</span> <span style="color:#2aa198">&#39;function&#39;</span>) {
+    <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> TypeError(<span style="color:#2aa198">&#39;argument listener must be a function&#39;</span>)
+  }
+
+  res.writeHead <span style="color:#719e07">=</span> createWriteHead(res.writeHead, listener)
+}
+</code></pre></div><h3 id="on-finished-實作">on-finished 實作</h3>
+<p>這邊的實作就比較有趣，如何正確的判讀 http request/response 結束了呢？</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">function</span> isFinished (msg) {
+  <span style="color:#268bd2">var</span> socket <span style="color:#719e07">=</span> msg.socket
+
+  <span style="color:#719e07">if</span> (<span style="color:#719e07">typeof</span> msg.finished <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;boolean&#39;</span>) {
+    <span style="color:#586e75">// OutgoingMessage
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> <span style="color:#b58900">Boolean</span>(msg.finished <span style="color:#719e07">||</span> (socket <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">!</span>socket.writable))
+  }
+
+  <span style="color:#719e07">if</span> (<span style="color:#719e07">typeof</span> msg.complete <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;boolean&#39;</span>) {
+    <span style="color:#586e75">// IncomingMessage
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> <span style="color:#b58900">Boolean</span>(msg.upgrade <span style="color:#719e07">||</span> <span style="color:#719e07">!</span>socket <span style="color:#719e07">||</span> <span style="color:#719e07">!</span>socket.readable <span style="color:#719e07">||</span> (msg.complete <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">!</span>msg.readable))
+  }
+
+  <span style="color:#586e75">// don&#39;t know
+</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#cb4b16">undefined</span>
+}
+</code></pre></div><p>如果是套用在 response，需注意根據官方文件 <a href="https://nodejs.org/api/http.html#http_request_finished">response.finished</a> 是指說 <code>res.end()</code> 被呼叫後設定為 true，不代表 response 中的資料完全傳輸到網路上</p>
+<p>這些討論可以看 PR <a href="https://github.com/jshttp/on-finished/pull/31">response is only finished if socket is detached #31</a>，提交者修改成</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">if</span> (stream <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">typeof</span> stream.closed <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;boolean&#39;</span>) {
+    <span style="color:#586e75">// Http2ServerRequest
+</span><span style="color:#586e75"></span>    <span style="color:#586e75">// Http2ServerResponse
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> stream.closed
+}
+
+<span style="color:#719e07">if</span> (<span style="color:#719e07">typeof</span> msg.finished <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;boolean&#39;</span>) {
+    <span style="color:#586e75">// OutgoingMessage
+</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> (
+        msg.finished <span style="color:#719e07">&amp;&amp;</span>
+        msg.outputSize <span style="color:#719e07">===</span> <span style="color:#2aa198">0</span> <span style="color:#719e07">&amp;&amp;</span>
+        (<span style="color:#719e07">!</span>socket <span style="color:#719e07">||</span> socket.writableLength <span style="color:#719e07">===</span> <span style="color:#2aa198">0</span>)
+    ) <span style="color:#719e07">||</span> (socket <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">!</span>socket.writable)
+}
+</code></pre></div><p>增加 http2 的檢查，以及確保 <code>outputSize === 0</code> 所有 queued 住的資料都確實送出 socket</p>
+<p>知道如何判斷 response 是否結束，最後看事件的註冊</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">function</span> attachFinishedListener (msg, callback) {
+  <span style="color:#268bd2">var</span> eeMsg
+  <span style="color:#268bd2">var</span> eeSocket
+  <span style="color:#268bd2">var</span> finished <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>
+
+  <span style="color:#268bd2">function</span> onFinish (error) {
+    eeMsg.cancel()
+    eeSocket.cancel()
+
+    finished <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>
+    callback(error)
+  }
+
+  <span style="color:#586e75">// finished on first message event
+</span><span style="color:#586e75"></span>  eeMsg <span style="color:#719e07">=</span> eeSocket <span style="color:#719e07">=</span> first([[msg, <span style="color:#2aa198">&#39;end&#39;</span>, <span style="color:#2aa198">&#39;finish&#39;</span>]], onFinish)
+
+  <span style="color:#268bd2">function</span> onSocket (socket) {
+    <span style="color:#586e75">// remove listener
+</span><span style="color:#586e75"></span>    msg.removeListener(<span style="color:#2aa198">&#39;socket&#39;</span>, onSocket)
+
+    ....
+
+    eeSocket <span style="color:#719e07">=</span> first([[socket, <span style="color:#2aa198">&#39;error&#39;</span>, <span style="color:#2aa198">&#39;close&#39;</span>]], onFinish)
+  }
+
+  <span style="color:#719e07">if</span> (msg.socket) {
+    <span style="color:#586e75">// socket already assigned
+</span><span style="color:#586e75"></span>    onSocket(msg.socket)
+    <span style="color:#719e07">return</span>
+  }
+
+  <span style="color:#586e75">// wait for socket to be assigned
+</span><span style="color:#586e75"></span>  msg.on(<span style="color:#2aa198">&#39;socket&#39;</span>, onSocket)
+  ....
+}
+</code></pre></div><p>在 response 與 response.socket 分別註冊事件，當結束或錯誤事件觸發後，檢查 response 是否真的結束，最後觸發用戶註冊的事件</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

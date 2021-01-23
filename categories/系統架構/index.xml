@@ -12,10 +12,10 @@
 		
 		<item>
 			<title>Raft 演算法介紹與《In Search of an Understandable Consensus Algorithm》摘要</title>
-			<link>https://yuanchieh.page/posts/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</link>
+			<link>https://yuanchieh.page/posts/2020/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</link>
 			<pubDate>Tue, 03 Nov 2020 08:21:40 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</guid>
+			<guid>https://yuanchieh.page/posts/2020/2020-11-03_raft-%E6%BC%94%E7%AE%97%E6%B3%95%E4%BB%8B%E7%B4%B9/</guid>
 			<description>
 				
 				Raft 演算法是一種 Consensus 演算法，提供分散式系統中可容錯的「強一致性」資料同步的方式，意圖取代複雜難懂的 Paxos，主要由三個機制 Leader / Log Replication / Safety 三塊組成
@@ -24,10 +24,10 @@
 		</item>
 		<item>
 			<title>Gossip Protocol 介紹 (下) - 《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文摘要</title>
-			<link>https://yuanchieh.page/posts/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</link>
+			<link>https://yuanchieh.page/posts/2020/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</link>
 			<pubDate>Wed, 28 Oct 2020 08:21:40 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</guid>
+			<guid>https://yuanchieh.page/posts/2020/2020-10-28-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8B/</guid>
 			<description>
 				
 				延續上篇的研究，接著閱讀了《Efficient Reconciliation and Flow Control for Anti-Entropy Protocols》論文理解 Gossip Protocol 的原理以及應用
@@ -36,10 +36,10 @@
 		</item>
 		<item>
 			<title>Gossip Protocol 介紹 (上) - 從 Cassandra 內部實作認識 Gossip Protocol 的使用</title>
-			<link>https://yuanchieh.page/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</link>
+			<link>https://yuanchieh.page/posts/2020/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</link>
 			<pubDate>Mon, 26 Oct 2020 08:21:40 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</guid>
+			<guid>https://yuanchieh.page/posts/2020/2020-10-26-gossip-protocol-%E4%BB%8B%E7%B4%B9%E4%B8%8A/</guid>
 			<description>
 				
 				在學習 Consul 與 Redis Cluster 過程中，都提及使用 Gossip Protocol 同步集群中節點的狀態，究竟機器之間怎麼談茶水間八卦實在令人好奇，透過 Cassandra 內部實作理解 Gossip 的原理
@@ -48,10 +48,10 @@
 		</item>
 		<item>
 			<title>使用 Redis 當作 API Rate limit 的三種方法</title>
-			<link>https://yuanchieh.page/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</link>
+			<link>https://yuanchieh.page/posts/2020/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</link>
 			<pubDate>Sun, 18 Oct 2020 08:21:40 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</guid>
+			<guid>https://yuanchieh.page/posts/2020/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</guid>
 			<description>
 				
 				API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket
@@ -60,10 +60,10 @@
 		</item>
 		<item>
 			<title>HTTPS不代表安全：Cloudflare SSL 研究從Server到Cloudflare</title>
-			<link>https://yuanchieh.page/posts/2018-07-11_cloudflare-ssl/</link>
+			<link>https://yuanchieh.page/posts/2018/2018-07-11_cloudflare-ssl/</link>
 			<pubDate>Wed, 11 Jul 2018 01:37:07 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2018-07-11_cloudflare-ssl/</guid>
+			<guid>https://yuanchieh.page/posts/2018/2018-07-11_cloudflare-ssl/</guid>
 			<description>
 				
 				網頁瀏覽時出現HTTPS的綠色鎖看了令人放心，這似乎代表著我們在網站瀏覽的資料有受到「完整的加密保護」，不用擔心資料被偷窺與被調包等等MitM中間人攻擊的風險，但事實當然沒有這麼簡單。
@@ -72,10 +72,10 @@
 		</item>
 		<item>
 			<title>The Twelve-Factor App 閱讀筆記</title>
-			<link>https://yuanchieh.page/posts/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</link>
+			<link>https://yuanchieh.page/posts/2018/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</link>
 			<pubDate>Sat, 19 May 2018 07:02:08 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</guid>
+			<guid>https://yuanchieh.page/posts/2018/2018-05-19_the-twelve-factor-app-%E9%96%B1%E8%AE%80%E7%AD%86%E8%A8%98/</guid>
 			<description>
 				
 				The Twelve-Factor App 是由一群有豐富經驗的工程師，整理開發一個Web應用程式(或是所謂的SAAS software-as-a-service)開發方針

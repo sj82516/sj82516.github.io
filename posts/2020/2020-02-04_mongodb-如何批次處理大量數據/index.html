@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來"><meta property="og:title" content="MongoDB 批次處理大量數據" />
+<meta property="og:description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/" />
+<meta property="article:published_time" content="2020-02-06T22:21:40+00:00" />
+<meta property="article:modified_time" content="2020-02-06T22:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MongoDB 批次處理大量數據"/>
+<meta name="twitter:description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>MongoDB 批次處理大量數據 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">06</span>
+				<span class="rest">Feb 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">MongoDB 批次處理大量數據</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>本篇分享 MongoDB 在批次查訊大量數據時的小技巧</p>
+<p>在查詢小筆數據時，往往我們就是用 <code>find().toArray()</code> 直接回傳結果，需要簡單的分頁就搭配 <code>limit() / skip()</code> 即可完成<br>
+但如果需要分析數據跑過整個 collection，不可能用 find() 一次拉回所有的資料，透過 skip() 批次處理，如果 collection 資料不多還好，如果幾十萬筆、幾百萬筆資料效能回非常的低落，因為 skip 的話每次查詢 DB 都必須要重頭開始跳過指定筆數資料，才能回傳，所以查詢時間會隨著筆數增加而趨近於指數倍增長</p>
+<p>目前已知有兩種做法，可以有效輪詢整個 collection 而不拖垮 DB 效能<br>
+一種是 <code>Cursor</code>，但是在實務上我個人並沒有採用，原因是 Cursor 每次只能透過 <code>.next()</code> 取得一筆資料，如果希望一次拉個上千筆資料處理就無法做到；<br>
+另一種是本次要分享的方式，透過遞迴查詢，保持性能情況下跑完整個 Collection，實務上每天應用在有千萬筆資料的 Collection 而沒有太大的問題</p>
+<h2 id="遞回查詢">遞回查詢</h2>
+<p>說穿了其實很簡單，透過有建立 index 的索引，按照遞增或遞減排序，每批次取出部分數據後，下次查詢的條件改為取出數據的最後一位，一路到 Collection 結束</p>
+<p>以下是程式碼部分</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> MongoClient <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;mongodb&#39;</span>).MongoClient;
+
+<span style="color:#268bd2">const</span> dbUrl <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;mongodb://127.0.0.1:27017&#34;</span>;
+MongoClient.connect(dbUrl, async <span style="color:#268bd2">function</span> (err, client) {
+    console.log(err)
+    <span style="color:#268bd2">const</span> testDB <span style="color:#719e07">=</span> client.db(<span style="color:#2aa198">&#34;test&#34;</span>);
+    <span style="color:#268bd2">const</span> userCollection <span style="color:#719e07">=</span> testDB.collection(<span style="color:#2aa198">&#34;users&#34;</span>);
+
+    <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> await iterateCollection({
+        sourceCollection<span style="color:#719e07">:</span> userCollection,
+        query<span style="color:#719e07">:</span> {
+            age<span style="color:#719e07">:</span> <span style="color:#2aa198">20</span>
+        },
+        batchSize<span style="color:#719e07">:</span> <span style="color:#2aa198">10</span>,
+        order<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;asc&#34;</span>
+    });
+
+    console.log(result);
+
+    client.close();
+});
+
+async <span style="color:#268bd2">function</span> iterateCollection({
+    sourceCollection,
+    query,
+    batchSize,
+    order
+}) {
+    <span style="color:#268bd2">let</span> result <span style="color:#719e07">=</span> [];
+    <span style="color:#268bd2">let</span> sort <span style="color:#719e07">=</span> {
+        _id<span style="color:#719e07">:</span> <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>
+    }
+    <span style="color:#268bd2">let</span> _query <span style="color:#719e07">=</span> {
+        ...query
+    };
+
+    <span style="color:#719e07">if</span> (order <span style="color:#719e07">===</span> <span style="color:#2aa198">&#34;asc&#34;</span>) {
+        sort <span style="color:#719e07">=</span> {
+            _id<span style="color:#719e07">:</span> <span style="color:#2aa198">1</span>
+        }
+    }
+
+
+    <span style="color:#719e07">while</span> (<span style="color:#cb4b16">true</span>) {
+        <span style="color:#268bd2">const</span> queryResults <span style="color:#719e07">=</span> await sourceCollection.find(_query).limit(batchSize).sort(sort).toArray();
+
+        <span style="color:#719e07">if</span>(queryResults.length <span style="color:#719e07">===</span> <span style="color:#2aa198">0</span>){
+            <span style="color:#719e07">break</span>;
+        }
+
+        _query._id <span style="color:#719e07">=</span> {
+            $lt<span style="color:#719e07">:</span> queryResults[queryResults.length <span style="color:#719e07">-</span> <span style="color:#2aa198">1</span>]._id
+        }
+        <span style="color:#719e07">if</span> (order <span style="color:#719e07">===</span> <span style="color:#2aa198">&#34;asc&#34;</span>) {
+            _query._id <span style="color:#719e07">=</span> {
+                $gt<span style="color:#719e07">:</span> queryResults[queryResults.length <span style="color:#719e07">-</span> <span style="color:#2aa198">1</span>]._id
+            }
+        }
+
+        <span style="color:#586e75">// process data and push to result
+</span><span style="color:#586e75"></span>        <span style="color:#586e75">// result.push(queryResults.map(result =&gt; result._id));
+</span><span style="color:#586e75"></span>    }
+
+    <span style="color:#719e07">return</span> result;
+}
+</code></pre></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="前陣子在看 Cloudflare一些相關設定，剛好看到 DNSSEC這個技術名詞，以下是認識後的筆記。"><meta property="og:title" content="DNSSEC 基本原理介紹" />
+<meta property="og:description" content="前陣子在看 Cloudflare一些相關設定，剛好看到 DNSSEC這個技術名詞，以下是認識後的筆記。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-07-30_dnssec-%E4%BB%8B%E7%B4%B9/" />
+<meta property="article:published_time" content="2018-07-30T10:14:21+00:00" />
+<meta property="article:modified_time" content="2018-07-30T10:14:21+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DNSSEC 基本原理介紹"/>
+<meta name="twitter:description" content="前陣子在看 Cloudflare一些相關設定，剛好看到 DNSSEC這個技術名詞，以下是認識後的筆記。"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>DNSSEC 基本原理介紹 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">30</span>
+				<span class="rest">Jul 2018</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">DNSSEC 基本原理介紹</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>前陣子在看 Cloudflare一些相關設定，剛好看到 DNSSEC這個技術名詞，以下是認識後的筆記。</p>
+<p>參考資料：<br>
+<a href="https://www.cloudflare.com/dns/dnssec/how-dnssec-works/">https://www.cloudflare.com/dns/dnssec/how-dnssec-works/</a> <br>
+<a href="http://www.cc.ntu.edu.tw/chinese/epaper/0022/20120920_2206.html">http://www.cc.ntu.edu.tw/chinese/epaper/0022/20120920_2206.html</a></p>
+<h3 id="dns與dnssec">DNS與DNSSEC</h3>
+<p>DNS，域名系統，用來將人類好記憶的文字域名轉換為 ip位置，就好像電腦世界的電話簿一般；<br>
+但是DNS最大問題在於，取得紀錄後卻沒有驗證紀錄是否正確或是被竄改的方法，這也是 DNSSEC(Domain Name System Security Extensions) 的出現。</p>
+<h3 id="數位簽章">數位簽章</h3>
+<p>DNSSEC是透過數位簽章的方式，確保DNS查詢的紀錄沒有被竄改，所以先來簡單介紹什麼是數位簽章。</p>
+<p>簽章，是為了確保消息<code>不被竄改性</code>與<code>不可誣賴性</code> ，像是契約要一試兩份，雙方確認好內容，最終簽字畫押；<br>
+假設某天甲方竄改了契約內容，乙方可以拿出當初保留的契約反駁；<br>
+又或是乙方想要否認契約，但是甲方同樣可以拿出契約中的乙方簽章證明。</p>
+<p>甲 &ndash;&gt; 自己產生公鑰與私鑰，公鑰可以讓所有人取得，私鑰要保護好<br>
+今天甲要給乙一份文件 Doc，為了比對用 hash產生雜湊值H<br>
+接著甲將雜湊值H用私鑰加密成 H_encrypted，H_encrypted 也就是數位簽章</p>
+<p>甲將 {Doc,H_encrypted} 交由丙轉交給乙，此時丙偷改了 Doc</p>
+<p>乙收到後，將 Doc依照約定的hash產生出雜湊值 H'<br>
+接著用甲的公鑰解開 H_encrypted =&gt; H，發現H' != H，發現內容被竄改了！</p>
+<p>-&mdash;&mdash;&mdash;&mdash;&ndash;<br>
+假設剛才 Doc沒有被竄改，乙方驗證並確認收到甲傳遞的訊息<br>
+但是某日甲想要反悔說沒有簽署過該份合約</p>
+<p>此時乙一樣拿甲的公鑰解密數位簽章，接著比對 Doc透過hash的雜湊值，發現是一樣的，因為公鑰/私鑰是獨一無二(非常難碰撞)，只有公鑰可以解開私鑰加密的內容(反之亦然)，所以篤定 Doc是甲簽署的。</p>
+<h3 id="dnssec">DNSSEC</h3>
+<p><img src="/posts/img/1__4__CbpPL7m9ELFi__qNmM7__w.jpeg" alt="截圖自 cloudflare"></p>
+<p>1.DNS紀錄有多種型別，假設是宣告AAAA型別，也就是將域名對應IPv6的紀錄，每一筆記錄縮寫為RR；<br>
+而在簽署過程，會把同樣型別的紀錄整合為一組，也就是這邊看到的<code>RRset</code>。</p>
+<p><img src="/posts/img/1__j6z50ztbEl__PPZrUqsR9Jw.jpeg" alt="截圖自 cloudflare"></p>
+<p>2. 接著將RRset產生數位簽章，也就是RRSIG，接著回覆DNS紀錄時，總共要給三樣東西<br>
+<code>{RRset / RRSIG / Public ZSK}</code><br>
+Public ZSK也就是DNS Server的公鑰。</p>
+<p>用戶就可以拿 Public ZSK解開 RRSIG，比對 RRset，就可知道該RRset是否真的來自DNS Server</p>
+<h4 id="如何確保-public-zsk是沒有被竄改">如何確保 Public ZSK是沒有被竄改</h4>
+<p>這又可以套用數位簽章了，子DNS Server會向父 DNS Server 提交他的 Public ZSK；<br>
+父DNS Server就當作 <code>{子DNS Server → Public ZSK}</code> 當作是一筆 RRSet(又稱DS，Delegation Signer)<br>
+接著一樣用自己的公鑰(Public KSK)簽署數位簽章</p>
+<p>但問題還是在，要如何在確保 Public KSK是正確的呢？<br>
+這會無限遞迴數位簽章直到 DNS Root Server，這也是信任鍊(Chain of Trust)。</p>
+<p><img src="/posts/img/1__iHfEalyeh8GUT__lt8uGfHw.jpeg" alt=""></p>
+<p>有興趣看dns解析會走過些路徑可以用下列工具，像是 google.com，會先到 root dns server -&gt; .com dns server -&gt; google.com dns server -&gt; return AA record</p>
+<p><a href="https://simpledns.com/lookup-dg"><strong>Trace DNS Delegation</strong></a></p>
+<h4 id="那我們可以全盤相信-rootserver嗎">那我們可以全盤相信 Root Server嗎?</h4>
+<p>這篇文章說明了整個Root Server在發布公鑰/私鑰的嚴謹性，頂級域名商(.com, .edu, .org …)他們的專業維護整個網路安全的可靠性與可信度。</p>
+<p><a href="https://www.cloudflare.com/dns/dnssec/root-signing-ceremony/"><strong>The DNSSEC Root Signing Ceremony | Cloudflare</strong></a></p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e7%b6%b2%e8%b7%af%e8%88%87%e5%8d%94%e5%ae%9a/"> 網路與協定 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Coturn 是知名的 open source STUN/TURN server，本篇分享如何在 AWS 上架設與遇到的坑，以及設定檔的撰寫等"><meta property="og:title" content="Coturn Server 架設教學 - on AWS" />
+<meta property="og:description" content="Coturn 是知名的 open source STUN/TURN server，本篇分享如何在 AWS 上架設與遇到的坑，以及設定檔的撰寫等" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-09-21_aws-coturn-server-%E6%9E%B6%E8%A8%AD%E6%95%99%E5%AD%B8/" />
+<meta property="article:published_time" content="2020-09-21T08:21:40+00:00" />
+<meta property="article:modified_time" content="2020-09-21T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Coturn Server 架設教學 - on AWS"/>
+<meta name="twitter:description" content="Coturn 是知名的 open source STUN/TURN server，本篇分享如何在 AWS 上架設與遇到的坑，以及設定檔的撰寫等"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Coturn Server 架設教學 - on AWS | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">21</span>
+				<span class="rest">Sep 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Coturn Server 架設教學 - on AWS</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>公司 P2P 通信採用 WebRTC tech stack，近日希望自建 STUN/TURN Server，決定採用 <a href="https://github.com/coturn/coturn">Coturn</a> 這套知名的解決方案，在 AWS 架設過程遇到一些坑，決定分享如何架設，並分享設定檔如何設定與操作<br>
+以下包含</p>
+<ol>
+<li>Coturn 於 AWS 上的架設與測試</li>
+<li>介紹設定檔內容</li>
+<li>上 Production 的考量</li>
+<li>補充 NAT 與 STUN/TURN 關係</li>
+</ol>
+<p>如果想知道更詳細的協定介紹，請參考</p>
+<ol>
+<li><a href="https://yuanchieh.page/posts/2020-09-22_rfc-5389-stun-%E5%8D%94%E5%AE%9A%E4%BB%8B%E7%B4%B9/">RFC 5398 - STUN</a></li>
+</ol>
+<p>如果想要用 Container 架設，可以參考我用 docker-compose 架設的方式 <a href="https://github.com/sj82516/coturn-with-prometheus-grafana-on-docker">Running Coturn + Promethes + Grafana in Docker</a></p>
+<h2 id="coturn-於-aws-上的架設">Coturn 於 AWS 上的架設</h2>
+<p>使用 Ubuntu 18.04 非常簡單，只要以下指令就能啟動 Coturn</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ sudo apt-get -y update 
+$ sudo apt-get -y install coturn
+</code></pre></div><blockquote>
+<p>強烈建議使用 <code>Ubuntu 18.04</code> 而不要用 <code>Amazon Linux 2</code>，Amazon Linux 2 要自己處理各種套件的相依性，架設過程花了半天還沒架起來</p>
+</blockquote>
+<blockquote>
+<p>用 apt-get install 的話，會被限制版本，如果有其他需求，例如支援除了 SQLite 以外的 DB，或是要安裝 Prometheus，建議從 source code build 起，可以參考另一篇文章</p>
+</blockquote>
+<p>安裝後會有幾個 command 能夠使用</p>
+<ol>
+<li>turnserver<br>
+啟動 STUN/TURN server instance</li>
+<li>turnadmin<br>
+介面管理後台<br>
+其餘都是測試用工具</li>
+<li>turnutils_peer<br>
+UDP-only echo server，檢測連線使用</li>
+<li>turnutils_stunclient<br>
+呼叫 STUN server 並取得回應</li>
+<li>turnutils_uclient<br>
+可以模擬多人連線 TURN server 並取得回應</li>
+</ol>
+<p>上一步安裝後預設會自行啟動 Coturn，但為了後續的實驗，先把 turn service 關閉</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ sudo service coturn status
+// 如果有在運行，先關閉
+$ sudo service coturn stop
+</code></pre></div><p>接著啟動 turnserver</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ sudo turnserver
+</code></pre></div><p>稍微看一下 command line 跳出的訊息，大致說明</p>
+<ol>
+<li>file descriptor 上限，這會影響最大連線數，可以透過 <code>$ sudo ulimit -n {number}</code>去調整</li>
+<li>支援的通訊協定，預設 STUN 支援 UDP / TCP / DTLS，但因為目前沒有指定憑證，所以 DTLS 不支援</li>
+<li>採用的 Database，預設使用 SQLite，主要用來儲存 admin 資訊 / turn 連線資訊等，同時支援 MySQL / Redis / PostgreSQL / MongoDB，可以自由替換；<br>
+根據 Spec <code>STUN/TURN Server 處理連線是 State-less</code>，意即 Database 不是用來儲存連線資料，所以不用擔心會是 bottleneck (如果 Coturn 遵守 Spec 的話)</li>
+</ol>
+<p>看一下有沒有什麼錯誤，cli-password 錯誤可以先忽略</p>
+<h3 id="啟動-turnserver">啟動 turnserver</h3>
+<p>要測試之前，我們需要先設定 AWS security group，開放以下的 port</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">3478: UDP+TCP // TURN Server 接收 request 的 port 
+5394: UDP+TCP  // TURN Server 接收 TLS request 的 port 
+49152-65536: UDP+TCP  // 實際連線的 Socket Port range
+</code></pre></div><p>以上三個都能夠調整，但就先採用預設</p>
+<p>接著啟動 turnserver</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">sudo turnserver -v --lt-cred-mech --user hello:world --realm &lt;your domain name&gt; --external-ip &lt;your instance public-ip&gt;
+</code></pre></div><p>以上的參數代表</p>
+<ol>
+<li><code>-v</code>: 顯示詳細的 log</li>
+<li><code>--lt-cred-mech</code>: 指定為 long term credential，稍後解釋</li>
+<li><code>--user {username}:{password}</code>: 搭配 long term credential，指定 username / password</li>
+<li><code>--realm</code>: 指定 TURN server 對應的 domain name，提示 client 要採用對應的驗證方式</li>
+<li><code>--external-ip</code>: 指定 external ip，在 Coturn 文件寫到，如果是在 AWS EC2 上架設 external-ip 只要指定 public ic</li>
+</ol>
+<p>記得要去將綁定 domain name A record 指向 AWS instance</p>
+<p>接著，有幾種測試方法</p>
+<h4 id="1-使用-coturn-自帶的-test-tool">1. 使用 Coturn 自帶的 test tool</h4>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ turnutils_uclient -T &lt;server ip&gt;
+$ turnutils_stunclient &lt;server ip&gt;
+</code></pre></div><p>第一個會嘗試傳送封包，可以看 packet 的 loss rate 是否為 0 /<br>
+第二個會回傳主機 public ip (如果前面沒有 NAT 的話)，也就是 STUN 最主要的功用</p>
+<h4 id="2-用瀏覽器開啟-webrtc-samples-trickle-ice">2. 用瀏覽器開啟 WebRTC samples Trickle ICE</h4>
+<p><img src="/posts/img/20200922/trickle-ice.png" alt=""><br>
+輸入 server domain 時記得要加 <code>turn:{domain name}</code>，就可以成功拿到 STUN (srflx) / TURN (relay) 的紀錄</p>
+<p>測試了一下，Chrome / Firefox 不支援 no auth 設定，Chrome 不支援 ip based 的 server</p>
+<p>這樣就完成第一步的設定與測試，接著看 Coturn 的完整介紹與設定</p>
+<h2 id="設定檔">設定檔</h2>
+<p>設定檔的預設路徑為 <code>/etc/turnserver.conf</code>，也就是等等會修改的文件，可以放在其他地方用 cmd 指定<br>
+也可以從網路上看到官方的預設設定檔 <a href="https://raw.githubusercontent.com/coturn/coturn/master/examples/etc/turnserver.conf"># Coturn TURN SERVER configuration file</a></p>
+<h3 id="驗證">驗證</h3>
+<p>STUN 的費用很便宜，只有簡單的 request / response，但是 TURN 就非常貴，因為要回放(Relay) P2P 的 media stream，所以 Bandwidth 相當驚人，這時候就需要加上帳號密碼的檢查</p>
+<p>TURN 支援兩種模式，建議是兩者選其中一者</p>
+<h4 id="long-term-credential">long term credential</h4>
+<p>長期憑證屬於靜態類型，也就是 Client / Server 共用固定的帳號密碼，例如上述的 hello:world<br>
+在設定檔中</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">lt-cred-mech
+user=hello:world
+user=hello2:world2
+....
+</code></pre></div><h4 id="short-term-credential">short term credential</h4>
+<p>如果希望發給 Client 短期的憑證，或是希望多一層授權的流程例如從 API Server 給予等等，可以使用短期憑證</p>
+<p>TURN 實作的方式是 Client / Server 共享一個固定的 secret key，接著使用 <code>HMAC_SHA1 將 username hashed</code>，username 的前半段是 unix timestamp<br>
+所以 TURN server 收到後，從 username 可以看出過期時間，透過 HMAC_SHA1 可以確保是由合法的 Client 所送出<br>
+設定檔寫法</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">use-auth-secret
+static-auth-secret={secret}
+</code></pre></div><p>Nodejs 版本的產生規則如下，參考自 <a href="https://stackoverflow.com/questions/35766382/coturn-how-to-use-turn-rest-api/35767224#35767224">CoTURN: How to use TURN REST API?</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> crypto <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;crypto&#39;</span>);
+
+<span style="color:#586e75">// name 隨便填沒有關係
+</span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> getTURNCredentials(name, secret){    
+    <span style="color:#268bd2">var</span> unixTimeStamp <span style="color:#719e07">=</span> <span style="color:#b58900">parseInt</span>(<span style="color:#b58900">Date</span>.now()<span style="color:#719e07">/</span><span style="color:#2aa198">1000</span>) <span style="color:#719e07">+</span> <span style="color:#2aa198">24</span><span style="color:#719e07">*</span><span style="color:#2aa198">3600</span>,   <span style="color:#586e75">// this credential would be valid for the next 24 hours
+</span><span style="color:#586e75"></span>        username <span style="color:#719e07">=</span> [unixTimeStamp, name].join(<span style="color:#2aa198">&#39;:&#39;</span>),
+        password,
+        hmac <span style="color:#719e07">=</span> crypto.createHmac(<span style="color:#2aa198">&#39;sha1&#39;</span>, secret);
+    hmac.setEncoding(<span style="color:#2aa198">&#39;base64&#39;</span>);
+    hmac.write(username);
+    hmac.end();
+    password <span style="color:#719e07">=</span> hmac.read();
+    <span style="color:#719e07">return</span> {
+        username<span style="color:#719e07">:</span> username,
+        password<span style="color:#719e07">:</span> password
+    };
+}
+</code></pre></div><h3 id="網路設定">網路設定</h3>
+<p>網路設定就放在一塊看</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">external-ip=&lt;public ip&gt;
+fingerprint
+realm=turn.yuanchieh.page
+</code></pre></div><p>以上是必須設定的參數</p>
+<ol>
+<li>external-ip:<br>
+TURN server 的 public ip，看文件完整的設定是 <code>external-ip=&lt;public ip&gt;/&lt;private ip&gt;</code>，但因為在 AWS 上 EC2 處於 NAT 之後，所以只能放 public ip</li>
+<li>fingerprint:<br>
+主要是 TURN Server 用來區分 packet，後續的 Spec 會有更詳細介紹</li>
+<li>realm:<br>
+設定為自己指向 TURN Server 的 domain name，文件表示 TURN Server 可以指定多個 realm，每個 realm 有各自的 user 權限管理，Client 表明所屬的 realm 就能用對應的 user 檢查</li>
+</ol>
+<p>其餘還有非常多的設定，例如說</p>
+<ol>
+<li>是否要開放 UDP / TCP / DTLS / stun-only</li>
+<li>設定不同的 port / port ranage</li>
+<li>指定的 DB / Log 等等</li>
+<li>每次連線 session 的時長 / 每個 user 的連線 quota 等等 <br>
+這些細部的設定可以在慢慢看或是保留預設即可</li>
+</ol>
+<p>以下是我測試過成功的設定檔</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">external-ip=52.72.33.185
+verbose
+fingerprint
+use-auth-secret
+static-auth-secret=north
+realm=turn.yuanchieh.page
+</code></pre></div><p>啟動 turnserver 時透過 <code>-c</code> 指定 turnserver.conf 的位置，完成後建議在使用測試工具測試過</p>
+<h2 id="sample-code">Sample Code</h2>
+<p>為了更方便測試 TURN Server，自己寫了一個 Sample Code <a href="https://github.com/sj82516/webrtc-turn-server-test">Connection through self-hosted TURN server</a>，或是直接看 Demo Page <a href="https://webrtc-turn-server-test.vercel.app/">https://webrtc-turn-server-test.vercel.app/</a>，輸入對應的帳號密碼，會主動生成對應的 iceServers</p>
+<h2 id="go-to-production">Go To Production</h2>
+<p>準備上正式環境時，還有監控以及可用性的調整</p>
+<h3 id="監控">監控</h3>
+<p>2020/12/04更新：目前 4.5.2 可以支援 <code>prometheus</code> 囉，可是只有支援 Debian，其他平台尚未支援，另外要注意直接用 <code>apt-get install coturn 版本目前是不支援 prometheus，需要自己手動編譯喔</code></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Version 4.5.2 &#39;dan Eider&#39;:
+	- fix null pointer dereference in case of out of memory. (thanks to Thomas Moeller for the report)
+    - merge PR #517 (by wolmi)
+		* add prometheus metrics
+</code></pre></div><blockquote>
+<p>Warning: 撰文時開啟 prometheus 會有記憶體問題，建議先不要使用喔，詳見 github issue <a href="https://github.com/coturn/coturn/issues/666">https://github.com/coturn/coturn/issues/666</a></p>
+</blockquote>
+<p><del>看到文件的範例以及設定檔支援 <code>prometheus</code> 這套開源的監控工具，但可惜實測下來暫時無法使用(4.5.1.2)，雖然說有相關的 branch 已經 merged 但是 Issue 還是開著 <a href="https://github.com/coturn/coturn/issues/474">support export metrics to prometheus #474</a></del></p>
+<h3 id="可用性">可用性</h3>
+<p>如果只有單台 TURN server 掛掉導致服務中斷就很慘了，官方有幾個可用性/Load Balance 作法</p>
+<ol>
+<li>TCP Level LB Proxy:<br>
+需注意如果有使用 TURN 功能，必須確保同一個 Client 持續連到同一台 TURN Server，否則普通的 TCP LB 即可</li>
+<li>DNS:<br>
+透過 DNS Round-Robin 紀錄，讓 Client 連到對應的 TURN Server</li>
+<li>內建的 ALTERNATE-SERVER:<br>
+需要在所有的 TURN Server 之前建一台 LB，這台 LB 按照流量回給 Client ALTERNATE-SERVER 的錯誤，Client 就會按照指定的 Server 去走，達到 LB 的效果</li>
+</ol>
+<p>看來看去，採用 DNS 比較方便，AWS Route53 支援定期檢查 Server 狀態，只會回傳健康的 Server，同時能採用 Latency based 或是 Region based 的 DNS 紀錄，讓全球部署更加方便</p>
+<h2 id="nat-介紹與-stunturn-使用">NAT 介紹與 STUN/TURN 使用</h2>
+<p>先前有提到因為 NAT 關係，所以要建立 P2P 連線會需要 STUN Server 的幫助，但有一種 NAT 是必須透過 TURN Server，以下解釋這部分的狀況</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2">Wiki NAT 網路位址轉換</a><br>
+<a href="https://blog.csdn.net/eydwyz/article/details/87364157">NAT的四种类型</a></p>
+<p>簡單整理上面文中的重點</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ClientA (192.168.9.1:3000) ---&gt; NAT (8.8.8.8:800) ---&gt; Server1 (1.1.1.1:1000)
+</code></pre></div><p>ClientA 預先與 Server1 取得連線，此時假設 Server2 (2.2.2.2) 想要從 (8.8.8.8:800) 送資料給 ClientB</p>
+<ol>
+<li>完全圓錐型NAT <br>
+允許</li>
+<li>受限圓錐型NAT  <br>
+必須 ClientA 也送過請求給 Server2 (2.2.2.2)才可以</li>
+<li>埠受限圓錐型NAT   <br>
+必須 ClientA 也送過請求給 Server2 (2.2.2.2:1000)才可以，相較於上者 Port 必須固定</li>
+<li>對稱NAT<br>
+不允許</li>
+</ol>
+<p>所以在 WebRTC 下，如果 Client 在完全圓錐型NAT，任一方發請連線都可以；<br>
+如果是在二、三種，則 Client 必須雙方同時發送請求，才符合 NAT 轉發條件；<br>
+第四種則不允許直接的 P2P</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/webrtc/"> webrtc </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e9%9b%b2%e7%ab%af%e8%88%87%e7%b3%bb%e7%b5%b1%e6%9e%b6%e6%a7%8b/"> 雲端與系統架構 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

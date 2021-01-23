@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Redlock 是一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制"><meta property="og:title" content="Redis Lock (Redlock) 分散式 lock 原理分析與實作" />
+<meta property="og:description" content="Redlock 是一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-01-14_redis-lock-redlock-%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E8%88%87%E5%AF%A6%E4%BD%9C/" />
+<meta property="article:published_time" content="2020-01-14T05:21:40+00:00" />
+<meta property="article:modified_time" content="2020-01-14T05:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Redis Lock (Redlock) 分散式 lock 原理分析與實作"/>
+<meta name="twitter:description" content="Redlock 是一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Redis Lock (Redlock) 分散式 lock 原理分析與實作 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">14</span>
+				<span class="rest">Jan 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Redis Lock (Redlock) 分散式 lock 原理分析與實作</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>先前公司遇到 Client 在不明狀況下連續呼叫註冊用戶的 API 兩次，導致用戶被重複建立，導致後續的 API 操作與資料分析異常，所以決定加上 Lock 機制避免重複建立的問題</p>
+<p>剛好在 Redis 官網看到 Redlock，一種 Redis 作者 antirez 基於 Redis 設計的分散式 lock 機制，並且已經有了 Nodejs 版本的實作，所以就決定採用這套方法，也確實解決了問題</p>
+<p>本次部落格會摘錄官方說明 <a href="https://redis.io/topics/distlock">Distributed locks with Redis</a>，並整理 Martin Kleppmann 提出質疑 <a href="http://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">How to do distributed locking</a>與作者再次回復 <a href="http://antirez.com/news/101">Is Redlock safe?</a></p>
+<p>題外話介紹 Martin Kleppmann，他就是《Designing Data-Intensive Applications》一書的作者，目前仍是我最推薦的工程書籍，可以參考之前的筆記<br>
+<a href="https://yuanchieh.page/posts/2018-03-28_designing-data-intensive-applications-%E4%B8%8A/">技術筆記 Designing Data-Intensive Applications 上</a><br>
+<a href="https://yuanchieh.page/posts/2018-04-19_designing-data-intensive-applications-%E4%B8%8B/">技術筆記 Designing Data-Intensive Applications 下</a></p>
+<h1 id="redlock-簡介">Redlock 簡介</h1>
+<p>當我們在設計分散式 Lock 機制時，有三點原則必須考量到</p>
+<ol>
+<li><strong>Safety</strong> <br>
+當 Lock 被取走後，在釋放之前不能有另一個 Client 取得 Lock，也就是 <code>mutual exclusive</code></li>
+<li><strong>DeadLock Free</strong><br>
+Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client 跨掉而 Lock 從此不能被釋放</li>
+<li><strong>Fault Tolerance</strong><br>
+整體系統不能有單一節點失敗的可能，必須考量系統容錯性</li>
+</ol>
+<p>後續解說演算法實作時，會不斷去檢視這三點原則是否被滿足</p>
+<p>需注意到<code>容錯機制</code>可能會聯想到 Master / Slave 架構，但是在 Redis 中 Slave 資料備份是非同步的，所以當 Master 掛掉到 Slave 接手，中間的時間差 Client 有機會取得多個相同 Lock，這會違反第一點原則，Cluster 架構同理</p>
+<p>所以這裡作者提議的容錯機制主要基於 <code>Multi-Master</code> 機制，後續會有更深入的解釋</p>
+<h2 id="單機原則">單機原則</h2>
+<p>再考量分散式設計之前，讓我們先思考單一台 Redis 如何實作 Lock 機制</p>
+<h3 id="取得-lock">取得 Lock</h3>
+<p>當要取得 Lock，可以用以下的指令</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SET resource_name my_random_value NX PX 30000
+</code></pre></div><p><code>NX</code> 表示只有當 <code>resource_name</code> 不存在才創建這個 Key，避免重複建立，符合第一點原則 <br>
+<code>Px 30000</code> 表示 Key 的 TTL 是 30秒，符合第二點原則</p>
+<h3 id="釋放-lock">釋放 Lock</h3>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#268bd2">if</span> redis.call(<span style="color:#2aa198">&#34;get&#34;</span>,KEYS[<span style="color:#2aa198">1</span>]) <span style="color:#719e07">==</span> ARGV[<span style="color:#2aa198">1</span>] <span style="color:#268bd2">then</span>
+    <span style="color:#268bd2">return</span> redis.call(<span style="color:#2aa198">&#34;del&#34;</span>,KEYS[<span style="color:#2aa198">1</span>])
+<span style="color:#268bd2">else</span>
+    <span style="color:#268bd2">return</span> <span style="color:#2aa198">0</span>
+<span style="color:#268bd2">end</span>
+</code></pre></div><p>在釋放 Key 時，必須先檢查 Key 對應的 Value是不是我們一開始塞進去的值，也就是上個步驟的 <code>my_random_value</code>，這是要確保移除的 Lock 是當初我們取得的 Lock，試想一下情況</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. Client A 取得 Lock  
+2. Client A 時間超過 TTL，Redis 移除 Lock  
+3. Client B 取得相同 Lock，因為 Client A 超時所以 Client B 可以取得 Lock  
+4. Client A 此時要釋放 Lock  
+</code></pre></div><p>步驟四如果沒有檢查，Client A 不小心移除了 Client B 的 Lock，此時就會破壞第一點原則</p>
+<h3 id="random-string">Random String</h3>
+<p>Random String 的產生機制，可以取 <code>/dev/urandom</code> 的 20 bytes，/dev/urandom 是*unix 系統產生偽亂數的方式，依據設定的不同可能是從環境噪音、網路數據封包等外在物理現象，這樣的做法可以保證較好的隨機性，也可以用其他簡單的方式，例如取系統時間加上 client_id 等等，取決於實作者的設計</p>
+<h2 id="套用至分散式系統">套用至分散式系統</h2>
+<h3 id="取得-lock-1">取得 Lock</h3>
+<p>假設目前有 N 台 Redis master，這 N 台都跑在獨立的環境上而非使用 Cluster 架構，假設 N=5，以下是實作步驟</p>
+<ol>
+<li>取得當前時間 T1</li>
+<li>用相同的 Key / Value 依序取得 N 台的 Lock，在取得 Lock 時要設定連線Timeout，此 Timeout(ex. 5~50ms) 應該遠小於 Lock 的 TTL (ex. 10s)，避免 Client 浪費太多時間在等死掉的 Redis Server，Client 因儘速取得 Lock</li>
+<li>當取得 Lock 後，假設此時時間為 T2，Client 檢查 T2-T1 是否大於 Lock 有效時間 TTL，只有當<code>時間有效且大多數的 Redis Servre(過半數，也就是 &gt;=3)</code> 才算是有效取得 Lock</li>
+<li>此時 Lock 僅剩有效時間是 T2 - T1</li>
+<li>如果 Client 取得 Lock 失敗 (例如有效時間是負數、無法取得過半 Redis Master Lock)，Client 必須對每一台 Redis Master 發送釋放 Lock 指令，即使該台 Redis Master 沒有給他 Lock</li>
+</ol>
+<p>分散式代表各個程序沒有同步的時間上，而且每台機器因為計時器的物理性質，會有時間偏差的問題(Clock Drift 問題) <br>
+時間計算會影響第三步驟的有效時間，所以需要減去一點偏差當作補償，但現實世界的時間計算頂多就幾個毫秒的誤差</p>
+<p>所以實際 Lock 的有效時間會是 <code>TTL - (T2-T1) - CLOCK_DRIFT</code></p>
+<h3 id="retry">Retry</h3>
+<p>如果 Client 取得 Lock 失敗，應該在一定秒數後隨機 delay 一段時間，再次重新嘗試，隨機 delay 是為了錯開同時多個 Client，讓較快者可以先取得 Lock，如果 Client 沒有取得 Lock，應該儘速釋放 Lock</p>
+<h3 id="釋放-lock-1">釋放 Lock</h3>
+<p>同時向所有的 Redis Master 釋放 Lock</p>
+<h2 id="檢驗演算法">檢驗演算法</h2>
+<p>因為再依序取得 Lock 會有時間差，假設 Client 從第一個 Redis Master 取得 Lock 時間為 <code>T1</code>，最後一個 Master 回傳時間為 <code>T2</code>，那麼第一個 Lock 僅剩的生命時間是 <code>TTL - (T2 - T1) - Clock Drift</code>，這也就是最小有效時間 MIN_VALIDITY
+Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p>
+<p>假設 Client 取 Lock 時間 (T2-T1) &gt; TTL，也就是 Client 取到最後一個 Lock 時第一個 Lock 已經失效了，那此時就會全部釋放，不會有錯誤產生</p>
+<p>假設 Client 成功取得 Lock，那在先前的條件保證，沒有其他用戶可以在 MIN_VALIDITY 內取得大多數 Master 的 Lock，也就不會破壞 Lock 的原則性</p>
+<blockquote>
+<p>要確保 MIN_VALIDITY 的時間內關鍵資源能夠運作完成，不然 TTL 過後 Lock 被其他人取走，Lock 就失去互斥原則</p>
+</blockquote>
+<h2 id="性能故障復原">性能、故障復原</h2>
+<p>Redis 常用於高性能需求的場景，我們會希望 Lock 取得/釋放可以越快，增加 throughput 與降低延遲，在過程最好的方式是 Client 同時向多台 Master 取 Lock</p>
+<p>另外考量到故障復原的部分，假設今天取得 Lock 後 Master 故障了，假使沒有開 <code>AOF</code> 儲存機制，那可能 Lock 沒有保存到磁碟上，復原時遺失就有機會違反第一點原則<br>
+假使有開 <code>AOF</code>，也記得要調整 <code>fsync</code> 頻率，最保險是設成 always，但這會影響性能</p>
+<p>但除了即時資料備份到磁碟上外，還可以考慮另一種做法，當 Master 故障復原後，<code>延遲重啟的時間大於 TTL</code>，也就是說讓原先 Master 上的 Lock 都釋放或自動失效，之後再重新加入就能避免違反安全原則，不過要小心如果超過多數的 Server 故障，需要等相對長的時間才能重新運作，此階段 Lock 都無法取得</p>
+<p>最後如果有餘裕可以設計延長 Lock，讓握有 Lock 的 Client 可以延長手中的 Lock</p>
+<p>以上是摘錄自官網文件的整理</p>
+<h2 id="nodejs-package---redlock-實作">Nodejs Package - Redlock 實作</h2>
+<p>看完演算法，來看一下 Nodejs 版本的實作 <a href="https://github.com/mike-marcacci/node-redlock">mike-marcacci/node-redlock</a></p>
+<p>他在 <code>Redlock.prototype._lock</code> 部分實現 Lock 機制</p>
+<p>截幾個關鍵片段，輪詢所以的 server</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">return</span> self.servers.forEach(<span style="color:#268bd2">function</span>(server){
+    <span style="color:#719e07">return</span> request(server, loop);
+});
+</code></pre></div><p>request 主要封裝 lock 的 script，支援如果同時多個 resource 要鎖可以一起鎖</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">request <span style="color:#719e07">=</span> <span style="color:#268bd2">function</span>(server, loop){
+    <span style="color:#719e07">return</span> server.<span style="color:#b58900">eval</span>(
+        [
+            self.lockScript,
+            resource.length,
+            ...resource,
+            value,
+            ttl
+        ],
+        loop
+    );
+};
+</code></pre></div><p>這一段考量到 drift 問題，檢查 Lock 的有效時間，並且只有在取得多數 Redis Server 同意才往下繼續</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// Add 2 milliseconds to the drift to account for Redis expires precision, which is 1 ms,
+</span><span style="color:#586e75">// plus the configured allowable drift factor
+</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> drift <span style="color:#719e07">=</span> <span style="color:#b58900">Math</span>.round(self.driftFactor <span style="color:#719e07">*</span> ttl) <span style="color:#719e07">+</span> <span style="color:#2aa198">2</span>;
+<span style="color:#268bd2">const</span> lock <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Lock(self, resource, value, start <span style="color:#719e07">+</span> ttl <span style="color:#719e07">-</span> drift, attempts);
+
+<span style="color:#586e75">// SUCCESS: there is concensus and the lock is not expired
+</span><span style="color:#586e75"></span><span style="color:#719e07">if</span>(votes <span style="color:#719e07">&gt;=</span> quorum <span style="color:#719e07">&amp;&amp;</span> lock.expiration <span style="color:#719e07">&gt;</span> <span style="color:#b58900">Date</span>.now())
+    <span style="color:#719e07">return</span> resolve(lock);
+</code></pre></div><p>主要關鍵是這幾個部分，其餘的就是封裝</p>
+<h2 id="martin-kleppmann-的質疑">Martin Kleppmann 的質疑</h2>
+<h4 id="中斷導致-lock-有效判斷錯誤">中斷導致 Lock 有效判斷錯誤</h4>
+<p>在分散式系統設計中，時間是一個非常難以掌握的因素，程序可能因為各種狀況而導致時間序錯亂，例如說系統時間不準、網路延遲、程式運作遇到垃圾回收、作業系統切換 Process 導致中斷等，所以各種檢查機制都有可能因而出現錯誤，例如以下的例子
+<img src="/posts/img/unsafe-lock.jpeg" alt=""></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. Client1 取得 Lock 後
+
+2. 結果遇到 GC 暫停運作
+
+3. Lock 超過 TTL 自動釋放，此時
+
+4. Client2 成功取得 Lock，並更新 DB 紀錄  
+
+5. 接著 Client 從 GC 中恢復，他以為自己手上有 Lock 可以去更新 DB
+</code></pre></div><p>這樣就違反了 Lock 的安全性原則</p>
+<p>直覺解法是在更新 DB 之前 Client 再去檢查 Lock 的時效性，但 GC 可能卡在檢查完之後的那一個點，所以設定再多檢查都是沒用的</p>
+<p>實際解法也蠻直覺的，系統全域有個不斷遞增的發號機制，每取一次 Lock 就配一個數字，在 DB 更新的時候，檢查對應的數字是不是有大於上次更新的數字，就可以避免掉上述提到的問題，就是 <code>Fencing 機制</code></p>
+<p><img src="/posts/img/fencing-tokens.jpeg" alt=""></p>
+<h3 id="太快樂觀預估時間的複雜性">太快樂觀預估時間的複雜性</h3>
+<p>TTL 的「時間」計算有實作問題，Redis 目前使用 <code>gettimeofday</code> 而非 <code>monotonic clock</code> 的時間<br>
+前者是系統時間，這是可以被調動，例如 NTP Server 同步 / Admin 手動調整等，所以時間可能大幅度前後跳動<br>
+而後者是每當 timmer 發出 interrupt 就 <code>持續遞增永不回頭</code>，所以在判斷兩個點的絕對時間差用後者會比較精準</p>
+<p>試想如果 Client1 取得 Lock 後 Redis 時間跳轉立刻 Lock 失效，結果 Client2 又可以拿到 Lock，就會違反安全性原則</p>
+<p>此外 Martin Kleppmann 認為 Redlock <code>預設太多時間因素是可預期的</code>，像是網路延遲、時鐘偏移等問題，但這不是分散式演算法正確的設計方式，所以 Redlock 的安全性是建立在半同步系統當中(意即各種時間因素是有上限且可以被假設的)，而不是真正的分散式設計</p>
+<h2 id="antirez-再次回復">antirez 再次回復</h2>
+<p>以上兩點主要是被質疑的部分，接著看 antirez 回覆</p>
+<h3 id="當自動釋放機制導致-lock-的-mutual-exlusive-機制失效時">當自動釋放機制導致 Lock 的 Mutual Exlusive 機制失效時</h3>
+<p>在 Martin 第一點質疑中，他覺得要加上遞增的 Token 當作保護機制，避免 Client 手上 Token 過期還去更新 Resource，達到<code>強保證性</code></p>
+<p>讓我們先回過頭來想為什麼我們會需要分散式 Lock，正是因為我們的關鍵資源本身沒辦法一次只服務一個請求 (<code>linearizable</code>)，如我自身案例是 API Server 同時有多台</p>
+<p>而 Martin 提出的系統全域有個遞增 Token，關鍵資源在操作時會先去檢查 Token，這本身就是個 linearizable store，讓所以的操作不再併發而變成線性逐一處理，這本身就與分散式的現況矛盾</p>
+<p>再者如果有個遞增 Token 系統，那 Redlock 在產生 Lock 的 Value 時，用這個遞增 Token 取代原本的隨機字串也有一樣的效果</p>
+<p>又或是根本不需要遞增函數，只要把隨機字串也記錄到關鍵資源上，在操作時去比對先後兩者是否相同，同樣有 Fencing 的效果</p>
+<h3 id="基於時間的過多理想化假設">基於時間的過多理想化假設</h3>
+<p>作者承認 Redis 應該改用 monotonic time，但是看來還沒有個結論是否要修正 <a href="https://github.com/antirez/redis/issues/416">Redis Repo - (#416) Use monotonic clock when available</a>，主要問題在於並非所有系統都支援 monotonic time API</p>
+<p>關於時間跳動的問題，作者並沒有給出很明確的答案，但看來只能盡量避免(例如 Admin 不要改動系統時間)而不是從演算法的部分改進，因為目前 Redis 還不是用 monotonic time API</p>
+<p>接著考量一個情況</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. 取得當前時間
+
+2. 取得 Lock
+
+3. 計算當前時間
+
+4. 檢查 Lock 是否還在有效期間
+
+5. 如果有 Lock，則繼續處理
+</code></pre></div><p>在步驟一到三，不論是網路延遲、程序中斷等時間問題，都沒有關係，因為步驟四會再次檢查 Lock</p>
+<p>但如果是在第四步到第五步之間，這時候<code>沒有任何有自動釋放機制的分散式 Lock</code> 可以保證 Mutual Exclusive，只能靠關鍵資源本身的機制，這就回到上一步說的 Fencing 機制，例如說 DB 就寫入遞增 Token 或隨機字串，讓後者不能更新</p>
+<blockquote>
+<p>所以 Redlock 安全嗎？</p>
+</blockquote>
+<p>答案取決於對於安全的要求有多高，</p>
+<ol>
+<li>配置多台 Redis Server 並開啟 fsync = always 的 Redlock 機制</li>
+<li>在系統時間沒有大幅度跳動的情況下</li>
+<li>Lock TTL 保證大於關鍵資源的運行時間或是在關鍵資源處有 fencing 機制<br>
+符合這三點 Redlock 就是安全的</li>
+</ol>
+<p>正因為我們沒有其他方法避免 Race Condition，才會採用 Redlock 或是其他樂觀鎖的處理機制</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

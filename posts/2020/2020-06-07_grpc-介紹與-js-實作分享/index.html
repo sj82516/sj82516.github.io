@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="gRPC 是一種由 Google 推出的 Client / Server 通訊協定，有別於一般常見的 HTTP &#43; JSON 的 API Endpoint，gRPC 帶來了協作與效率上改進"><meta property="og:title" content="gRPC 介紹與 Nodejs 實作分享" />
+<meta property="og:description" content="gRPC 是一種由 Google 推出的 Client / Server 通訊協定，有別於一般常見的 HTTP &#43; JSON 的 API Endpoint，gRPC 帶來了協作與效率上改進" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-06-07_grpc-%E4%BB%8B%E7%B4%B9%E8%88%87-js-%E5%AF%A6%E4%BD%9C%E5%88%86%E4%BA%AB/" />
+<meta property="article:published_time" content="2020-06-07T08:21:40+00:00" />
+<meta property="article:modified_time" content="2020-06-07T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="gRPC 介紹與 Nodejs 實作分享"/>
+<meta name="twitter:description" content="gRPC 是一種由 Google 推出的 Client / Server 通訊協定，有別於一般常見的 HTTP &#43; JSON 的 API Endpoint，gRPC 帶來了協作與效率上改進"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>gRPC 介紹與 Nodejs 實作分享 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">07</span>
+				<span class="rest">Jun 2020</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">gRPC 介紹與 Nodejs 實作分享</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>一般的 API Endpoint 設計採用 RESTful API規範，不過 RESTful 比較指稱的是 Client/Server 的架構設計而不是侷限於 API Endpoint 的設計規範，更準確的說法是 HTTP + JSON 格式，佔據多數的 API 設計近一二十年 (SOAP/WSDL 因為工作中沒有使用過就不描述)</p>
+<p>但因應新的網路應用程式，不斷有新的設計嘗試去更進 API 設計，近年有 Facebook 提出了 <code>GraphQL</code>，將讀取資料的彈性交還給 Client，適應多屏幕多裝置 Client 的應用場景</p>
+<p>又或是今天要探討的 <code>gRPC</code>，由 Google 基於 http/2 提出且廣泛應用在微服務架構中，主要希望改善幾個問題</p>
+<ol>
+<li><strong><code>API 文件化與 Client 實作繁雜</code></strong><br>
+一般的 API 設計是 Server 開好 HTTP endpoint 後，定義好參數並撰寫文件，接著 Client 再閱讀文件實作；<br>
+好處是解耦的很徹底，不管有幾個 Client 或是使用什麼程式語言，按照 API 介面實作即可；  <br>
+但同樣的要維護時相對成本也比較高，像是參數的名稱與型別，都必須雙方去維護與閱讀文件，再用程式碼實作，中間多了一層的轉換 <br>
+gRPC 預設採用 <code>protocol buffer</code> 當作 IDL (介面定義語言)，將 Endpoint 提供的服務/參數/回傳值都定義好名稱與型別，<code>當作 Server / Client 實作的 Interface</code>，大幅降低雙方溝通的成本</li>
+<li><strong><code>增加傳輸效率</code></strong><br>
+gRPC 預設使用 <code>protocol buffer</code> 當作編碼/解碼傳輸內容，比用文字描述的 JSON 在檔案大小與網路傳輸效率上更具備優勢，專案中有提供 <a href="https://github.com/david-cao/gRPCBenchmarks">Android client benchmark</a>，gRPC 的延遲遠比 JSON 要快上許多</li>
+<li><strong><code>應用彈性</code></strong> <br>
+傳統的 HTTP 就是 Request/Response 一來一往，在 grpc 中稱為 Unary Call，但是 gRPC 額外提供 <code>streaming</code>，可以分批在同一個 request response 中傳送多次 payload，設計更有彈性的溝通方式</li>
+<li><strong><code>HTTP verb 並無法完整描述資源的操作</code></strong> <br>
+之前設計 API 頭痛的是 HTTP 的動詞 (GET/POST) 等無法完整描述所有的操作，例如說批次刪除，後來<a href="https://yuanchieh.page/posts/2019-09-18_%E5%A6%82%E4%BD%95%E8%A8%AD%E8%A8%88-rest-api/">參照 Google API 設計文件有找到解法</a>，但還是有這麼一點彆扭<br>
+採用 gRPC 就沒有這方面的規範(與困擾 ?!</li>
+</ol>
+<p>目前 gRPC 由 Google 開源並主力維護，採用的大廠也有不少，也支援許多程式語言 Java/JS(Nodejs &amp; browser)/Python/PHP 等等，Android/iOS App 也都有支援的 Library；<br>
+觀念上要找到映射於 HTTP 還蠻容易的，像是 Http header 對應 gRPC metadata / Http Status Code 對應 gRPC 也有同樣的回傳格式</p>
+<p>以下內容包含</p>
+<ol>
+<li>protocol buffer 簡介與編碼機制</li>
+<li>gPRC 四種傳輸方式介紹與 server 端實作</li>
+<li>錯誤處理與驗證機制 (<code>*Warning 有坑</code>)</li>
+</ol>
+<p>但目前不包含 Client side 實作</p>
+<h2 id="nodejs-實作">Nodejs 實作</h2>
+<p>以下會實作一個簡單的 To-Do List，demo code 於此 <a href="https://github.com/sj82516/grpc-demo">grpc-demo</a></p>
+<h3 id="定義-proto-檔案">定義 .proto 檔案</h3>
+<p>在專案路徑下，建立一個資料夾 <code>./protos</code> 放</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-protobuf" data-lang="protobuf"><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;google/protobuf/empty.proto&#34;</span>;
+
+syntax <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;proto3&#34;</span>;
+
+<span style="color:#719e07">package</span> ToDoService;
+
+<span style="color:#268bd2">message</span> <span style="color:#268bd2">ToDoItem</span> {
+    <span style="color:#dc322f">string</span> title<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>;
+    <span style="color:#dc322f">string</span> author<span style="color:#719e07">=</span><span style="color:#2aa198">2</span>;
+    <span style="color:#dc322f">bool</span> isDone<span style="color:#719e07">=</span><span style="color:#2aa198">3</span>;
+    <span style="color:#dc322f">double</span> createDate<span style="color:#719e07">=</span><span style="color:#2aa198">4</span>;
+}
+
+<span style="color:#268bd2">message</span> <span style="color:#268bd2">ToDoList</span> {
+    <span style="color:#719e07">repeated</span> ToDoItem ToDoList <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>;
+}
+
+<span style="color:#268bd2">message</span> <span style="color:#268bd2">GetQueryOptions</span> {
+    <span style="color:#dc322f">string</span> author <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>;
+}
+
+<span style="color:#268bd2">service</span> ToDoService {
+    <span style="color:#719e07">rpc</span> CreateToDo (ToDoItem) <span style="color:#719e07">returns</span> (ToDoList);
+    <span style="color:#719e07">rpc</span> createMultiToDo (stream ToDoItem) <span style="color:#719e07">returns</span> (google.protobuf.Empty);
+    <span style="color:#719e07">rpc</span> GetToDoListByAuthor (GetQueryOptions) <span style="color:#719e07">returns</span> (stream ToDoItem);
+    <span style="color:#719e07">rpc</span> GetToDoListByAuthorOnFly (stream GetQueryOptions) <span style="color:#719e07">returns</span> (stream ToDoItem);
+}
+</code></pre></div><ol>
+<li><code>import</code>
+可以從其他地方載入 proto 檔案使用裡面的宣告</li>
+<li><code>syntax = &quot;proto3&quot;;</code><br>
+標註使用 protobuffer version</li>
+<li><code>message 宣告型別名稱 { 型別 參數名 = 順序}</code><br>
+型別部分可以參考官網，有提供 int / uint / float / string 等多樣基礎型別，也可以使用自定義型別；<br>
+順序的部分，從 1 開始一路遞增，型別內部的參數順序不能重複，且<code>越小的數字通常是越常使用到的參數</code>，詳見後續補充</li>
+<li><code>service 服務名稱 { rpc 函式名稱 (參數) returns (回傳值) }</code><br>
+如果希望將 proto 用於 rpc，就需要宣告 service 類別，<code>stream</code> 表示參數或回傳值可能會是批次傳送 payload<br>
+這邊定義了四個函式，建立 ToDoItem / streaming 批次建立 ToDoItem / 依照作者批次取得 ToDoItem / 動態改變搜尋作者並動態依照條件回傳 ToDoItem</li>
+</ol>
+<h2 id="server-side-實作">Server side 實作</h2>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> path <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;path&#39;</span>);
+
+<span style="color:#268bd2">const</span> grpc <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;grpc&#39;</span>);
+<span style="color:#268bd2">const</span> protoLoader <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;@grpc/proto-loader&#39;</span>);
+
+<span style="color:#268bd2">const</span> toDoServiceImplementations <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;./implementations/todoService&#39;</span>);
+
+async <span style="color:#268bd2">function</span> main() {
+    <span style="color:#268bd2">const</span> server <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> grpc.Server();
+
+    <span style="color:#268bd2">const</span> PROTO_PATH <span style="color:#719e07">=</span> path.join(__dirname, <span style="color:#2aa198">&#39;./protos/todo.proto&#39;</span>);
+    <span style="color:#268bd2">const</span> packageDefinition <span style="color:#719e07">=</span> protoLoader.loadSync(
+        PROTO_PATH,
+        {
+            keepCase<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>,
+            longs<span style="color:#719e07">:</span> <span style="color:#b58900">String</span>,
+            enums<span style="color:#719e07">:</span> <span style="color:#b58900">String</span>,
+            defaults<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>,
+            oneofs<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>
+        });
+    <span style="color:#268bd2">const</span> toDoProto <span style="color:#719e07">=</span> grpc.loadPackageDefinition(packageDefinition).ToDoService;
+
+    server.addService(toDoProto.ToDoService.service, toDoServiceImplementations);
+    server.bind(<span style="color:#2aa198">&#39;0.0.0.0:50051&#39;</span>, grpc.ServerCredentials.createInsecure());
+    server.start();
+}
+
+main();
+</code></pre></div><p>以上步驟大概是</p>
+<ol>
+<li>建立 grpc server instance</li>
+<li>載入上一步定義的 proto</li>
+<li>將 proto 與實作的 function 結合</li>
+<li>server bind port 並開始運行</li>
+</ol>
+<p>接著看 implementation 部分</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> grpc <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;grpc&#39;</span>);
+
+<span style="color:#268bd2">let</span> todoList <span style="color:#719e07">=</span> [
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello2&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">1.4</span> },
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello2&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">1.4</span> },
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello3&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">1.4</span> },
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;world&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;world&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">1.4</span> },
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;world2&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">1.4</span> },
+    { title<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;world3&#39;</span>, author<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;Hello2&#39;</span>, isDone<span style="color:#719e07">:</span> <span style="color:#cb4b16">null</span>, createDate<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;1.4&#34;</span> }
+];
+
+<span style="color:#268bd2">function</span> CreateToDo(call, callback) {
+    <span style="color:#268bd2">const</span> clientToken <span style="color:#719e07">=</span> call.metadata.get(<span style="color:#2aa198">&#39;token&#39;</span>)<span style="color:#719e07">?</span>.[<span style="color:#2aa198">0</span>];
+    <span style="color:#719e07">if</span>(clientToken <span style="color:#719e07">!==</span> <span style="color:#2aa198">&#39;Secret&#39;</span>){
+        <span style="color:#719e07">return</span> callback({
+            error<span style="color:#719e07">:</span> grpc.status.PERMISSION_DENIED,
+            message<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;No token&#34;</span>
+        })
+    }
+    todoList.push(call.request);
+
+    <span style="color:#719e07">if</span>(todoList.length <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">5</span>){
+        <span style="color:#719e07">return</span> callback({
+            error<span style="color:#719e07">:</span> grpc.status.OUT_OF_RANGE,
+            message<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;too many ToDoItem&#34;</span>
+        })
+    }
+
+    callback(<span style="color:#cb4b16">null</span>, {
+        ToDoList<span style="color:#719e07">:</span> todoList
+    })
+}
+
+async <span style="color:#268bd2">function</span> createMultiToDo(call, callback) {
+    call.on(<span style="color:#2aa198">&#39;data&#39;</span>, (data) =&gt; {
+        todoList.push(data);
+    })
+
+    call.on(<span style="color:#2aa198">&#39;end&#39;</span>, () =&gt; {
+        callback(<span style="color:#cb4b16">null</span>, {});
+    })
+}
+
+<span style="color:#268bd2">function</span> GetToDoListByAuthor(call) {
+    <span style="color:#268bd2">const</span> author <span style="color:#719e07">=</span> call.request.author;
+
+    async <span style="color:#268bd2">function</span> main() {
+        <span style="color:#268bd2">let</span> isAny <span style="color:#719e07">=</span> <span style="color:#cb4b16">false</span>;
+        <span style="color:#719e07">for</span> (<span style="color:#268bd2">const</span> todoItem <span style="color:#719e07">of</span> todoList) {
+            <span style="color:#719e07">if</span> (author <span style="color:#719e07">===</span> todoItem.author) {
+                isAny <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>;
+                call.write(todoItem);
+                await wait(<span style="color:#2aa198">1</span>);
+            }
+        }
+
+        <span style="color:#719e07">if</span> (isAny <span style="color:#719e07">===</span> <span style="color:#cb4b16">false</span>) {
+            <span style="color:#719e07">return</span> call.emit(<span style="color:#2aa198">&#39;error&#39;</span>, grpc.status.PERMISSION_DENIED)
+        }
+
+        call.end()
+    }
+    main()
+}
+
+async <span style="color:#268bd2">function</span> GetToDoListByAuthorOnFly(call) {
+    <span style="color:#268bd2">let</span> author <span style="color:#719e07">=</span> <span style="color:#cb4b16">null</span>;
+    call.on(<span style="color:#2aa198">&#39;data&#39;</span>, (data) =&gt; {
+        console.log(data)
+        author <span style="color:#719e07">=</span> data.author;
+        main();
+    });
+
+    call.on(<span style="color:#2aa198">&#39;end&#39;</span>, () =&gt; {
+        call.end();
+    });
+
+    async <span style="color:#268bd2">function</span> main() {
+        <span style="color:#719e07">for</span> (<span style="color:#268bd2">const</span> todoItem <span style="color:#719e07">of</span> todoList) {
+            <span style="color:#719e07">if</span> (author <span style="color:#719e07">===</span> todoItem.author) {
+                call.write(todoItem);
+            }
+            await wait(<span style="color:#2aa198">3</span>);
+        }
+    }
+}
+
+async <span style="color:#268bd2">function</span> wait(sec) {
+    <span style="color:#719e07">return</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>((res) =&gt; setTimeout(() =&gt; res(), sec <span style="color:#719e07">*</span> <span style="color:#2aa198">1000</span>));
+}
+
+module.exports <span style="color:#719e07">=</span> {
+    CreateToDo,
+    createMultiToDo,
+    GetToDoListByAuthor,
+    GetToDoListByAuthorOnFly,
+}
+</code></pre></div><p>可以看到 handle function 共有四種</p>
+<ol>
+<li>handleUnaryCall(call, callback) // CreateToDo</li>
+<li>handleClientStreamingCall(call, callback) // createMultiToDo</li>
+<li>handleServerStreamingCall(call) // GetToDoListByAuthor</li>
+<li>handleBidiStreamingCall(call)  // GetToDoListByAuthorOnFly</li>
+</ol>
+<p>拆成 client / server 兩部分</p>
+<ol>
+<li>如果 client 是送 unary data，則直接從 <code>call.request</code> 讀取傳送值</li>
+<li>如果 client 是送 streaming data，則使用 <code>call.on('data', (data)=&gt;{})</code> / <code>call.on('end', ()=&gt;{})</code> 處理資料與傳送結束</li>
+<li>如果 server 是送 unary data，則handle function 第二個參數為 callback，callback 常用前兩個參數，代表 <code>error</code> 跟 <code>data</code>，如果沒有錯誤則回傳 <code>callback(null, myData)</code></li>
+<li>如果 server 是送 streaming data，則用 <code>call.write(myData)</code>，結束傳送呼叫 <code>call.end()</code></li>
+</ol>
+<p>搭配的 GUI Client 工具可以參考 <a href="https://github.com/uw-labs/bloomrpc">bloomrpc</a>，載入 proto 檔案後就會自動跳出定義的 service 與預期的回傳結果，相當的方便，這也是使用 gRPC 的一大好處</p>
+<h3 id="傳入多餘的參數或型別錯誤">傳入多餘的參數或型別錯誤</h3>
+<p>在使用預先型別定義的設計時，不免腦中浮現如果我不按照定義的話會怎麼樣？<br>
+如果是<code>傳入多餘的型別，protobuffer 在 version 2 &amp;&amp; version 3.5 以上會保留</code>，目前版本到 3.12 了<br>
+如果是 <code>型別不對</code>，內部採用的 encode / decode 是基於 <a href="https://www.npmjs.com/package/protobufjs#valid-message">protobufjs</a>，會使用 Number / Boolean 等 JS 類別來轉換型別，例如 number &ldquo;123&rdquo; 就會變成 123</p>
+<h2 id="錯誤處理">錯誤處理</h2>
+<p>根據前面所描述，Server 回應時會分成 Unary 跟 Streaming，兩種的錯誤回傳機制不同；<br>
+這部分有點小坑，官方範例只有示範 Unary Response 時的錯誤處理，也就是呼叫 callback 的第一個參數</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">callback({
+    error<span style="color:#719e07">:</span> grpc.status.OUT_OF_RANGE,
+    message<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;too many ToDoItem&#34;</span>
+})
+</code></pre></div><p>先前定義 service 時並沒有宣告錯誤回傳，這是因為 gRPC 內建錯誤訊息，格式如下</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{
+    string error
+    string message
+}
+</code></pre></div><p>error 對應於 HTTP status code，可以從 grpc 的靜態參數取得如 <code>grpc.status.PERMISSION_DENIED</code> 等同於 403，message 則是自定義的字串，需注意 Nodejs 不支援 rich format，以下截自官方文件</p>
+<blockquote>
+<p>This richer error model is already supported in the C++, Go, Java, Python, and Ruby libraries, and at least the grpc-web and Node.js libraries have open issues requesting it.</p>
+</blockquote>
+<p>所以 gRPC client 收到的錯誤訊息會被轉成</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{
+  &#34;error&#34;: &#34;2 UNKNOWN: too many ToDoItem&#34;
+}
+</code></pre></div><p>另外 Streaming response 傳遞錯誤的方式是</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">call.emit(<span style="color:#2aa198">&#39;error&#39;</span>, grpc.status.PERMISSION_DENIED)
+</code></pre></div><blockquote>
+<p>emit error 後會自動 close，目前只支援 status，不能傳遞物件，否則 connection 無法被 close，呼叫 <code>call.end()</code> 也沒有用</p>
+</blockquote>
+<p>如果要有更豐富的錯誤格式，就需要自己定義了</p>
+<h2 id="驗證機制">驗證機制</h2>
+<p>gRPC 內建兩種驗證相關的機制，一種是 <code>SSL/TLS</code>，提供通訊上的點到點加密，另一種是 Google 服務的 OAuth Token 驗證機制，後者僅限於與 Google 服務對接才有用；<br>
+當然也可以用 middleware 方式自行實作驗證機制</p>
+<p>驗證機制有兩種 scope，一種是 <code>Channel Level</code>，也就是適用於 gRPC 連線，另一個是 <code>Call Level</code>，也就是每次呼叫，這部分是使用於 Client side</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> ssl_creds <span style="color:#719e07">=</span> grpc.credentials.createSsl(root_certs);
+<span style="color:#268bd2">var</span> stub <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> helloworld.Greeter(<span style="color:#2aa198">&#39;myservice.example.com&#39;</span>, ssl_creds);
+</code></pre></div><p>這邊為了實作方便性，將 token 放置於 <code>metadata</code> 之中，要從 server side 讀取使用 <code>call.metadata.get('Key')</code> 即可</p>
+<h2 id="cache">Cache？</h2>
+<p>另一個 HTTP (RESTful 架構下) 原有的設計是 Cache 機制，又分成 server / proxy / client 三者處理，gRPC 看起來有類似的規劃，但目前還在實驗階段 <a href="https://github.com/grpc/grpc/issues/7945">Provide support for caching GRPC method response #7945</a></p>
+<h2 id="protocol-buffer-encoding-機制">Protocol buffer Encoding 機制</h2>
+<p>參考官方文件 <a href="https://developers.google.com/protocol-buffers/docs/encoding">Protocol buffer Encoding</a>，先前提到 Protocol buffer 會將訊息編碼成 binary 格式，而 JSON 則維持文字格式，這邊簡單介紹 Protocol buffer 編碼的過程</p>
+<h4 id="varints">Varints</h4>
+<p>varints 是一種用多個 bytes 表達數字的方式，除了最後一個 byte 外，其餘 byte 的第一位元表示後續是否還有 byte，byte 的順序為最低有效位(越前面的 byte 是低位) <code>least significant group first.</code>，所以實際上每個 byte 是用 7 bits 表達數值</p>
+<p>例如說 <code>1010 1100 0000 0010</code> 代表 300，因為 <code>1 010 1100</code> 1 代表後面還有 byte 相連，<code>0 000 0010</code> 0 則表示他是最後一個 byte 了；<br>
+因為最低有效位，所以重組成 <code>000 0010 010 1100</code>，也就是 300</p>
+<h4 id="key-value">Key Value</h4>
+<p>其實 Protocol buffer 就是編碼一連串的 Key-Value，在編碼時會以 <code>編碼號(5 bits) 類別(3 bits) 數值</code>表示，例如說</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">message Test2 {
+  optional string b = 2;
+}
+</code></pre></div><p>假設 b 儲存了 &ldquo;testing&rdquo;，那時記得編碼結果是 <code>12 07 74 65 73 74 69 6e 67</code>，拆解 12 成 <code>0001 0010</code> =&gt; <code>00010 010</code> 對應到欄位編號 2 + 數值類別 2(代表是自訂長度的類別，如 string / object 等)；<br>
+接著 <code>07</code> 表示接下來 7 個 bytes 是數值表示；<br>
+後續的數值是 utf-8 編碼的顯示</p>
+<p>接著看</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">message Test1 {
+  optional int32 a = 1;
+}
+
+message Test3 {
+  optional Test1 c = 3;
+}
+</code></pre></div><p>假設 Test1 a 儲存 150，則編碼結果hex 表示為 <code>08 96 01</code>，也就是 <code>00001 000</code> 欄位編號 1 + 數值編號 0 也就是 varints；<br>
+<code>96 01</code> 則是 <code>1001 0110 + 0000 0001</code> 並依照 varints 表示法轉乘 <code>000 0001 001 0110</code> 也就是 150</p>
+<p>接著 Test3 儲存 Test1，假設 Test1 的 a 等於 150；<br>
+hex 表示法為 <code> 1a 03 08 96 01</code>，也就是 <code>00011 010</code>，欄位 3的類別是 2，接下來 <code>03</code> 共 3 個bytes 為數值，也就是上一步的 <code>08 96 01</code></p>
+<h2 id="總結">總結</h2>
+<p>gRPC 會全面取代 HTTP + JSON 嗎？ <br>
+這個問題或許有點像 Deno 會不會全面取代 Nodejs，現在談好像有點過早，畢竟 HTTP + JSON 行之有年，多方平台的支援度還是比較好，包含像 Proxy 等中介網路服務</p>
+<p>但是 gRPC 在某些用途上，基於開發效率 / 傳輸速率等，確實很值得投資與嘗試的技術</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			<a href="/categories/javascript/"> javascript </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Google 提供可以大量用 API介接的服務，本篇整理 Google 常用的幾種 API授權，與 Google Sheet API 如何使用"><meta property="og:title" content="Google Sheet API 與Google OAuth2 API授權研究" />
+<meta property="og:description" content="Google 提供可以大量用 API介接的服務，本篇整理 Google 常用的幾種 API授權，與 Google Sheet API 如何使用" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-06-01_google-sheet-api-%E8%88%87google-oauth2-api/" />
+<meta property="article:published_time" content="2018-06-01T13:03:55+00:00" />
+<meta property="article:modified_time" content="2018-06-01T13:03:55+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Google Sheet API 與Google OAuth2 API授權研究"/>
+<meta name="twitter:description" content="Google 提供可以大量用 API介接的服務，本篇整理 Google 常用的幾種 API授權，與 Google Sheet API 如何使用"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Google Sheet API 與Google OAuth2 API授權研究 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">01</span>
+				<span class="rest">Jun 2018</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Google Sheet API 與Google OAuth2 API授權研究</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>最近有個需求是希望可以將各網站的退款紀錄同步到Google Sheet上，方便PM與財務部門追蹤，相比於自建網站，Google Sheet 有方便的同步編輯 / 匯出匯入 / 登入權限管理等，就不必自己重造輪子，而且也不見得造得出來(汗</p>
+<p>整篇分成兩部分，第一是研究Google OAuth2 API授權部分，第二是Google Sheet API。</p>
+<h2 id="google-oauth2api授權">Google OAuth2 API授權</h2>
+<p><a href="https://developers.google.com/identity/protocols/OAuth2">Google API授權</a>有兩種方式</p>
+<ol>
+<li><strong>OAuth 2.0：</strong><br>
+如果是涉及用戶隱私資料，就必須走OAuth 2.0授權方式取得用戶授權；<br>
+例如說 Drive / Sheet / Doc / Google+ … 等等。</li>
+<li><strong>API keys：</strong><br>
+如果是單純使用Google提供的對外服務，例如 Map / URL Shortener / Geocoding 等。<br>
+API Keys使用蠻簡單的，也不是這次使用重點，就不另外贅述。</li>
+</ol>
+<p>這次要使用 Sheet API 就需走 OAuth 2.0授權，Google 支援多種<a href="https://developers.google.com/identity/protocols/OAuth2">OAuth 2.0 授權方式</a>：</p>
+<h3 id="server-side-webapp">Server-Side Web App</h3>
+<p>APP主動觸發，讓用戶登入Google帳號並授權，接著透過 redirect 或其他方式取得code，最後用code去換token。<br>
+這也是對終端用戶最為常見的授權方式。</p>
+<p><img src="/posts/img/0__kYLCVa75Nl6Fb3dt.png" alt="From Google">
+From Google</p>
+<h3 id="applications-on-limited-input-devices">Applications on limited-input devices</h3>
+<p>適用於在沒有螢幕或是輸入的裝置，例如列印機、TV等嵌入式裝置</p>
+<p><img src="/posts/img/0__ueo8fqWlyUkudIPy.png" alt="From Google">
+From Google</p>
+<p>這裡同樣是 App主動觸發，但變成回傳一個URL連結，用戶必須另外找支援瀏覽器裝置輸入URL並授權；<br>
+這裡因為 App(ex. TV)跟用戶授權的裝置(ex. 手機)不同，兩者辨識用戶方式透過 device code(“code” &amp; URL -&gt; User)，App透過polling不斷間隔請求Google才能知道該 device code 的用戶是否已經授權，後續流程就相同。</p>
+<p>但須注意此流程授權的權限不多，需要先評估，因為我專案需要 Sheet API授權，這個授權流程就不支援，所以無法採用。</p>
+<h3 id="server-to-server">Server-to-Server</h3>
+<p><img src="/posts/img/0__013W__2kCyhYRycgb.png" alt="From Google">
+From Google</p>
+<p>在Google APIs Console中的憑證欄位，除了API金鑰 / OAuth 2.0 用戶端 ID ，第三個能夠創建的就是 <code>服務帳戶金鑰</code>，服務帳號像是創建一個新的用戶，只是此用戶是被用於 Server 端授權，並透過 IAM 管理權限。</p>
+<p>透過服務帳號最大好處是應用程式是授權於服務帳號，而非個體用戶，像是遇到人員流動就不需要手動在管理授權；<br>
+而且也不需要在 Client又要跳出用戶授權頁面，非常適合用於對內的專案開發(此流程又稱為 two-legged OAuth)。</p>
+<p>也是我們這次會嘗試的流程之一。</p>
+<h3 id="long-livetoken">Long Live Token</h3>
+<p>授權後Google會回傳token，但token都是短期的只有一小時的壽命，Google並不像FB，<code>不會核發長期無限期的Token</code> ，反之Google是不斷的透過 refresh token機制，不斷的核發短期Token，而refresh次數是沒有限制，也不需要用戶再次授權，所以可以長期儲存起來使用。</p>
+<p>但必須注意，如果發生以下幾點 refresh token機制會失效<br>
+1. 用戶取消對應用程式的授權<br>
+2. refresh token超過6個月沒有使用<br>
+3. 用戶更改帳號密碼且refresh token含Gmail的權限<br>
+4. 用戶擁有太多refresh token，目前是每個應用程式每用戶上限50個refresh token。<br>
+5. 用戶本身也存在著refresh token總數上限，但文件只寫到正常狀況不會發生，沒有明講多少。</p>
+<h3 id="實作">實作</h3>
+<p>這一步主要是先取得 access token與 refresh token。</p>
+<p><a href="https://developers.google.com/sheets/api/quickstart/nodejs?authuser=1&amp;hl=zh-cn"><strong>Node.js Quickstart | Sheets API | Google Developers</strong></a></p>
+<p>Google Sheet API有個 Node.js 快速上手說明，並用 <a href="https://github.com/google/google-api-nodejs-client">google-api-nodejs-client</a>，運行後會在終端機出現授權URL，點擊後就可以取得token。</p>
+<p>但我個人不愛<a href="https://github.com/google/google-api-nodejs-client">google-api-nodejs-client</a> 的寫法，因為是採用層層 Callback的方式，還不如自己接REST API來得清爽。</p>
+<p>scope部分需要取得 <code>[https://www.googleapis.com/auth/drive](https://www.googleapis.com/auth/drive) [https://www.googleapis.com/auth/spreadsheets](https://www.googleapis.com/auth/spreadsheets)</code></p>
+<h3 id="oauth-20-for-web-server-applications-取得授權方式">OAuth 2.0 for Web Server Applications 取得授權方式</h3>
+<p>這個做法會透過瀏覽器取得用戶授權，並儲存 refresh_token，方便後續Server呼叫API使用。</p>
+<p>需注意Google OAuth2登入文件並沒有明講如何取得refresh_token，所以查了一下作法</p>
+<p><a href="https://stackoverflow.com/questions/10827920/not-receiving-google-oauth-refresh-token?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa"><strong>Not receiving Google OAuth refresh token</strong></a></p>
+<p>文章中的解答說要 <code>approval_prompt=force&amp;access_type=offline</code> 我嘗試是不行的，後來驗證結果是必須在 redirect URL中同時加入<code>prompt=consent&amp;access_type=offline</code></p>
+<p>這部分比較簡單常見，就不贅述。</p>
+<h3 id="server-to-server-取得授權">Server-to-Server 取得授權</h3>
+<p>這部分Google文件強烈建議使用sdk而非 REST API，主要是因為Server-to-Server是透過加密JSON Web Tokens (JWTs)實作，如果出錯容易有資安風險，但範例還是採用接 REST API</p>
+<ol>
+<li>首先先到 <a href="https://console.cloud.google.com/apis/credentials">Google APIs Console</a> 加入憑證，這次要加入的是服務帳號金鑰，記得要下載 json檔的金鑰檔案</li>
+</ol>
+<p><img src="/posts/img/1__1M5Qa1SGllse7Oghqfwl7Q.png" alt=""></p>
+<p>2. 接著到 IAM管理權限，找到剛才的服務帳號 Email，類似於 <code>….@….iam.gserviceaccount.com</code>，並加入「Service Management 管理員」權限，才能操作API。</p>
+<p>3. 記得比剛才的服務帳號加入表單的共同編輯者。</p>
+<p><img src="/posts/img/1__uobyyholII4abCvitAC9fg.png" alt="">
+<img src="/posts/img/1__W0O65uuktYNrJcugUzVXqg.png" alt="左圖為IAM管理 / 右圖為表單共用設定">
+左圖為IAM管理 / 右圖為表單共用設定</p>
+<p>需注意 Server-to-Server不會有 refresh_token，token過期就必須重新產生JWT並取得新的token。</p>
+<p>文件中有提到，部分API可以用JWT而不用access token就可以呼叫，但同樣只有部分支援，所以避免踩坑還是統一用 access token。</p>
+<h3 id="sheet-api使用">Sheet API 使用</h3>
+<p><a href="https://developers.google.com/sheets/api/guides/concepts?authuser=1&amp;hl=zh-cn"><strong>Introduction to the Google Sheets API | Sheets API | Google Developers</strong></a></p>
+<p>Google Sheet API有兩個部分：<br>
+1. 單純讀跟寫是在 <a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values?authuser=1&amp;hl=zh-cn">spreadsheets.values</a>底下<br>
+2. 其餘表單的屬性(合併欄位、更改欄位顏色等)等在 <a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets?authuser=1&amp;hl=zh-cn">spreadsheets</a>底下</p>
+<p>這次只有單純的讀寫，所以就只研究上者。</p>
+<p>操作表單API，首先需要先創建一個 Google表單，連結大概會是<br>
+<a href="https://docs.google.com/spreadsheets/d/1dMJEsOayj7RxMJ4-dX7LnrDOxqNzi1WeV3ref6q2okY/edit#gid=0">https://docs.google.com/spreadsheets/d/1dMJ…../edit#gid=0</a></p>
+<p><code>1dMJ….</code> 代表是表單的ID，而 <code>gid={id}</code>則是內頁的ID，在API用內頁名稱直接描述如 sheet1(也支援中文如 <code>表單一</code>)；<br>
+整體上API操作可以 讀/寫/寫入文件最後(Append)/清除，每筆API都可以指定範圍如 <code>A1:A5</code> ，就跟一般表單操作類似。</p>
+<p>程式碼請參考</p>
+<p><a href="https://github.com/sj82516/google-sheet-api-test"><strong>sj82516/google-sheet-api-test</strong></a></p>
+<p>在插入欄位的部分(API如 append / update)，有個參數可以指定Google Sheet如何處理輸入的欄位(valueInputOption)，可以指定為：<br>
+1. RAW，不處理完全依照輸入<br>
+2. USER_ENTERED，按照一般 Google Sheet輸入處理，如 <code>=MAX(A1:A2)</code> 就會自動轉成公式，字串如果符合格式會被轉製成數字等。<br>
+3. INPUT_VALUE_OPTION_UNSPECIFIED，有趣的是這個<code>預設值不能用</code>，API會報錯。</p>
+<p>另一個參數是處理 Concurrency 問題，InsertDataOption可以指定當遇到插入新欄時遇上手動更新時，選擇覆蓋 OVERWRITE 或是插入在新欄位 INSERT_ROWS。</p>
+<p>這次只有簡單用到 read / append 這兩個API，read可以指定範圍，append蠻有趣的如果有手動插入新欄，或是手動Delete整個表單，下次 append會自動正確的位置開始，這點倒不需要擔心。<br>
+其餘的寫入/更新/刪除都沒用上，不過在文件中的參考網頁有提供測試很方便。</p>
+<h3 id="補更插入新行於表單最上層">補更：插入新行於表單最上層</h3>
+<p>透過append是將新行插在表單最下層，但很多時候我們希望後面的資料出現在最上層，查了一下SO，有個解法是先創建新行再將值更新進去</p>
+<h3 id="push-notification">Push Notification</h3>
+<p>試想如果表單有新增資料，可以自動通知Server就能處理一些更進階的需求；Google Drive API 提供 Push Notification，而表單身為 Drive下的其中之一檔案型態，也有支援此功能，那就來研究一下吧。</p>
+<p><a href="https://developers.google.com/drive/api/v3/push"><strong>Push Notifications | Drive REST API | Google Developers</strong></a></p>
+<p>參考 <a href="https://developers.google.com/drive/api/v2/reference/files/watch">Files: watch</a> 文件說明，以下為操作步驟</p>
+<ol>
+<li>定義好callback url並通過網域驗證：<br>
+因為是webhook關係，所以必須定義好 Google回呼的 callback url，這部分需要再 Google API Console &gt; 憑證 &gt; 網域驗證申請，網域驗證有多種方式，最簡單是Google會提供一份html並指定要放在網域的對應路徑下，用於驗證網域是屬於本人的。</li>
+<li>呼叫API</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">axios.post(\<span style="color:#586e75">`https://www.googleapis.com/drive/v2/files/</span><span style="color:#2aa198">${</span>spreadsheet_id<span style="color:#2aa198">}</span><span style="color:#586e75">/watch\`, {  
+</span><span style="color:#586e75">   type: &#39;web_hook&#39;,  
+</span><span style="color:#586e75">   id: &#39;channelIdAndShouldBeUnique&#39;,  
+</span><span style="color:#586e75">   address: \`</span><span style="color:#2aa198">${</span>domain<span style="color:#2aa198">}</span><span style="color:#586e75">/drive/webhook\`  
+</span><span style="color:#586e75">});
+</span></code></pre></div><p>address 放 callback url，id則是自行定義channel，到時候回呼用於驗證，type固定為 web_hook。</p>
+<p>Google回呼是用POST，但是內容是放在header，以 <code>x-goog-</code> 開頭的標頭，反而body中沒有資料。</p>
+<p>但不得不說Google的Push Notification有點弱，因為他只會回傳哪個檔案改了、channel ID等，但不會有實質的改變內容，例如表單的哪一行修改、哪一行新增等等；<br>
+不過也是，因為這是廣泛的Drive檔案異動通知，所以不會有太細緻的內容呈現。</p>
+<h2 id="總結">總結</h2>
+<p>以上是Google OAuth2 授權模式研究，以及簡單的Google Sheet API研究，評估後符合專案的需求<br>
+1. Server主動append遞增資料<br>
+2. 保留Google表單原始功能<br>
+3. 取得Google表單異動觸發</p>
+<p>因為是對內專案，所以是採用 Server-to-Server授權方式。</p>
+<p>可惜不能得知更進一步的異動，只能自己重新抓資料，在Server端重新比對。</p>
+<p>另外Google Sheet還可以透過 App Script插入資料，客製化前端，之後有空再來研究。</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
