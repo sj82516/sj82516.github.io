@@ -6,10 +6,22 @@
 		<description>Recent content in Categories on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Thu, 21 Jan 2021 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Tue, 26 Jan 2021 08:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>閱讀心得</title>
+			<link>https://yuanchieh.page/categories/%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Tue, 26 Jan 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/categories/%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				
+				
+			</description>
+		</item>
 		<item>
 			<title>雲端與系統架構</title>
 			<link>https://yuanchieh.page/categories/%E9%9B%B2%E7%AB%AF%E8%88%87%E7%B3%BB%E7%B5%B1%E6%9E%B6%E6%A7%8B/</link>
@@ -112,18 +124,6 @@
 			<pubDate>Tue, 22 Sep 2020 08:21:40 +0000</pubDate>
 			
 			<guid>https://yuanchieh.page/categories/%E7%B6%B2%E8%B7%AF%E8%88%87%E5%8D%94%E5%AE%9A/</guid>
-			<description>
-				
-				
-				
-			</description>
-		</item>
-		<item>
-			<title>閱讀心得</title>
-			<link>https://yuanchieh.page/categories/%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</link>
-			<pubDate>Thu, 17 Sep 2020 08:21:40 +0000</pubDate>
-			
-			<guid>https://yuanchieh.page/categories/%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</guid>
 			<description>
 				
 				

@@ -269,7 +269,7 @@ random_base64 <span style="color:#719e07">=</span> <span style="color:#268bd2">f
 <p>最後的結論是如果要<code>採用偽隨機生成數請用 CSPRNG(cryptographically secure PRNG)</code>，或是採用系統核心基於外部噪音、網路封包等產生的真隨機數 <code>urandom</code></p>
 <h2 id="其他">其他</h2>
 <p>今天路過看到一篇關於 UUID 的好文 <a href="https://medium.com/%E9%96%92%E8%AB%87%E8%BB%9F%E9%AB%94%E6%9E%B6%E6%A7%8B/%E9%96%92%E8%AB%87%E8%BB%9F%E9%AB%94%E6%9E%B6%E6%A7%8B-uuid-2748df80aa7e">閒談軟體架構：UUID</a>，主要更深入探討如果把 UUID 當作資料庫的 Key 對於效能的影響，主目的是希望能達到 <code>分散式產生遞增的 Key</code>，UUID v1 算是有符合這個要求，但因為有做過 timestamp 的拆分，導致 Java 實作在比對時會有點問題<br>
-可以自己客製化 UUID 的格式，或乾脆自創，參考其他實作如 Twitter Snowflake(已 duplicated) 或是 <a href="https://firebase.googleblog.com/2015/02/the-2120-ways-to-ensure-unique_68.html">Firebase Push ID</a>，大抵上都脫離不了 <code>timestamp 加上亂數或是加上機器識別碼</code>的做法</p>
+可以自己客製化 UUID 的格式，或乾脆自創，參考其他實作如 Twitter Snowflake(已 deprecated) 或是 <a href="https://firebase.googleblog.com/2015/02/the-2120-ways-to-ensure-unique_68.html">Firebase Push ID</a>，大抵上都脫離不了 <code>timestamp 加上亂數或是加上機器識別碼</code>的做法</p>
 <h2 id="結論">結論</h2>
 <p>ID 是常用的屬性，用來抽象化指向某個物件/事件，選擇正確的方式產生 ID，才不會對於系統產生效能貧頸，透過學習 UUID 的實作過程，看到分散式產生 ID 的方式，尤其是在大數據時代，快速產生獨一(且遞增)的 ID 尤為基礎且重要，而在之中<code>隨機性</code>在整個過程扮演著很關鍵的角色</p>
 
@@ -355,6 +355,8 @@ random_base64 <span style="color:#719e07">=</span> <span style="color:#268bd2">f
 			
 			
 			<a href="/categories/%e6%bc%94%e7%ae%97%e6%b3%95/"> 演算法 </a>
+			
+			
 			
 			
 			

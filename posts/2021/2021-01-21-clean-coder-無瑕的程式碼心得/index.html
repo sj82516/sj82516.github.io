@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.75.1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="身為工程師，寫程式的能力固然重要，但是身為一個在商業世界提供價值的專業人士，還有心態上、溝通上等軟實力的修煉，Robert C. Martin 分享他的見解"><meta property="og:title" content="《Clean Coder 無瑕的程式碼》心得" />
+<meta property="og:description" content="身為工程師，寫程式的能力固然重要，但是身為一個在商業世界提供價值的專業人士，還有心態上、溝通上等軟實力的修煉，Robert C. Martin 分享他的見解" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-01-21-clean-coder-%E7%84%A1%E7%91%95%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%BF%83%E5%BE%97/" />
+<meta property="article:published_time" content="2021-01-26T08:21:40+00:00" />
+<meta property="article:modified_time" content="2021-01-26T08:21:40+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="《Clean Coder 無瑕的程式碼》心得"/>
+<meta name="twitter:description" content="身為工程師，寫程式的能力固然重要，但是身為一個在商業世界提供價值的專業人士，還有心態上、溝通上等軟實力的修煉，Robert C. Martin 分享他的見解"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>《Clean Coder 無瑕的程式碼》心得 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">26</span>
+				<span class="rest">Jan 2021</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">《Clean Coder 無瑕的程式碼》心得</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p><img src="'/posts/2021/img/0126/cover.jpeg'" alt=""></p>
+<p>Clean Code 相信很多人都看過，提供軟體界一個自我審思程式碼品質的標竿，也被許多工程師奉為圭臬，這一本 Clean Coder 更多著重於<code>身為一名專業人士所需具備的內涵</code>，包括但不限於程式碼</p>
+<p>Highlight 兩點我覺得被重重提醒的地方，並提出一些自己的想法</p>
+<h2 id="說不與說是">說「不」與說「是」</h2>
+<p>身為工程師，都遇過 PM 臨時來的需求，並強硬的要壓一個不太合理的日期，在這種壓力下，不論是出於善意或是懶得爭辯，是否都曾說過「好的我試試」<br>
+對於答應接下工作的工程師而言，「試試」就是代表有可能做到，但是 PM 會解讀成「好的沒問題」<br>
+等到上線日來臨開天窗，身為 PM 覺得被工程師耍了，而工程師也很無辜的表示「就說試試而已」，開始踢起皮球，這對雙方都是很不專業的表現</p>
+<p>當我們要給予承諾時，請非常小心我們的措辭，如果因為壓力就改口說「我試試看」，那是否代表著過去的你都在偷懶，在壓力相逼的情況下反而增加工作產能？<br>
+如果還是照既定的方式做，那所謂的「嘗試」又是在嘗試什麼呢？</p>
+<p>這聽起來很理想化，或許會嗤之以鼻，但及早說不，並堅守底線，不要因為壓力就放棄測試，不要因為壓力就想寫出有臭味的程式碼，身為專業人士應該有對自己工作品質的保證，而不是一昧的降低標準</p>
+<blockquote>
+<p>或許更好的方式是將任務細分，在時限內給出合理的成果，並規劃未來逐步完成的時辰，遇到時辰困難應儘早反應，而不是抱著僥倖的心態祈禱或是冷眼看著任務失敗</p>
+</blockquote>
+<p>當確定要接下任務時，請確保再給予「是」的承諾時包含三個步驟</p>
+<ol>
+<li>口頭上說自己會去做</li>
+<li>心裡認真對待自己所做出的承諾</li>
+<li>真的付諸行動</li>
+</ol>
+<p>如果發現有這些徵兆，那多半承諾都會落空</p>
+<ol>
+<li>需要 / 應當 - 我們需要有人完成這項事情</li>
+<li>希望 / 但願 - 但願我有時間幫你處理</li>
+<li>讓我們 (而不是「讓我」) - 讓我們一起做這項任務</li>
+</ol>
+<p>真正的承諾，應當是明確指出自己將負責這件事情，並給予明確的時辰與交付內容</p>
+<p>這點真的很有感，尤其是做後端，時常要協助其他團隊調查 API 呼叫紀錄 / 伺服器運作狀況 / DB 資料查詢等瑣事，常常會說「好的，我等等幫你查」，一方面正事一直被打斷效率差，另一方面也容易忘記答應過的事情，導致整天工作很忙卻也沒有什麼產出</p>
+<p>後來我做了一些調整</p>
+<ol>
+<li>上班一開始就用筆記本寫下今天要完成的任務</li>
+<li>開發途中有人敲 slack 需要協助，除非事態緊急，否則等任務做到一個階段再回覆</li>
+<li>每天只接固定的瑣事數量，其餘的給予明確時間回覆(如隔天)</li>
+</ol>
+<p>盡可能確保自己的任務準時且有品質交付，之餘也協助其他團隊成員的調查，讓自己給予的承諾是正面的</p>
+<h2 id="預估">預估</h2>
+<h2 id="結語">結語</h2>
+<p>書中還有談其他面向如測試 / 練習 / 協作等，算蠻有趣的一本書，明確指出專業人士的區別，其中舉的案例也是歷歷在目，值得在職涯中時時品味</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e9%96%b1%e8%ae%80%e5%bf%83%e5%be%97/"> 閱讀心得 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

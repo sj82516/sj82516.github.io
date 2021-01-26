@@ -6,10 +6,22 @@
 		<description>Recent content in 閱讀心得 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Thu, 17 Sep 2020 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Tue, 26 Jan 2021 08:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>《Clean Coder 無瑕的程式碼》心得</title>
+			<link>https://yuanchieh.page/posts/2021/2021-01-21-clean-coder-%E7%84%A1%E7%91%95%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Tue, 26 Jan 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-01-21-clean-coder-%E7%84%A1%E7%91%95%E7%9A%84%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				身為工程師，寫程式的能力固然重要，但是身為一個在商業世界提供價值的專業人士，還有心態上、溝通上等軟實力的修煉，Robert C. Martin 分享他的見解
+				
+			</description>
+		</item>
 		<item>
 			<title>《一千零一個點子之後：NETFLIX創始的祕密》閱讀心得</title>
 			<link>https://yuanchieh.page/posts/2020/2020-09-17-%E4%B8%80%E5%8D%83%E9%9B%B6%E4%B8%80%E5%80%8B%E9%BB%9E%E5%AD%90%E4%B9%8B%E5%BE%8Cnetflix%E5%89%B5%E5%A7%8B%E7%9A%84%E7%A5%95%E5%AF%86%E9%96%B1%E8%AE%80%E5%BF%83%E5%BE%97/</link>
