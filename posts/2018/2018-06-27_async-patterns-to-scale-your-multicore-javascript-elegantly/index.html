@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="利用Async Pattern 提升JS在多核心上的執行速度"><meta property="og:title" content="Jonathan Martin: Async patterns to scale your multicore JavaScript elegantly 總結與試驗" />
 <meta property="og:description" content="利用Async Pattern 提升JS在多核心上的執行速度" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-06-27_async-patterns-to-scale-your-multicore-javascript-elegantly/" />
-<meta property="article:published_time" content="2018-06-27T04:03:50+00:00" />
-<meta property="article:modified_time" content="2018-06-27T04:03:50+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-06-27_async-patterns-to-scale-your-multicore-javascript-elegantly/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-06-27T04:03:50&#43;00:00" />
+<meta property="article:modified_time" content="2018-06-27T04:03:50&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Jonathan Martin: Async patterns to scale your multicore JavaScript elegantly 總結與試驗"/>
 <meta name="twitter:description" content="利用Async Pattern 提升JS在多核心上的執行速度"/>
@@ -98,7 +99,7 @@ await task3();…</p>
 <p><img src="/posts/img/1__v7aRZMMz__1__hTYVEGc4quQ.jpeg" alt=""></p>
 <p>原本就有的寫法是描述Task橫向的並行，所以我們會用 Promise.all([])將 TaskB/TaskC並行處理，但是這種寫法可讀性差，而且架構的方向也是不好的，<code>因為 Task相依應該是垂直</code>  ，像是 TaskD明明就只要等 TaskC完成就可以開始執行，但因為寫法所以要等到 TaskB也執行完成後，TaskD與TaskE才並行處理。</p>
 <p>所以使用 async iife 最大好處即是每個Task的相依性都被封裝的很直觀，主要是利用 Promise一宣告就執行的特性，像是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> taskA <span style="color:#719e07">=</span> (async ()=&gt; { await timePromise(<span style="color:#2aa198">1000</span>); console.log(“TaskA done”)})()
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> taskA <span style="color:#719e07">=</span> (<span style="color:#268bd2">async</span> ()=&gt; { <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">1000</span>); console.log(“TaskA done”)})()
 </code></pre></div><p>此時taskA已經開始執行了，但是後續的code因為 <code>await taskA</code>還是要等taskA結束才能繼續，所以一樣可以做到流程的控制；<br>
 這也是為什麼 taskB/taskC這樣寫可以並行處理，接著taskD因為只相依taskC所以在範例中會比taskB更早結束，非常漂亮的寫法。</p>
 <p>另外分享一個當初疑惑的點：taskC在 taskD / taskE被呼叫兩次，會不會就執行兩次?! <br>
@@ -110,8 +111,8 @@ await task3();…</p>
 <p>程式碼只有40行左右但蠻精妙的，使用上
 ：</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">s <span style="color:#719e07">=</span> Semaphore(<span style="color:#2aa198">3</span>)  
-s(async _ =&gt; {console.log(“start”); await timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
-s(async _ =&gt; {console.log(“start”); await timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
+s(<span style="color:#268bd2">async</span> _ =&gt; {console.log(“start”); <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
+s(<span style="color:#268bd2">async</span> _ =&gt; {console.log(“start”); <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
 .....
 </code></pre></div><p>對應程式碼，Semaphore(3) 將 task上限設為 3，接著回傳一個高階函式。<br>
 仔細看這個高階函式的第一行<code>await acquire();</code></p>
@@ -147,6 +148,10 @@ s(async _ =&gt; {console.log(“start”); await timePromise(<span style="color:
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
+			
+			
 			
 			
 			
@@ -210,7 +215,13 @@ s(async _ =&gt; {console.log(“start”); await timePromise(<span style="color:
 			
 			
 			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			

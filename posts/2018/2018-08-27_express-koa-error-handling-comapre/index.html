@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="以前只注重把功能寫出來而已，慢慢地開始維護後發現一開始的系統規劃很重要，包含基本的 Loggin / Debugging / Error Handling，以及是否能將每個物件函式乾淨拆分避免過多副作用無法編寫測試(詳見另一篇網誌)"><meta property="og:title" content="Express 與 Koa 如何處理錯誤" />
 <meta property="og:description" content="以前只注重把功能寫出來而已，慢慢地開始維護後發現一開始的系統規劃很重要，包含基本的 Loggin / Debugging / Error Handling，以及是否能將每個物件函式乾淨拆分避免過多副作用無法編寫測試(詳見另一篇網誌)" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-08-27_express-koa-error-handling-comapre/" />
-<meta property="article:published_time" content="2018-08-27T07:20:36+00:00" />
-<meta property="article:modified_time" content="2018-08-27T07:20:36+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-08-27_express-koa-error-handling-comapre/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-08-27T07:20:36&#43;00:00" />
+<meta property="article:modified_time" content="2018-08-27T07:20:36&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Express 與 Koa 如何處理錯誤"/>
 <meta name="twitter:description" content="以前只注重把功能寫出來而已，慢慢地開始維護後發現一開始的系統規劃很重要，包含基本的 Loggin / Debugging / Error Handling，以及是否能將每個物件函式乾淨拆分避免過多副作用無法編寫測試(詳見另一篇網誌)"/>
@@ -83,9 +84,9 @@
    Promise1().then(data =&gt; ....).<span style="color:#719e07">catch</span>(err =&gt; handleError(err))  
 }
 
-async <span style="color:#268bd2">function</span> handle(ctx){  
+<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> handle(ctx){  
    <span style="color:#719e07">try</span>{  
-       await Promise1()  
+       <span style="color:#268bd2">await</span> Promise1()  
    }<span style="color:#719e07">catch</span>(err){  
        hanleError(err)  
    }  
@@ -97,7 +98,7 @@ async <span style="color:#268bd2">function</span> handle(ctx){
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> Koa <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;koa&#39;</span>);  
 <span style="color:#268bd2">const</span> app <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Koa();
 
-app.use(async (ctx, next){...});
+app.use(<span style="color:#268bd2">async</span> (ctx, next){...});
 
 app.listen(<span style="color:#2aa198">3000</span>);
 </code></pre></div><p>當我們創建一個 Koa 的 instance app後，接著就會用 <code>app.use</code> 註冊所有的 Middleware，最後就是 <code>app.listen</code> 啟動</p>
@@ -137,7 +138,7 @@ app.use((req, res, next)=&gt;{}) 對應是 Layer.handle_request
 (<a href="https://medium.com/@Abazhenov/using-async-await-in-express-with-node-8-b8af872c0016">Using Async Await in Express with Node 9</a> 有提及)</p>
 <p>後來看到一個蠻 Hacking 的方式，<a href="https://github.com/davidbanham/express-async-errors">express-async-errors</a>，他會複寫Express/Layer.handle 方法，把每個 Routing Function 的錯誤統一用 <code>next(error)</code> 傳遞</p>
 <p>他處理的方式也是很妙，簡化後可以這樣示意</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> pE <span style="color:#719e07">=</span> async () =&gt; {<span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;error&#34;</span>)}  
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> pE <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> () =&gt; {<span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;error&#34;</span>)}  
 <span style="color:#268bd2">let</span> fn <span style="color:#719e07">=</span> pE.call()  
 <span style="color:#719e07">if</span>(fn <span style="color:#719e07">&amp;&amp;</span> fn.<span style="color:#719e07">catch</span>) fn.<span style="color:#719e07">catch</span>(err =&gt; console.log(err))
 </code></pre></div><p>也就是如果發現註冊在Layer中的Function 是 Async Function，Async Function 執行後會回傳 Promise，接著就是用 <code>fn &amp;&amp; fn.catch</code> 判斷是否為 Promise，如果是則幫忙補上 <code>.catch((err) =&gt; next(err))</code> ，蠻聰明的作法。</p>
@@ -163,6 +164,10 @@ app.use((req, res, next)=&gt;{}) 對應是 Layer.handle_request
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
+			
+			
 			
 			
 			
@@ -222,7 +227,13 @@ app.use((req, res, next)=&gt;{}) 對應是 Layer.handle_request
 			
 			
 			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			

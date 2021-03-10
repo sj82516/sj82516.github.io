@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="近期看不到少關於 async / await 的好文章，這裡特別摘錄兩篇總結"><meta property="og:title" content="愛用 async / await 而非 promise!" />
 <meta property="og:description" content="近期看不到少關於 async / await 的好文章，這裡特別摘錄兩篇總結" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-12-28_async-await-instead-of-promise/" />
-<meta property="article:published_time" content="2018-12-28T01:39:30+00:00" />
-<meta property="article:modified_time" content="2018-12-28T01:39:30+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-12-28_async-await-instead-of-promise/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-12-28T01:39:30&#43;00:00" />
+<meta property="article:modified_time" content="2018-12-28T01:39:30&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="愛用 async / await 而非 promise!"/>
 <meta name="twitter:description" content="近期看不到少關於 async / await 的好文章，這裡特別摘錄兩篇總結"/>
@@ -86,8 +87,8 @@
 </code></pre></div><p>function a 執行時，會直接呼叫 function b，而 b().then 則是將 <code>() =&gt; c()</code> 匿名 function 放上 callback chain，然後 a 就結束了，所以 function a 的 context 也跟著消失；</p>
 <p>試想如果此時 b 或 c 拋出錯誤，理論上要除錯我們會希望看到完整的 call stack，但是 a 早就結束拋棄了 context，所以 V8 要額外將 a 的 context 傳給 promise b 跟 function c，這樣出錯才有辦法追本溯源，這些是額外的負擔。</p>
 <p>改成 async / await 就不一樣了</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> a <span style="color:#719e07">=</span> async () =&gt; {  
- await b();  
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> a <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> () =&gt; {  
+ <span style="color:#268bd2">await</span> b();  
  c();  
 };
 </code></pre></div><p>當 b 或 c 出錯時，因為還在 function a 的 context所以可以很快速追蹤，不需要額外的成本。</p>
@@ -184,7 +185,17 @@
 			
 			
 			
+			
+			
+			
+			
 			<a href="/categories/javascript/"> javascript </a>
+			
+			
+			
+			
+			
+			
 			
 			
 			

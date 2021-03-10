@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="介紹 ES6 推出的 Proxy 與 Reflect，並分享使用場景 - console log 於正式環境複寫功能與API 自動 retry 機制"><meta property="og:title" content="JS Proxy / Reflect 實戰 - 實作 API 自動 retry 機制" />
 <meta property="og:description" content="介紹 ES6 推出的 Proxy 與 Reflect，並分享使用場景 - console log 於正式環境複寫功能與API 自動 retry 機制" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-05-27_js-proxy-%E8%88%87-reflect-%E4%BD%BF%E7%94%A8/" />
-<meta property="article:published_time" content="2020-05-27T08:21:40+00:00" />
-<meta property="article:modified_time" content="2020-05-27T08:21:40+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-05-27_js-proxy-%E8%88%87-reflect-%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-05-27T08:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2020-05-27T08:21:40&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="JS Proxy / Reflect 實戰 - 實作 API 自動 retry 機制"/>
 <meta name="twitter:description" content="介紹 ES6 推出的 Proxy 與 Reflect，並分享使用場景 - console log 於正式環境複寫功能與API 自動 retry 機制"/>
@@ -254,13 +255,13 @@ proxy.get(<span style="color:#2aa198">&#39;test&#39;</span>)
 <span style="color:#268bd2">const</span> APIProxy <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Proxy</span>(APIInstace, {
     get(target, prop, receiver){
         <span style="color:#268bd2">let</span> fn <span style="color:#719e07">=</span> Reflect.get(...arguments);
-        <span style="color:#719e07">return</span> async <span style="color:#268bd2">function</span>(){
+        <span style="color:#719e07">return</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(){
             <span style="color:#719e07">try</span>{
-                <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> await fn(...arguments);
+                <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> fn(...arguments);
                 <span style="color:#719e07">return</span> result;
             }<span style="color:#719e07">catch</span>(error){
                 <span style="color:#719e07">if</span>(error<span style="color:#719e07">?</span>.response<span style="color:#719e07">?</span>.status <span style="color:#719e07">===</span> <span style="color:#2aa198">403</span>){
-                      <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> await APIInstace.get(<span style="color:#2aa198">&#34;https://www.mocky.io/v2/5ed11b963500005b00ffa29a&#34;</span>);
+                      <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> APIInstace.get(<span style="color:#2aa198">&#34;https://www.mocky.io/v2/5ed11b963500005b00ffa29a&#34;</span>);
                       <span style="color:#719e07">return</span> result;
                 }
                 
@@ -270,8 +271,8 @@ proxy.get(<span style="color:#2aa198">&#39;test&#39;</span>)
     }
 })
 
-console.log(await APIProxy.get(<span style="color:#2aa198">&#34;/403&#34;</span>)); <span style="color:#586e75">// 沒有錯誤
-</span><span style="color:#586e75"></span>await APIProxy.get(<span style="color:#2aa198">&#34;/404&#34;</span>); <span style="color:#586e75">// 拋出 OhNo 錯誤
+console.log(<span style="color:#268bd2">await</span> APIProxy.get(<span style="color:#2aa198">&#34;/403&#34;</span>)); <span style="color:#586e75">// 沒有錯誤
+</span><span style="color:#586e75"></span><span style="color:#268bd2">await</span> APIProxy.get(<span style="color:#2aa198">&#34;/404&#34;</span>); <span style="color:#586e75">// 拋出 OhNo 錯誤
 </span></code></pre></div>
 	</div>
 	
@@ -287,6 +288,10 @@ console.log(await APIProxy.get(<span style="color:#2aa198">&#34;/403&#34;</span>
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
+			
+			
 			
 			
 			
@@ -334,7 +339,13 @@ console.log(await APIProxy.get(<span style="color:#2aa198">&#34;/403&#34;</span>
 			
 			
 			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			

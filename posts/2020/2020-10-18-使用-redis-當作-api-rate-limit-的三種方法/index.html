@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket"><meta property="og:title" content="使用 Redis 當作 API Rate limit 的三種方法" />
 <meta property="og:description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/" />
-<meta property="article:published_time" content="2020-10-18T08:21:40+00:00" />
-<meta property="article:modified_time" content="2020-10-18T08:21:40+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-10-18T08:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2020-10-18T08:21:40&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 Redis 當作 API Rate limit 的三種方法"/>
 <meta name="twitter:description" content="API Service 在操作某些行為時需要耗費資源，如果 Client 不如預期的大量呼叫，會造成服務受到嚴重的影響，所以需要針對用戶做 API 呼叫次數的限制；Redis 作為中心化的高效能記憶體資料庫，很適合拿來當作 Rate Limit 的儲存方案，以下分享三種常見的做法 static time window / sliding time window 與 token bucket"/>
@@ -296,7 +297,17 @@ batch.expire(key, <span style="color:#719e07">this</span>.ttl);
 			
 			
 			
+			
+			
+			
+			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			

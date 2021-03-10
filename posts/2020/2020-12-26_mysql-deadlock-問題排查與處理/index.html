@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="週末寫點簡單的 SQL 遇到了 Deadlock，才發現 foreign key 會有額外的 lock 效果導致 Deadlock，重新翻閱 MySQL 文件並分享排查過程"><meta property="og:title" content="MySQL Deadlock 問題排查與處理" />
 <meta property="og:description" content="週末寫點簡單的 SQL 遇到了 Deadlock，才發現 foreign key 會有額外的 lock 效果導致 Deadlock，重新翻閱 MySQL 文件並分享排查過程" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/" />
-<meta property="article:published_time" content="2020-12-26T08:21:40+00:00" />
-<meta property="article:modified_time" content="2020-12-26T08:21:40+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-12-26T08:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2020-12-26T08:21:40&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="MySQL Deadlock 問題排查與處理"/>
 <meta name="twitter:description" content="週末寫點簡單的 SQL 遇到了 Deadlock，才發現 foreign key 會有額外的 lock 效果導致 Deadlock，重新翻閱 MySQL 文件並分享排查過程"/>
@@ -257,6 +258,16 @@ END OF INNODB MONITOR OUTPUT
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			
 			

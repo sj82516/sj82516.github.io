@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="JS 基於事件驅動，大量的 Promise 充斥在應用程式中，其後在 ES2017 加入了 async/ await 語法糖後，讓非同步代碼更加簡潔與直覺"><meta property="og:title" content="V8 如何優化 async / await" />
 <meta property="og:description" content="JS 基於事件驅動，大量的 Promise 充斥在應用程式中，其後在 ES2017 加入了 async/ await 語法糖後，讓非同步代碼更加簡潔與直覺" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-12-25_v8-async-await/" />
-<meta property="article:published_time" content="2018-12-25T13:06:04+00:00" />
-<meta property="article:modified_time" content="2018-12-25T13:06:04+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-12-25_v8-async-await/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-12-25T13:06:04&#43;00:00" />
+<meta property="article:modified_time" content="2018-12-25T13:06:04&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="V8 如何優化 async / await"/>
 <meta name="twitter:description" content="JS 基於事件驅動，大量的 Promise 充斥在應用程式中，其後在 ES2017 加入了 async/ await 語法糖後，讓非同步代碼更加簡潔與直覺"/>
@@ -97,13 +98,13 @@
 <p>直接回傳Promise 跟多包一層 Promise 有什麼差別呢？</p>
 <p>參考github issue 討論的其中一個案例</p>
 <p><a href="https://github.com/tc39/ecma262/pull/1250">**Normative: Reduce the number of ticks in async/await by MayaLekova</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">async <span style="color:#268bd2">function</span> f() {  
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> f() {  
   <span style="color:#268bd2">let</span> promise <span style="color:#719e07">=</span> <span style="color:#b58900">Promise</span>.resolve(<span style="color:#2aa198">1</span>);  
   promise.then <span style="color:#719e07">=</span> <span style="color:#268bd2">function</span>(...args) {  
     console.log(<span style="color:#2aa198">&#39;then called&#39;</span>);  
     <span style="color:#719e07">return</span> <span style="color:#b58900">Promise</span>.prototype.then.apply(<span style="color:#719e07">this</span>, args);  
   };  
-  <span style="color:#268bd2">let</span> result <span style="color:#719e07">=</span> await promise;  
+  <span style="color:#268bd2">let</span> result <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> promise;  
   <span style="color:#719e07">return</span> result;  
 }
 
@@ -120,8 +121,8 @@ f().then(v =&gt; console.log(v));
 <p>Nodejs 在 version 8 有偷做優化，也就是第一步省掉，如果發現是 await 接promise 就不會多包一層，可以用 v8 / v10 對比跑下列程式</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> p <span style="color:#719e07">=</span> <span style="color:#b58900">Promise</span>.resolve();
 
-(async () =&gt; {  
-  await p; console.log(<span style="color:#2aa198">&#39;after:await&#39;</span>);  
+(<span style="color:#268bd2">async</span> () =&gt; {  
+  <span style="color:#268bd2">await</span> p; console.log(<span style="color:#2aa198">&#39;after:await&#39;</span>);  
 })();
 
 p.then(() =&gt; console.log(<span style="color:#2aa198">&#39;tick:a&#39;</span>))  
@@ -160,7 +161,17 @@ p.then(() =&gt; console.log(<span style="color:#2aa198">&#39;tick:a&#39;</span>)
 			
 			
 			
+			
+			
+			
+			
 			<a href="/categories/javascript/"> javascript </a>
+			
+			
+			
+			
+			
+			
 			
 			
 			

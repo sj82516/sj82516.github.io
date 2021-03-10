@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。"><meta property="og:title" content="為什麼要理解 Nodejs Event Loop：Dataloader 源碼解讀與分析如何解決 Graphql N&#43;1問題" />
 <meta property="og:description" content="Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-07-16_nodejs-event-loop-to-fix-graphql-n-1/" />
-<meta property="article:published_time" content="2018-07-16T12:35:50+00:00" />
-<meta property="article:modified_time" content="2018-07-16T12:35:50+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-07-16_nodejs-event-loop-to-fix-graphql-n-1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-07-16T12:35:50&#43;00:00" />
+<meta property="article:modified_time" content="2018-07-16T12:35:50&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="為什麼要理解 Nodejs Event Loop：Dataloader 源碼解讀與分析如何解決 Graphql N&#43;1問題"/>
 <meta name="twitter:description" content="Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。"/>
@@ -264,22 +265,22 @@ batched by dataloader: [ 4 ]
 content: [ 4 ]
 </code></pre></div><p>對應我們要解決的N+1問題，因為Graphql怎麼處理底層呼叫算是個黑盒子，以下是大概示意</p>
 <p>1. 原本Graphql的 N + 1問題</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> await db.getUsers()  
-<span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> await db.getPostByUserId(userList[<span style="color:#2aa198">0</span>].id)  
-<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> await db.getPostByUserId(userList[<span style="color:#2aa198">1</span>].id) 
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getUsers()  
+<span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostByUserId(userList[<span style="color:#2aa198">0</span>].id)  
+<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostByUserId(userList[<span style="color:#2aa198">1</span>].id) 
 </code></pre></div><p>&hellip;&hellip;</p>
 <p>2. 如果用dataloader轉換</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> await db.getUsers() 
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getUsers() 
 
 <span style="color:#586e75">// post請求集中成  
 </span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> postLoader <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Dataloader((keys) =&gt; {  
-    <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> await db.getPostListByUserId(keys)   
+    <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostListByUserId(keys)   
     <span style="color:#719e07">return</span> <span style="color:#b58900">Promise</span>.all(res.map(r =&gt; <span style="color:#b58900">Promise</span>.resolve(r)))  
 }) 
 
 <span style="color:#586e75">// 照舊一個一個定義還是可以  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> await postLoader.load(userList[<span style="color:#2aa198">0</span>].id)  
-<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> await postLoader.load(userList[<span style="color:#2aa198">1</span>].id)
+</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> postLoader.load(userList[<span style="color:#2aa198">0</span>].id)  
+<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> postLoader.load(userList[<span style="color:#2aa198">1</span>].id)
 </code></pre></div><h2 id="結語">結語</h2>
 <p>原本以為 N+1問題要解決必須深入到改寫資料庫的SQL，例如轉成 SELECT IN，但沒想到有個如此簡潔又漂亮的解法，而且不限定用什麼資料庫，真的是太棒了。</p>
 <p>深入底層理解原理，抽象又費時，但我想這樣的投資是值得的，不禁再次感嘆這個Library的精妙，I dont know JS OTZ。</p>
@@ -365,7 +366,17 @@ console.log (4);<br>
 			
 			
 			
+			
+			
+			
+			
 			<a href="/categories/javascript/"> javascript </a>
+			
+			
+			
+			
+			
+			
 			
 			
 			

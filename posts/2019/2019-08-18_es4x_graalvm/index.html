@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性"><meta property="og:title" content="讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹" />
 <meta property="og:description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2019/2019-08-18_es4x_graalvm/" />
-<meta property="article:published_time" content="2019-08-18T11:31:29+00:00" />
-<meta property="article:modified_time" content="2019-08-18T11:31:29+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2019/2019-08-18_es4x_graalvm/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-08-18T11:31:29&#43;00:00" />
+<meta property="article:modified_time" content="2019-08-18T11:31:29&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="讓 Node.js 跑得更快! ES4X 專案與Graal VM 介紹"/>
 <meta name="twitter:description" content="認識不同的 JS Engine，讓你的 NodeJS 專案有不同的可能性"/>
@@ -165,7 +166,7 @@ $ npm install
 </span><span style="color:#586e75"></span>
 vertx  
   .createHttpServer()  
-  .requestHandler(async <span style="color:#268bd2">function</span> (req) {  
+  .requestHandler(<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> (req) {  
     req.response().end(<span style="color:#2aa198">&#34;hello world.&#34;</span>);  
    })  
    .listen(<span style="color:#2aa198">8080</span>);
@@ -249,7 +250,17 @@ vertx
 			
 			
 			
+			
+			
+			
+			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			

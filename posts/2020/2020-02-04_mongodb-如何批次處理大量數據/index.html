@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來"><meta property="og:title" content="MongoDB 批次處理大量數據" />
 <meta property="og:description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/" />
-<meta property="article:published_time" content="2020-02-06T22:21:40+00:00" />
-<meta property="article:modified_time" content="2020-02-06T22:21:40+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2020/2020-02-04_mongodb-%E5%A6%82%E4%BD%95%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E5%A4%A7%E9%87%8F%E6%95%B8%E6%93%9A/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-02-06T22:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2020-02-06T22:21:40&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="MongoDB 批次處理大量數據"/>
 <meta name="twitter:description" content="在大量查詢時必須小心使用語法，避免 MongoDB 反應不來"/>
@@ -86,12 +87,12 @@
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> MongoClient <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;mongodb&#39;</span>).MongoClient;
 
 <span style="color:#268bd2">const</span> dbUrl <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;mongodb://127.0.0.1:27017&#34;</span>;
-MongoClient.connect(dbUrl, async <span style="color:#268bd2">function</span> (err, client) {
+MongoClient.connect(dbUrl, <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> (err, client) {
     console.log(err)
     <span style="color:#268bd2">const</span> testDB <span style="color:#719e07">=</span> client.db(<span style="color:#2aa198">&#34;test&#34;</span>);
     <span style="color:#268bd2">const</span> userCollection <span style="color:#719e07">=</span> testDB.collection(<span style="color:#2aa198">&#34;users&#34;</span>);
 
-    <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> await iterateCollection({
+    <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> iterateCollection({
         sourceCollection<span style="color:#719e07">:</span> userCollection,
         query<span style="color:#719e07">:</span> {
             age<span style="color:#719e07">:</span> <span style="color:#2aa198">20</span>
@@ -105,7 +106,7 @@ MongoClient.connect(dbUrl, async <span style="color:#268bd2">function</span> (er
     client.close();
 });
 
-async <span style="color:#268bd2">function</span> iterateCollection({
+<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> iterateCollection({
     sourceCollection,
     query,
     batchSize,
@@ -127,7 +128,7 @@ async <span style="color:#268bd2">function</span> iterateCollection({
 
 
     <span style="color:#719e07">while</span> (<span style="color:#cb4b16">true</span>) {
-        <span style="color:#268bd2">const</span> queryResults <span style="color:#719e07">=</span> await sourceCollection.find(_query).limit(batchSize).sort(sort).toArray();
+        <span style="color:#268bd2">const</span> queryResults <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> sourceCollection.find(_query).limit(batchSize).sort(sort).toArray();
 
         <span style="color:#719e07">if</span>(queryResults.length <span style="color:#719e07">===</span> <span style="color:#2aa198">0</span>){
             <span style="color:#719e07">break</span>;
@@ -163,6 +164,16 @@ async <span style="color:#268bd2">function</span> iterateCollection({
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			
 			

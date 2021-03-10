@@ -6,10 +6,22 @@
 		<description>Recent content in 應用開發 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sun, 18 Oct 2020 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Tue, 16 Feb 2021 08:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E6%87%89%E7%94%A8%E9%96%8B%E7%99%BC/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>【極速開發&#43;】上課與練習心得</title>
+			<link>https://yuanchieh.page/posts/2021/2021-02-16-%E6%A5%B5%E9%80%9F%E9%96%8B%E7%99%BC&#43;%E4%B8%8A%E8%AA%B2%E8%88%87%E7%B7%B4%E7%BF%92%E4%B8%89%E9%80%B1%E7%9A%84%E5%BF%83%E5%BE%97/</link>
+			<pubDate>Tue, 16 Feb 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-02-16-%E6%A5%B5%E9%80%9F%E9%96%8B%E7%99%BC&#43;%E4%B8%8A%E8%AA%B2%E8%88%87%E7%B7%B4%E7%BF%92%E4%B8%89%E9%80%B1%E7%9A%84%E5%BF%83%E5%BE%97/</guid>
+			<description>
+				
+				在朋友的推坑下，上了 91 老師在 1/10 的【極速開發&#43;】，目的在於提升工程師對於自我生產力的提升，以下分享上課與練習的心得
+				
+			</description>
+		</item>
 		<item>
 			<title>使用 Redis 當作 API Rate limit 的三種方法</title>
 			<link>https://yuanchieh.page/posts/2020/2020-10-18-%E4%BD%BF%E7%94%A8-redis-%E7%95%B6%E4%BD%9C-api-rate-limit-%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E6%B3%95/</link>

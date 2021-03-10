@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 	
-	<meta name="generator" content="Hugo 0.75.1" />
+	<meta name="generator" content="Hugo 0.81.0" />
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="nojest 之前寫測試因為沒有注意細節，導致非常難編寫單元測試；改以 End-to-End測試，直接用docker 開DB輸入假資料，接著執行 Server App 對API一隻一隻測試。"><meta property="og:title" content="使用 Jest 做API 單元測試的範例與細節" />
 <meta property="og:description" content="nojest 之前寫測試因為沒有注意細節，導致非常難編寫單元測試；改以 End-to-End測試，直接用docker 開DB輸入假資料，接著執行 Server App 對API一隻一隻測試。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-08-06_jest-api/" />
-<meta property="article:published_time" content="2018-08-06T10:42:40+00:00" />
-<meta property="article:modified_time" content="2018-08-06T10:42:40+00:00" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2018/2018-08-06_jest-api/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-08-06T10:42:40&#43;00:00" />
+<meta property="article:modified_time" content="2018-08-06T10:42:40&#43;00:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 Jest 做API 單元測試的範例與細節"/>
 <meta name="twitter:description" content="nojest 之前寫測試因為沒有注意細節，導致非常難編寫單元測試；改以 End-to-End測試，直接用docker 開DB輸入假資料，接著執行 Server App 對API一隻一隻測試。"/>
@@ -102,10 +103,10 @@ test(‘adds <span style="color:#2aa198">1</span> <span style="color:#719e07">+<
 <p>例如說在設計API: GET /user/:userId</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 不要這樣直接呼叫 mongoose 方法  
 </span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> getUserById(){  
- <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> await mongoose.findById(….)  
+ <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> mongoose.findById(….)  
 }<span style="color:#586e75">// 拆開成獨立的函式，方便後續做 Mock  
 </span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> getUserById(){  
- <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> await getUserByIdInModel(id)  
+ <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> getUserByIdInModel(id)  
 }<span style="color:#268bd2">function</span> getUserByIdInModel(){  
  <span style="color:#719e07">return</span> mongoose.findById(…)  
 }
@@ -121,16 +122,16 @@ test(‘adds <span style="color:#2aa198">1</span> <span style="color:#719e07">+<
 假設我們原本的程式碼為</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// index.js  
 </span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> api <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>apiWrapper’);  
-<span style="color:#268bd2">const</span> Obj <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>objectWrapper’);exports.callAPI <span style="color:#719e07">=</span> async <span style="color:#268bd2">function</span>(t){  
-  <span style="color:#268bd2">let</span> content <span style="color:#719e07">=</span> await api.readFile(t)  
+<span style="color:#268bd2">const</span> Obj <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>objectWrapper’);exports.callAPI <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(t){  
+  <span style="color:#268bd2">let</span> content <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> api.readFile(t)  
   <span style="color:#719e07">return</span> content  
-}exports.callObject <span style="color:#719e07">=</span> async <span style="color:#268bd2">function</span>(){  
+}exports.callObject <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(){  
   <span style="color:#268bd2">let</span> obj <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Obj(“jay”)  
   <span style="color:#719e07">return</span> obj.sayHi()  
 }
 
 <span style="color:#586e75">// ./util/apiWrapper.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> fs <span style="color:#719e07">=</span> require(‘mz<span style="color:#719e07">/</span>fs’);exports.readFile <span style="color:#719e07">=</span> async <span style="color:#268bd2">function</span>(params){  
+</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> fs <span style="color:#719e07">=</span> require(‘mz<span style="color:#719e07">/</span>fs’);exports.readFile <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(params){  
   <span style="color:#719e07">return</span> fs.readFile(“.<span style="color:#719e07">/</span>test.txt”);  
 }
 
@@ -149,18 +150,18 @@ test(‘adds <span style="color:#2aa198">1</span> <span style="color:#719e07">+<
 jest.mock(“.<span style="color:#719e07">/</span>util<span style="color:#719e07">/</span>apiWrapper”)  
 jest.mock(“.<span style="color:#719e07">/</span>model<span style="color:#719e07">/</span>objectWrapper”)
 
-test(“mock api test”, async ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> await index.callAPI(<span style="color:#2aa198">1</span>);  
+test(“mock api test”, <span style="color:#268bd2">async</span> ()=&gt;{  
+  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callAPI(<span style="color:#2aa198">1</span>);  
   expect(res).toBe(“jest”);  
 })
 
-test(“mock api test2”, async ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> await index.callAPI(<span style="color:#2aa198">2</span>);  
+test(“mock api test2”, <span style="color:#268bd2">async</span> ()=&gt;{  
+  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callAPI(<span style="color:#2aa198">2</span>);  
   expect(res).toBe(“jest2”);  
 })
 
-test(“mock obj test”, async ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> await index.callObject();  
+test(“mock obj test”, <span style="color:#268bd2">async</span> ()=&gt;{  
+  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callObject();  
   expect(res).toBe(“hi from jest”);  
 })  
 </code></pre></div><p>這裡先定義了三個測試情境，並透過 jest.mock()顯式宣告 Mock檔案的位置；<br>
@@ -224,6 +225,10 @@ index.test.js
 			
 			
 			
+			
+			
+			
+			
 			<a href="/categories/javascript/"> javascript </a>
 			
 			
@@ -266,7 +271,13 @@ index.test.js
 			
 			
 			
+			
+			
 			<a href="/categories/%e6%87%89%e7%94%a8%e9%96%8b%e7%99%bc/"> 應用開發 </a>
+			
+			
+			
+			
 			
 			
 			
