@@ -103,28 +103,45 @@
 <img src="https://www.ardanlabs.com/images/goinggo/94_figure11.png" alt="來自參考文件"><br>
 (來自參考文件)</p>
 <ol>
-<li>Scheduler 預設啟動一個 kernel thread 對應到一個 Processor P1，並將 goroutine G1 放到此 kernel thread M1 中執行</li>
+<li>Scheduler 預設為啟動一個 Processor P1，這裡會對應到硬體上可獨立執行 thread 的運算單元</li>
+</ol>
+<blockquote>
+<p>不一定等於 CPU core 數量，因為像 intel Hyper-Threading 功能，一個 physical core 可運行兩個 thread</p>
+</blockquote>
+<ol start="2">
+<li>Processor P1 上運行一個 Kernel Thread M1，並將 goroutine G1 排程到 M1 中執行</li>
 <li>如果有新的 goroutine G2 誕生，且目前的 Processor P1還在跑，則建立新的 kernel thread M2與 Processor P2，並執行 goroutine G2</li>
 <li>如果 kernel thread 啟動數量達到上限 <code>GOMAXPROCS</code>，則會放到 FIFO queue 當中，簡稱 <code>runq</code>，每個 Processor 都有對應自己的 local runq</li>
 <li>Processor 如果把 local run queue 都處理完，可以去偷其他 thread 的 runq (<code>work stealing</code>)，達到工作 balance</li>
 <li>除了 local runq，還有一個 global runq 放被中斷的長時間佔用 goroutine，kernel thread 會用比較低的頻率去執行，還有像垃圾回收等任務</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">runtime.<span style="color:#268bd2">schedule</span>() {
-    <span style="color:#586e75">// only 1/61 of the time, check the global runnable queue for a G.
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">// if not found, check the local queue.
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">// if not found,
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">//     try to steal from other Ps.
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">//     if not, check the global runnable queue.
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">//     if not found, poll network.
-</span><span style="color:#586e75"></span>} 
-</code></pre></div><ol>
-<li>遇到任何 system call，則該 goroutine 會暫停 (parking)，把 process 讓給其他人 (handoff)，此時 thread 不會佔用總體上限，如果是 network 相關，則等 IO 事件完成把 goroutine 放到 <code>network poller</code>，等待 scheduler 重新安排執行</li>
-</ol>
 <blockquote>
-<p>因為 kernel thread 被 IO block 後，Processor 也會讓給其他 thread 執行</p>
-</blockquote>
-<p>這樣每個 Process 都盡可能綁定一個 kernel thread，且此 kernel thread 就持續在 running 狀態而沒有切換，透過 Go Scheduler 替換 user thread 排程工作</p>
-<p>goroutine 可以針對 function level 啟動併發，也有豐富的同步語法，例如 sync.Mutex 保護 critical section / sync.WaitGroup 等待 goroutine 完成 / channel 在 goroutine 當中傳遞資料與控制執行，相比於 Nodejs 在非同步編程上豐富許多</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">runtime.<span style="color:#268bd2">schedule</span>() {
+   <span style="color:#586e75">// only 1/61 of the time, check the global runnable queue for a G.
+</span><span style="color:#586e75"></span>   <span style="color:#586e75">// if not found, check the local queue.
+</span><span style="color:#586e75"></span>   <span style="color:#586e75">// if not found,
+</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     try to steal from other Ps.
+</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     if not, check the global runnable queue.
+</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     if not found, poll network.
+</span><span style="color:#586e75"></span>} 
+</code></pre></div></blockquote>
+<ol start="7">
+<li>遇到 system call，會有兩種反應
+<ul>
+<li>如果是 <code>blocking system call</code>，則該 kernel thread 會暫停 (parking) 並移出 processor，把 process 讓給其他人 (handoff)，此時 thread 不會佔用總體上限</li>
+<li>如果是 <code>non blocking system call</code> 例如 network 相關，則不需要暫停 thread，而是把 goroutine 放到 <code>network poll</code>，processor 會在有空的時候去 network poll 執行 runnable 的 goroutine</li>
+</ul>
+</li>
+</ol>
+<p>這樣每個 process 都盡可能綁定一個 kernel thread，且此 kernel thread 就持續在 running 狀態而沒有切換，透過 Go Scheduler 替換 user thread 排程工作</p>
+<p>Scheduler 本身會在以下情況處理排程</p>
+<ul>
+<li><code>go</code> keyword</li>
+<li>垃圾回收：垃圾回收有獨立的 goroutine</li>
+<li>system call</li>
+<li>sync 相關呼叫: atomic / mutex / channel 相關操作，會導致 goroutine 堵塞</li>
+</ul>
+<p>goroutine 可以針對 function level 啟動併發，也有豐富的同步語法，例如 sync.Mutex 保護 critical section / sync.WaitGroup 等待 goroutine 完成 / channel 在 goroutine 當中傳遞資料與控制執行</p>
 <h3 id="範例一透過-http-request-讀取-users-list-並再次透過-http-request-取得-10-位-user-的詳細資料算最後的性別加總">範例一：透過 http request 讀取 users list 並再次透過 http request 取得 10 位 user 的詳細資料，算最後的性別加總</h3>
 <p>範例只是要稍微品嚐一下兩個語法的差異，錯誤處理等就先不要太在意
 
@@ -132,9 +149,12 @@
 <script src="https://gist.github.com/sj82516/6e10f70a62a1d717c78485077ff5a15d.js"></script>
 
 這部分寫起來用 Nodejs 就蠻方便的</p>
-<h3 id="範例二計算-100--100-數字矩陣加總併發四個-thread-執行最後加總">範例二：計算 100 * 100 數字矩陣加總，併發四個 thread 執行最後加總</h3>
-<!-- raw HTML omitted -->
-<p>Nodejs 在 child_process 或是 worker thread 我自己都覺得有點不太方便，尤其是在傳遞資料上，不如 Golang 直接 <code>go func()</code> 搭配 channel 來的簡便</p>
+<h3 id="範例二計算-1000--1000-數字矩陣加總併發四個-thread-執行最後加總">範例二：計算 1000 * 1000 數字矩陣加總，併發四個 thread 執行最後加總</h3>
+
+  
+<script src="https://gist.github.com/sj82516/df8e34f1ba7952817d3da2607c3eda35.js"></script>
+
+<p>Nodejs 在 child_process 或是 worker thread 我自己都覺得有點不太方便，不能針對某一個 function 起新的 thread，傳遞資料上也不是太方便，不如 Golang 直接 <code>go func()</code> 搭配 channel 來的簡便</p>
 <p>接著回過頭來看，分享從 Nodejs 跳槽到 Golang 的學習方式</p>
 <h2 id="golang-教學資源推薦">Golang 教學資源推薦</h2>
 <p>影片付費資源：<a href="https://app.pluralsight.com/paths/skills/go-core-language">Go Core Language</a> ，自己本身蠻喜歡影片式教學，可以快速過一遍，Pluralsight 的課程品質還不錯，而且還有 Skill 可以測試自己的能力，把上面 Go 核心課程看完大概就花個 5個小時左右，覺得入門來說頗划算</p>
