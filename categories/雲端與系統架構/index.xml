@@ -47,11 +47,11 @@
 			</description>
 		</item>
 		<item>
-			<title>Packer教學-打造 Image</title>
-			<link>https://yuanchieh.page/posts/2020/2020-04-15_packer-%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image/</link>
+			<title>Packer教學-打造 Image與實際使用經驗</title>
+			<link>https://yuanchieh.page/posts/2020/2020-04-15_packer%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image%E8%88%87%E5%AF%A6%E9%9A%9B%E4%BD%BF%E7%94%A8%E7%B6%93%E9%A9%97/</link>
 			<pubDate>Wed, 15 Apr 2020 02:21:40 +0000</pubDate>
 			
-			<guid>https://yuanchieh.page/posts/2020/2020-04-15_packer-%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image/</guid>
+			<guid>https://yuanchieh.page/posts/2020/2020-04-15_packer%E6%95%99%E5%AD%B8-%E6%89%93%E9%80%A0-image%E8%88%87%E5%AF%A6%E9%9A%9B%E4%BD%BF%E7%94%A8%E7%B6%93%E9%A9%97/</guid>
 			<description>
 				
 				使用 Packer 打造建制步驟透明的 Image 流程
