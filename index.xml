@@ -6,10 +6,34 @@
 		<description>Recent content on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sun, 07 Mar 2021 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Thu, 18 Mar 2021 08:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>Golang Test - 單元測試、Mock與http handler 測試</title>
+			<link>https://yuanchieh.page/posts/2021/2021-03-18-golang-test/</link>
+			<pubDate>Thu, 18 Mar 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-03-18-golang-test/</guid>
+			<description>
+				
+				分享如何在 Golang 中針對 http server 寫測試，包含單元測試 / 如何針對有外部相依性的物件做 Stub / Mock，以及最後針對 http handler 的 http request 測試
+				
+			</description>
+		</item>
+		<item>
+			<title>《創意競擇》心得分享</title>
+			<link>https://yuanchieh.page/posts/2021/2021-03-16-%E5%89%B5%E6%84%8F%E7%AB%B6%E6%93%87%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB/</link>
+			<pubDate>Sun, 07 Mar 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-03-16-%E5%89%B5%E6%84%8F%E7%AB%B6%E6%93%87%E5%BF%83%E5%BE%97%E5%88%86%E4%BA%AB/</guid>
+			<description>
+				
+				作者是曾經是 Apple 首席軟體工程師，參與過 Safari / iPhone 第一代鍵盤設計 / iPad 鍵盤設計，在書中分享在 Apple 參與軟體設計的過程，包含與賈伯斯的互動 / 與設計師反覆溝通找出技術與人文交會之處，令人振奮且發人深省的一本書
+				
+			</description>
+		</item>
 		<item>
 			<title>從 Nodejs 到 Golang: Concurrency 實作比較</title>
 			<link>https://yuanchieh.page/posts/2021/2021-03-07-%E5%BE%9E-nodejs-%E5%88%B0-golang-concurrency-%E5%AF%A6%E4%BD%9C%E6%AF%94%E8%BC%83/</link>

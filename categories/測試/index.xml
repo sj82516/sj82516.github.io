@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>測試 on Yuanchieh&#39;s Blog</title>
+		<link>https://yuanchieh.page/categories/%E6%B8%AC%E8%A9%A6/</link>
+		<description>Recent content in 測試 on yuanchieh.page</description>
+		<generator>Hugo -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Thu, 18 Mar 2021 08:21:40 +0000</lastBuildDate>
+		
+		<atom:link href="https://yuanchieh.page/categories/%E6%B8%AC%E8%A9%A6/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Golang Test - 單元測試、Mock與http handler 測試</title>
+			<link>https://yuanchieh.page/posts/2021/2021-03-18-golang-test/</link>
+			<pubDate>Thu, 18 Mar 2021 08:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-03-18-golang-test/</guid>
+			<description>
+				
+				分享如何在 Golang 中針對 http server 寫測試，包含單元測試 / 如何針對有外部相依性的物件做 Stub / Mock，以及最後針對 http handler 的 http request 測試
+				
+			</description>
+		</item>
+		
+	</channel>
+</rss>
