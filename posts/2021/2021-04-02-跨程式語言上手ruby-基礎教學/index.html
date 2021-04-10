@@ -180,7 +180,7 @@ sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
     <span style="color:#b58900">puts</span> sum <span style="color:#586e75"># 拋錯</span>
 <span style="color:#719e07">end</span>
 
-<span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>) { <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span> sum <span style="color:#719e07">+=</span> i } <span style="color:#586e75"># 這樣是可以的</span>
+<span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>) { <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span> sum <span style="color:#719e07">+=</span> i } <span style="color:#586e75"># 這樣是可以的，因為 block 是用宣告當前的 context</span>
 
 $sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <span style="color:#586e75"># 全域變數可以</span>
 <span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>
@@ -189,13 +189,14 @@ $sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <
 </code></pre></div><h4 id="命名規則">命名規則</h4>
 <ol>
 <li>變數名稱常用蛇形命名法</li>
-<li>變數大寫代表常數，但是常數被改會有 warning 不會有錯誤</li>
+<li>變數全大寫代表<code>常數</code>，但是常數被改會有 warning 不會有錯誤</li>
+<li>Class/Module 名稱開頭大寫</li>
 </ol>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">naming_convetion <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span>
 <span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
 <span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span> <span style="color:#586e75">#  warning: already initialized constant X</span>
 </code></pre></div><h4 id="symbols">Symbols</h4>
-<p>建立唯一且不可變的物件，用 <code>:</code> 開頭，重複宣告都會指向同一份記憶體位置 (<code>透過 object_id 識別</code>)，而字串每一次宣告都會在記憶體產生新的一份 String Object</p>
+<p>建立唯一且不可變的物件，用 <code>:</code> 開頭，重複宣告都會指向同一份記憶體位置 (<code>透過 object_id 識別</code>)，而字串每一次宣告都會在記憶體產生新的一份 String Object，如果是要單純用來識別 Symbol 效能會比 String 好上很多喔</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">hello <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
 world <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
 <span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
@@ -342,7 +343,7 @@ arr<span style="color:#719e07">.</span>each { <span style="color:#719e07">|</spa
 <span style="color:#b58900">puts</span> add <span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>
 </code></pre></div><h3 id="class">Class</h3>
 <ol>
-<li>預設 class Name 開頭大寫</li>
+<li>預設 Class 名稱開頭大寫</li>
 <li>支援繼承 <code>Successor &lt; Predecessor</code></li>
 <li>要建立 instance 透過 <code>Class.new</code>，會呼叫 class 中的 private method <code>initialize</code></li>
 <li>宣告 instance 變數以 <code>@</code> 開頭 / 宣告 class static 變數用 <code>@@</code></li>
@@ -634,6 +635,7 @@ arr <span style="color:#719e07">=</span> <span style="color:#b58900">Array</span
 require_relative <span style="color:#2aa198">&#39;./calculator&#39;</span>
 
 <span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">Greeting</span><span style="color:#719e07">::</span><span style="color:#cb4b16">Hi</span>
+  <span style="color:#586e75"># 透過 include 達到 mixin 效果</span>
   <span style="color:#719e07">include</span> <span style="color:#cb4b16">Greeting</span>
   <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
     @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
@@ -718,11 +720,13 @@ describe <span style="color:#cb4b16">Calculator</span> <span style="color:#719e0
 describe 
   let(<span style="color:#2aa198">:calculator</span>) <span style="color:#719e07">do</span>
     vip_service <span style="color:#719e07">=</span> <span style="color:#cb4b16">VIP_Service</span><span style="color:#719e07">.</span>new
+    <span style="color:#586e75"># 這裡透過 mock 動態改變</span>
     allow(vip_service)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:is_vip?</span>)<span style="color:#719e07">.</span>and_return(<span style="color:#719e07">false</span>)
     <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new(vip_service)
   <span style="color:#719e07">end</span>
 <span style="color:#719e07">end</span> 
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rspec&#39;</span>
+</code></pre></div><p>spy 的案例請看官方文件範例</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rspec&#39;</span>
 
 <span style="color:#719e07">class</span> <span style="color:#268bd2">Invitation</span>
   <span style="color:#719e07">def</span> <span style="color:#268bd2">deliver</span>(email)
@@ -739,10 +743,13 @@ describe <span style="color:#2aa198">&#34;Invitation&#34;</span> <span style="co
   <span style="color:#719e07">end</span>
 
   it <span style="color:#2aa198">&#34;passes when a count constraint is satisfied&#34;</span> <span style="color:#719e07">do</span>
+    <span style="color:#586e75"># 透過 have_recieved 看方法有沒有被呼叫</span>
     expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>twice
   <span style="color:#719e07">end</span>
 
   it <span style="color:#2aa198">&#34;passes when an order constraint is satisifed&#34;</span> <span style="color:#719e07">do</span>
+  <span style="color:#586e75"># 加上 with 檢查方法呼叫時傳入的參數</span>
+  <span style="color:#586e75"># 加上 ordered 代表要按照此順序呼叫</span>
     expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;foo@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
     expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;bar@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
   <span style="color:#719e07">end</span>
