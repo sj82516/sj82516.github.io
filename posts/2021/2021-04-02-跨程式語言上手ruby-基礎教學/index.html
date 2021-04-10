@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="跨程式語言上手系列，用最短的時間上手 Ruby，包含基礎語法 / testing / api server / module 等"><meta property="og:title" content="【跨程式語言上手】Ruby 基礎教學 (基於 Ruby 3.0)" />
+<meta property="og:description" content="跨程式語言上手系列，用最短的時間上手 Ruby，包含基礎語法 / testing / api server / module 等" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-04-02-%E8%B7%A8%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E4%B8%8A%E6%89%8Bruby-%E5%9F%BA%E7%A4%8E%E6%95%99%E5%AD%B8/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-02T08:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2021-04-02T08:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="【跨程式語言上手】Ruby 基礎教學 (基於 Ruby 3.0)"/>
+<meta name="twitter:description" content="跨程式語言上手系列，用最短的時間上手 Ruby，包含基礎語法 / testing / api server / module 等"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>【跨程式語言上手】Ruby 基礎教學 (基於 Ruby 3.0) | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">02</span>
+				<span class="rest">Apr 2021</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">【跨程式語言上手】Ruby 基礎教學 (基於 Ruby 3.0)</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>【跨程式語言上手】系列第一篇，最近換工作學習了 Golang / Ruby，可以說是設計理念處於對立面的程式語言，在學習中不斷拿兩者比較，找到很多有趣的地方<br>
+在這樣的過程中，慢慢找出自己上手新程式語言的 pattern，也就是逐步填補自我疑問的過程，像是「怎麼宣告變數？」「怎麼寫測試？」「api server / http request 怎麼發？」「併發或效能怎麼處理？」等等共通的疑惑點</p>
+<p>坊間有很多善心人士的教學，但往往都缺一點我想了解的資訊，例如 Google 搜尋「Ruby 教學」的中文素材，跑出這幾個很棒的教學</p>
+<ol>
+<li>高見龍大大的 <a href="https://railsbook.tw/">為你自己學 Ruby on Rails</a></li>
+<li><a href="https://ihower.tw/rails/ruby.html">Ruby on Rails 實戰聖經</a></li>
+<li>Ruby 官網的 <a href="https://www.ruby-lang.org/zh_tw/documentation/quickstart/3/">二十分鐘 Ruby 體驗</a></li>
+</ol>
+<p>Ruby 教學會被綁在 Rails 教學中或許是 Ruby 生態特有的現象，但普遍程式語言教學也都缺少</p>
+<ol>
+<li>Testing：包含 Testing Framework / Unit Test / Mock、Stub</li>
+<li>Module：Core Module / Local Module 怎麼載入</li>
+<li>Concurrency：底層如何處理併發/平行運算</li>
+<li>程式語言多用於後端，所以我會在意寫 api server / http request 的感覺是怎樣</li>
+</ol>
+<p>可以說這幾點都是比較進階/偏科的議題，但對我的工作很重要，也是這系列的起源，<code>我想要重新寫一份對我自己來說完整的程式語言教學</code>，過程中會拿我已經熟悉的程式語言如 Javascript 跟一點點的 Golang 做對比</p>
+<blockquote>
+<p>目標會著重於有經驗的程式設計師，已經熟練任一程式語言，想要快速上手或是品味另一門語言的人</p>
+</blockquote>
+<p>以下內容會包含</p>
+<ol>
+<li>Ruby 設計理念與起源</li>
+<li>基礎語法</li>
+<li>模組</li>
+<li>測試</li>
+<li>Http / API 相關</li>
+<li>其他補充</li>
+</ol>
+<p>內容大量參考上附的參考資料，並融入自己的淺見，會隨著使用時間的拉長持續修改，有什麼不同的意見歡迎留言分享</p>
+<h2 id="1-ruby-設計理念與起源">1. Ruby 設計理念與起源</h2>
+<p>Ruby 是一門 Dynamic Language，運行在 Ruby Virtual Machine 上，本身是弱型別但沒有 JS 中隱式的轉型 (ex. 1 + &ldquo;23&rdquo;)，在 3.0 加入 Type safety 工具 <code>TypeProf</code> 幫助檢查型別問題</p>
+<p>透過範例簡單看一下 Ruby 幾個特別的設計理念</p>
+<h3 id="ruby-is-designed-to-make-programmers-happy">Ruby is designed to make programmers happy</h3>
+<p>出自於 <a href="https://www.artima.com/articles/the-philosophy-of-ruby">The Philosophy of Ruby A Conversation with Yukihiro Matsumoto, Part I</a>，Ruby 給予開發者很高的自由度</p>
+<ol>
+<li>定義 symbol 在 Ruby 的框架下產生自己的 DSL，例如 <a href="http://sinatrarb.com/">sinatra</a> 這個 web framework，看範例會以為根本不是 ruby 寫的</li>
+<li>支援 Meta programming 可以在 Runtime 改變類別行為</li>
+<li>可以複寫任意的方法，包含原生類別</li>
+<li>同一種功能可以有非常多種寫法，光是迴圈可以用 while / for in / each / until / begin while 等</li>
+</ol>
+<h3 id="seeing-everything-as-an-object">Seeing Everything as an Object</h3>
+<p>在 Ruby 的世界中，幾乎每一個變數都是物件，包含 <code>1+2</code> 也可以寫成 <code>1.+(2)</code>，1 本身是 <code>Integer 類別</code>裡頭有 + 這個方法<br>
+這讓 Ruby 很適合 OOP，也帶來很多的彈性，像是在 operator overwrite</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Integer</span>
+  <span style="color:#719e07">alias</span> <span style="color:#2aa198">:plus</span> <span style="color:#2aa198">:+</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">+</span> (other)
+    <span style="color:#b58900">puts</span> <span style="color:#b58900">self</span><span style="color:#719e07">.</span>to_s <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34; is adding &#34;</span> <span style="color:#719e07">+</span> other<span style="color:#719e07">.</span>to_s
+    <span style="color:#b58900">self</span><span style="color:#719e07">.</span>plus other
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#b58900">puts</span> <span style="color:#2aa198">1</span> <span style="color:#719e07">+</span> <span style="color:#2aa198">2</span>
+
+<span style="color:#586e75"># 輸出結果</span>
+<span style="color:#586e75"># 1 is adding 2</span>
+<span style="color:#586e75"># 3</span>
+</code></pre></div><p>Integer 是預設類別，Ruby 遇到類別重複宣告時會<code>合併</code>，接著我們在 Integer 宣告 plus 是原本 + 的別名，接著覆寫 <code>+</code> 先打印出 is adding 字串在回傳，在 Ruby 中預設 function 最後一行即使不顯式宣告也會 return</p>
+<h3 id="透過匿名函式支援-functional-programming-style">透過匿名函式支援 Functional Programming Style</h3>
+<p>在 Ruby 世界中，不像 Javascript / Golang 把 function 視為一等公民</p>
+<blockquote>
+<p>在程式語言中，所謂的一等公民條件是</p>
+<ol>
+<li>可以傳入 function 當作參數</li>
+<li>可以被 function 當作 return 值</li>
+<li>可以被儲存於資料結構中使用</li>
+</ol>
+</blockquote>
+<p>但是 Ruby 也還是匿名函式的語法，大致如下</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">sum</span>(x)
+  total <span style="color:#719e07">=</span> x
+  <span style="color:#b58900">proc</span> { <span style="color:#719e07">|</span>y<span style="color:#719e07">|</span> x <span style="color:#719e07">+=</span> y }
+<span style="color:#719e07">end</span>
+
+sum_five <span style="color:#719e07">=</span> sum <span style="color:#2aa198">5</span>
+<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
+<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
+<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
+</code></pre></div><p>後續會有更詳細補充，但至少 Ruby 世界中也是可以做到 functional programming 的</p>
+<p>綜合以上，Ruby 是一門彈性很大、很自由的語言，這是一把雙面刃，對於新手可能也不是這麼友善，畢竟有太多語法跟關鍵字要去熟悉</p>
+<h3 id="如何安裝">如何安裝</h3>
+<p>可以從官網下載安裝 <a href="https://www.ruby-lang.org/en/documentation/installation/">Installing Ruby</a>，或是先安裝 Ruby 版本管理工具如 <a href="http://rvm.io/">RVM</a></p>
+<h4 id="套件管理">套件管理</h4>
+<p>安裝完 ruby 後，也同時安裝了 <code>gem</code>，gem 是 ruby 套件管理工具，可以安裝或發佈自己的套件</p>
+<blockquote>
+<p>gem 我一開始理解成 npm，但 npm 層級高了一些，例如 gem 並沒有做到版本控制的功能，gem + bundle 比較是 npm 的組合</p>
+</blockquote>
+<p>詳細可參考 <a href="https://medium.com/@bag571ivy3470/ruby-%E7%9A%84-rvm-vs-gem-vs-bundle-%E7%9A%84%E5%B7%AE%E5%88%A5-fc9ab20a920">Ruby 的 Rvm VS Gem VS Bundler 的差別</a></p>
+<h2 id="基礎語法">基礎語法</h2>
+<h3 id="變數宣告">變數宣告</h3>
+<ol>
+<li>不用宣告型別</li>
+<li>變數可以改變型別</li>
+<li>但是沒有隱式的型別轉換</li>
+<li>變數的 <code>scope 只有當前的 context</code>，但要注意匿名函式會讀取當前的 context，並不會一直往上查找，除非用全域變數 <code>$</code> 開頭</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span>
+x <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;123&#34;</span>
+
+x <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span> <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;123&#34;</span> <span style="color:#586e75"># 拋錯 TypeError (String can&#39;t be coerced into Integer)</span>
+
+sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
+<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>
+    <span style="color:#b58900">puts</span> sum <span style="color:#586e75"># 拋錯</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>) { <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span> sum <span style="color:#719e07">+=</span> i } <span style="color:#586e75"># 這樣是可以的</span>
+
+$sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <span style="color:#586e75"># 全域變數可以</span>
+<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>
+    <span style="color:#b58900">puts</span> $sum 
+<span style="color:#719e07">end</span>
+</code></pre></div><h4 id="命名規則">命名規則</h4>
+<ol>
+<li>變數名稱常用蛇形命名法</li>
+<li>變數大寫代表常數，但是常數被改會有 warning 不會有錯誤</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">naming_convetion <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span>
+<span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
+<span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span> <span style="color:#586e75">#  warning: already initialized constant X</span>
+</code></pre></div><h4 id="symbols">Symbols</h4>
+<p>建立唯一且不可變的物件，用 <code>:</code> 開頭，重複宣告都會指向同一份記憶體位置 (<code>透過 object_id 識別</code>)，而字串每一次宣告都會在記憶體產生新的一份 String Object</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">hello <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
+world <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
+<span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
+<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id
+
+hello <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
+world <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
+<span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
+<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id
+</code></pre></div><h4 id="hash">Hash</h4>
+<p>Ruby 有 Hash，可以用 <code>=&gt; 或 :</code> 分隔 key value，但是兩者有很大的差異</p>
+<ol>
+<li>=&gt; 非常的自由，key 值可以是任意的值</li>
+<li>: 的 key 只能是 symbol，如果放字串會直接轉成 symbol<br>
+要非常小心 <code>string 跟 symbol</code> 是不同的，實作上很容易踩到這個坑</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#719e07">=</span> { <span style="color:#2aa198">&#34;123&#34;</span>: <span style="color:#2aa198">&#34;123&#34;</span> }
+b <span style="color:#719e07">=</span> { <span style="color:#2aa198">&#34;123&#34;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;123&#34;</span> }
+
+<span style="color:#b58900">puts</span> a<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># nil</span>
+<span style="color:#b58900">puts</span> a<span style="color:#719e07">[</span><span style="color:#2aa198">:&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># &#34;123&#34;</span>
+<span style="color:#b58900">puts</span> b<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># &#34;123&#34;</span>
+<span style="color:#b58900">puts</span> b<span style="color:#719e07">[</span><span style="color:#2aa198">:&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># nil</span>
+</code></pre></div><h3 id="ruby-中幾乎都是物件有內建很多便利的方法">Ruby 中幾乎都是物件，有內建很多便利的方法</h3>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
+<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>methods <span style="color:#586e75"># 列出所有 Integer 包含的 method</span>
+<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>odd? <span style="color:#586e75"># 是不是偶數</span>
+<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>class <span style="color:#586e75"># 類別</span>
+<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>to_s <span style="color:#586e75"># 轉成字串</span>
+</code></pre></div><h4 id="陣列">陣列</h4>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>,<span style="color:#2aa198">4</span>,<span style="color:#2aa198">5</span><span style="color:#719e07">]</span>
+
+<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>include?(<span style="color:#2aa198">2</span>)
+<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>push <span style="color:#2aa198">0</span>
+<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>pop
+</code></pre></div><h3 id="loop--control-flow">loop / control flow</h3>
+<h4 id="條件式">條件式</h4>
+<p>基本的 if / elseif / else 與三元判斷式</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
+<span style="color:#719e07">if</span> x<span style="color:#719e07">.</span>odd?
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is odd&#34;</span>
+<span style="color:#719e07">elsif</span> x<span style="color:#719e07">.</span>even?
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is even&#34;</span>
+<span style="color:#719e07">else</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;never happen&#34;</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#b58900">puts</span> (x<span style="color:#719e07">.</span>odd?) ? <span style="color:#2aa198">&#34;x is odd&#34;</span><span style="color:#2aa198">:&#34;x is even&#34;</span>
+</code></pre></div><h4 id="switch-case">switch case</h4>
+<ol>
+<li>採用 case / when / else 語法，不用加 break</li>
+<li>case 如果沒有接參數，則 when 條件可以放 statement / 如果有接參數，則 when 條件放常數</li>
+<li>如果希望 case when 結果賦值給變數，可以用 when &hellip; then</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
+
+<span style="color:#719e07">case</span>
+<span style="color:#719e07">when</span> x<span style="color:#719e07">.</span>odd?
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is odd&#34;</span>
+<span style="color:#719e07">when</span> x<span style="color:#719e07">.</span>even?
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is even&#34;</span>
+<span style="color:#719e07">else</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;never happen&#34;</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#719e07">case</span> x
+<span style="color:#719e07">when</span> <span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#2aa198">10</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is in 1 to 10&#34;</span>
+<span style="color:#719e07">else</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is not in 1 to 10&#34;</span>
+<span style="color:#719e07">end</span>
+
+val <span style="color:#719e07">=</span> <span style="color:#719e07">case</span> x
+<span style="color:#719e07">when</span> <span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#2aa198">10</span>
+  <span style="color:#719e07">then</span> <span style="color:#2aa198">&#34;x is in 1 to 10&#34;</span>
+<span style="color:#719e07">else</span>
+  <span style="color:#2aa198">&#34;x is not in 1 to 10&#34;</span>
+<span style="color:#719e07">end</span>
+<span style="color:#586e75"># val = &#34;x is in 1 to 10&#34;</span>
+</code></pre></div><h4 id="迴圈">迴圈</h4>
+<p>方式很多種</p>
+<ol>
+<li>先檢查條件的 for in / while / until</li>
+<li>後檢查條件的 begin &hellip; (when/until)</li>
+<li>Enumerable 物件可以用 each</li>
+</ol>
+<p>但<code>沒有常見 for(initialExpression; conditionExpression; incrementExpression)</code> 宣告</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>,<span style="color:#2aa198">4</span>,<span style="color:#2aa198">5</span><span style="color:#719e07">]</span>
+i <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
+
+<span style="color:#719e07">while</span> i <span style="color:#719e07">&lt;</span> arr<span style="color:#719e07">.</span>size <span style="color:#719e07">do</span>
+  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
+  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
+<span style="color:#719e07">end</span>
+
+i<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+<span style="color:#719e07">until</span> i <span style="color:#719e07">&gt;=</span> arr<span style="color:#719e07">.</span>size
+  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
+  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
+<span style="color:#719e07">end</span>
+
+i<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+<span style="color:#719e07">begin</span>
+  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
+  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
+<span style="color:#719e07">end</span> <span style="color:#719e07">while</span> i <span style="color:#719e07">&lt;</span> arr<span style="color:#719e07">.</span>size
+
+
+<span style="color:#719e07">for</span> i <span style="color:#719e07">in</span> arr <span style="color:#719e07">do</span>
+  <span style="color:#b58900">puts</span> i
+<span style="color:#719e07">end</span>
+
+arr<span style="color:#719e07">.</span>each { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span> <span style="color:#b58900">puts</span> x }
+</code></pre></div><h4 id="error-handling">Error handling</h4>
+<ol>
+<li>透過 raise 拋出錯誤</li>
+<li>透過 rescue 接錯誤，可以更進階指定錯誤類型</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">begin</span>
+  <span style="color:#586e75">#... process, may raise an exception</span>
+  <span style="color:#719e07">raise</span> <span style="color:#cb4b16">ArgumentError</span>
+<span style="color:#719e07">rescue</span> <span style="color:#cb4b16">ArgumentError</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;ArgumentError&#34;</span>
+<span style="color:#719e07">rescue</span> <span style="color:#719e07">=&gt;</span> error
+  <span style="color:#b58900">puts</span> error
+  <span style="color:#586e75">#... error handler</span>
+<span style="color:#719e07">else</span>
+  <span style="color:#586e75">#... executes when no error</span>
+<span style="color:#719e07">ensure</span>
+  <span style="color:#586e75">#... always executed</span>
+<span style="color:#719e07">end</span>
+</code></pre></div><p>進階資料請參考 <a href="https://stackify.com/rescue-exceptions-ruby/">How to Rescue Exceptions in Ruby</a></p>
+<h3 id="function">Function</h3>
+<ol>
+<li>function 不用定義回傳值</li>
+<li>呼叫可以省略括號</li>
+<li>預設最後一行會回傳，不用在顯示宣告 return</li>
+<li>如果呼叫的參數數量跟宣告不同會拋出錯誤</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">add</span> (a, b)
+  a <span style="color:#719e07">+</span> b <span style="color:#586e75"># 等同於 return a + b</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#b58900">puts</span> add <span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>
+</code></pre></div><h3 id="class">Class</h3>
+<ol>
+<li>預設 class Name 開頭大寫</li>
+<li>支援繼承 <code>Successor &lt; Predecessor</code></li>
+<li>要建立 instance 透過 <code>Class.new</code>，會呼叫 class 中的 private method <code>initialize</code></li>
+<li>宣告 instance 變數以 <code>@</code> 開頭 / 宣告 class static 變數用 <code>@@</code></li>
+<li>需要顯式指定針對 instance 變數的 getter/setter，或是用 <code>attr_accessor/attr_writer/attr_reader</code> 增加</li>
+<li>支援 public/protected/private，但跟其他語言的 private 不太同，以下節錄自高見龍大大的文章</li>
+</ol>
+<blockquote>
+<p>因為在 Ruby 裡所謂的 private 方法的使用規定很簡單，就只有一條：「不能明確的指出 receiver」。用白話文講，就是「在呼叫 private 方法的時候，前面不可以有小數點」。也就是因為這樣，在 Ruby 的 private 方法其實不只類別自己內部可以存取，它的子類別也可以，並沒有像其它程式語言一樣的繼承限制</p>
+</blockquote>
+<ol start="7">
+<li>定義 static method 可以用 <code>def self.method</code>，或是用 <code>class &lt;&lt; self</code></li>
+<li><code>沒有 interface / method overloading / polymorphism</code></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
+  <span style="color:#719e07">attr_accessor</span> <span style="color:#2aa198">:name</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>, age)
+    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
+    @age <span style="color:#719e07">=</span> age
+  <span style="color:#719e07">end</span>
+
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">hello</span>
+    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;Hello, my name is </span><span style="color:#2aa198">#{</span>@name<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+  <span style="color:#719e07">end</span>
+
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">self</span><span style="color:#719e07">.</span><span style="color:#268bd2">show_specy</span>
+    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;we are Mammals&#34;</span>
+  <span style="color:#719e07">end</span>
+
+<span style="color:#586e75">=begin 等同於上者，此方法適和於大量定義
+</span><span style="color:#586e75">  class &lt;&lt; self
+</span><span style="color:#586e75">    def show_specy
+</span><span style="color:#586e75">        puts &#34;we are Mammals&#34;
+</span><span style="color:#586e75">    end
+</span><span style="color:#586e75">  end 
+</span><span style="color:#586e75">=end</span>
+
+  <span style="color:#719e07">protected</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">my_protected_method</span>
+    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;my protected method&#34;</span>
+  <span style="color:#719e07">end</span>
+
+  <span style="color:#719e07">private</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">my_little_secret</span>
+    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;private methods&#34;</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>show_specy
+p1 <span style="color:#719e07">=</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;yoyo&#34;</span>, <span style="color:#2aa198">10</span>)
+<span style="color:#b58900">puts</span> p1<span style="color:#719e07">.</span>name
+p1<span style="color:#719e07">.</span>name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
+<span style="color:#586e75"># puts p1.age 對應第5點，不能直接呼叫 .age 取得 age 變數</span>
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Teacher</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">Person</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>, age, major)
+    <span style="color:#719e07">super</span>(<span style="color:#b58900">name</span>, age)
+    @major <span style="color:#719e07">=</span> major
+  <span style="color:#719e07">end</span>
+
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">can_access_parent_private_method</span>
+    <span style="color:#b58900">self</span><span style="color:#719e07">.</span>my_protected_method
+    my_little_secret <span style="color:#586e75"># 這樣可以讀取 parent private method</span>
+    <span style="color:#586e75">#self.my_little_secret </span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+t1 <span style="color:#719e07">=</span> <span style="color:#cb4b16">Teacher</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;Mark&#34;</span>, <span style="color:#2aa198">10</span>, <span style="color:#2aa198">&#34;English&#34;</span>)
+t1<span style="color:#719e07">.</span>hello
+t1<span style="color:#719e07">.</span>can_access_parent_private_method
+
+t1<span style="color:#719e07">.</span>send <span style="color:#2aa198">:my_little_secret</span>
+t1<span style="color:#719e07">.</span>send <span style="color:#2aa198">:my_protected_method</span>
+</code></pre></div><p>Ruby 物件比想像中複雜，尤其是支援 Meta programming，進階資料可以參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-1-%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E5%A6%82%E4%BD%95%E5%AF%A6%E8%B8%90-10324ec7546d">Ruby 的繼承鍊 (1) 物件導向如何實踐</a></p>
+<h3 id="匿名函式-block--proc--lambda">匿名函式 block / Proc / lambda</h3>
+<ol>
+<li>block 代表程式碼區塊，少數 Ruby 中<code>不是物件</code>的存在，必須依附在 function 上，透過 yeild 呼叫 block 執行，單行宣告用 <code>{...}</code>，多行用 <code>do ... end</code></li>
+<li>Proc 是物件，不限制參數，return 時是代表當時的 context return，透過 proc.call 執行</li>
+<li>lambda 是特殊的 Proc，會嚴格檢查參數，return 就如同一般的 function return</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>)<span style="color:#719e07">.</span>map {<span style="color:#719e07">|</span>ele<span style="color:#719e07">|</span> <span style="color:#b58900">puts</span> ele}
+
+<span style="color:#586e75"># 可以判斷是不是有 block 被傳入，如果有則用 yeild 呼叫執行</span>
+<span style="color:#719e07">def</span> <span style="color:#268bd2">hello</span>
+  <span style="color:#719e07">if</span> <span style="color:#b58900">block_given?</span>
+    <span style="color:#719e07">yield</span>(<span style="color:#2aa198">&#34;world&#34;</span>)
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+hello <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;message from hello: </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#586e75"># Proc / lambda 可以儲存於變數備用</span>
+my_proc <span style="color:#719e07">=</span> <span style="color:#cb4b16">Proc</span><span style="color:#719e07">.</span>new{ <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
+  <span style="color:#719e07">return</span> <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;from proc </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+}
+
+my_lambda <span style="color:#719e07">=</span> <span style="color:#b58900">lambda</span> { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;from lambda </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+}
+
+<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>(block)
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;before call&#34;</span>
+  block<span style="color:#719e07">.</span>call(<span style="color:#2aa198">&#34;func&#34;</span>)
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;after call&#34;</span>
+<span style="color:#719e07">end</span>
+
+
+func(my_lambda) <span style="color:#586e75"># before call/n from lambda func/n after call</span>
+
+<span style="color:#586e75"># proc 宣告於最上層 context，所以 return 時會連帶結束整個程式</span>
+func(my_proc) <span style="color:#586e75"># before call/n from proc func</span>
+</code></pre></div><h4 id="有趣的語法-symbol">有趣的語法 <code>&amp;:symbol</code></h4>
+<p>網路上有些說法是 <code>{|x| x[:symbol]}</code> 的縮寫，讓我們看下去</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
+  <span style="color:#719e07">attr_reader</span> <span style="color:#2aa198">:name</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
+    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+a <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>), <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;2222&#34;</span>) <span style="color:#719e07">]</span>
+
+name_list <span style="color:#719e07">=</span> a<span style="color:#719e07">.</span>map { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span> x<span style="color:#719e07">.</span>name } <span style="color:#586e75"># 兩者相同</span>
+name_list <span style="color:#719e07">=</span> a<span style="color:#719e07">.</span>map(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:name</span>) 
+<span style="color:#b58900">p</span> name_list
+</code></pre></div><ol>
+<li>參數用 &amp; 開頭代表參數是以 Proc 傳入，他跟一般的參數 args是切開的</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">some_method</span>(<span style="color:#719e07">*</span>args, <span style="color:#719e07">&amp;</span>block)
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;args: </span><span style="color:#2aa198">#{</span>args<span style="color:#719e07">.</span>inspect<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;block: </span><span style="color:#2aa198">#{</span>block<span style="color:#719e07">.</span>inspect<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">end</span>
+some_method(<span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>, <span style="color:#2aa198">:whatever</span>)
+<span style="color:#586e75"># args: [1,2,3, :whatever]</span>
+<span style="color:#586e75"># block: nil</span>
+some_method(<span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>, <span style="color:#719e07">&amp;</span><span style="color:#2aa198">:whatever</span>)
+<span style="color:#586e75"># args: [1,2,3]</span>
+<span style="color:#586e75"># block: #&lt;Proc:0x007fd23d010da8&gt;</span>
+</code></pre></div><ol start="2">
+<li>在 Ruby 呼叫 object method 可以用 send 的方式</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
+  <span style="color:#719e07">attr_reader</span> <span style="color:#2aa198">:name</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
+    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+<span style="color:#b58900">p</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>)<span style="color:#719e07">.</span>name <span style="color:#719e07">==</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>)<span style="color:#719e07">.</span>send(<span style="color:#2aa198">:name</span>)
+</code></pre></div><ol start="3">
+<li>&amp;:symbol 實際上會去呼叫 :symbol#to_proc ，而在 Symbol 中有定義 to_proc 行為，也會有人去自定義 class 中的 to_proc 方法</li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Symbol</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">to_proc</span>
+    <span style="color:#cb4b16">Proc</span><span style="color:#719e07">.</span>new <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>receiver<span style="color:#719e07">|</span>
+      receiver<span style="color:#719e07">.</span>send <span style="color:#b58900">self</span>
+    <span style="color:#719e07">end</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+</code></pre></div><p>綜合上述，可以拆解成</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>), <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;2222&#34;</span>) <span style="color:#719e07">]</span>
+
+<span style="color:#b58900">puts</span> a<span style="color:#719e07">.</span>map(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:name</span>)
+<span style="color:#586e75"># 可以拆解成下者</span>
+<span style="color:#b58900">puts</span> a<span style="color:#719e07">.</span>map { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
+  x<span style="color:#719e07">.</span>send(<span style="color:#2aa198">:name</span>)
+}
+</code></pre></div><p>也就是 receiver 會收到 symbol 的方法呼叫，參考自 <a href="https://stackoverflow.com/questions/1217088/what-does-mapname-mean-in-ruby">What does map(&amp;:name) mean in Ruby?</a></p>
+<p>其他優秀的資訊</p>
+<ol>
+<li><a href="https://5xruby.tw/posts/discover-ruby-block">Ruby 探索：Blocks 深入淺出</a></li>
+<li><a href="https://medium.com/@jinghua.shih/ruby-%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3-ruby-block-2387b74f188b">[Ruby] 如何理解 Ruby Block</a></li>
+</ol>
+<h3 id="concurrency--parallelism">Concurrency &amp; Parallelism</h3>
+<ol>
+<li>Ruby 支援 Process ，可用於處理 CPU-Heavy issue</li>
+</ol>
+<blockquote>
+<p>Ruby 在 2.0 導入 Cope on Write，當 process fork 時如果 value 沒有改動則使用同一份記憶體空間，降低 fork 對於記憶體資源無謂的佔用</p>
+</blockquote>
+<ol start="2">
+<li>Ruby 支援 Thread，適用於處理 IO Event，但如果是 CPU-Heavy issue 則沒有幫助，因為 Ruby 有 GIL (Global Interpreter Lokc) 所以<code>無法併發，一次只能執行一個 thread</code>，這跟 Ruby VM 實作有關，如果是 <code>JRuby 則沒有此問題</code></li>
+</ol>
+<blockquote>
+<p>Thread releases GIL when it hits blocking I/O operations such as HTTP requests, DB queries, writing / reading from disk and even sleep</p>
+</blockquote>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;benchmark&#39;</span>
+
+<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">1000</span>
+<span style="color:#cb4b16">PROCESS_NUM</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">2</span>
+arr <span style="color:#719e07">=</span> <span style="color:#b58900">Array</span><span style="color:#719e07">.</span>new(<span style="color:#cb4b16">ELE_AMOUNT</span>) { <span style="color:#b58900">Array</span><span style="color:#719e07">.</span>new(<span style="color:#cb4b16">ELE_AMOUNT</span>){<span style="color:#b58900">rand</span>(<span style="color:#2aa198">1</span><span style="color:#719e07">...</span><span style="color:#2aa198">9</span>)}}
+
+<span style="color:#cb4b16">Benchmark</span><span style="color:#719e07">.</span>bm(<span style="color:#2aa198">10</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>bm<span style="color:#719e07">|</span>
+  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;seq&#34;</span>) <span style="color:#719e07">do</span>
+    total <span style="color:#719e07">=</span> arr<span style="color:#719e07">.</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
+      sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
+    <span style="color:#719e07">end</span>
+  <span style="color:#719e07">end</span>
+
+  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;parallel&#34;</span>) <span style="color:#719e07">do</span>
+    read, write <span style="color:#719e07">=</span> <span style="color:#cb4b16">IO</span><span style="color:#719e07">.</span>pipe
+    <span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>map <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
+      <span style="color:#cb4b16">Process</span><span style="color:#719e07">.</span>fork <span style="color:#719e07">do</span>
+        <span style="color:#b58900">p</span> i
+        step <span style="color:#719e07">=</span> (<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1</span><span style="color:#719e07">.</span><span style="color:#2aa198">0</span> <span style="color:#719e07">/</span> <span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>ceil
+        start_ele <span style="color:#719e07">=</span> step <span style="color:#719e07">*</span> (i<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>)
+        total <span style="color:#719e07">=</span> arr<span style="color:#719e07">[</span>start_ele, step<span style="color:#719e07">].</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
+          sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
+        <span style="color:#719e07">end</span>
+        write<span style="color:#719e07">.</span>puts total
+      <span style="color:#719e07">end</span>
+    <span style="color:#719e07">end</span>
+    <span style="color:#cb4b16">Process</span><span style="color:#719e07">.</span>wait
+  <span style="color:#719e07">end</span>
+
+  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;thread&#34;</span>) <span style="color:#719e07">do</span>
+    total <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
+    threads <span style="color:#719e07">=</span> <span style="color:#719e07">[]</span>
+    <span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>map <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
+      t <span style="color:#719e07">=</span> <span style="color:#cb4b16">Thread</span><span style="color:#719e07">.</span>new <span style="color:#719e07">do</span>
+        step <span style="color:#719e07">=</span> (<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1</span><span style="color:#719e07">.</span><span style="color:#2aa198">0</span> <span style="color:#719e07">/</span> <span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>ceil
+        start_ele <span style="color:#719e07">=</span> step <span style="color:#719e07">*</span> (i<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>)
+        total <span style="color:#719e07">+=</span> arr<span style="color:#719e07">[</span>start_ele, step<span style="color:#719e07">].</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
+          sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
+        <span style="color:#719e07">end</span>
+      <span style="color:#719e07">end</span>
+      threads <span style="color:#719e07">&lt;&lt;</span> t
+    <span style="color:#719e07">end</span>
+    threads<span style="color:#719e07">.</span>each(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:join</span>)
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+</code></pre></div><ol start="3">
+<li>Fiber 是類似於 goroutine 的概念，更輕量的 user space thread，主要用來非同步的排程，適用於結合 Non-blocking IO，因為 Fiber 在 Context Switch 比 Thread 更為輕量<br>
+範例來源：<a href="https://engineering.universe.com/introduction-to-concurrency-models-with-ruby-part-i-550d0dbb970">Introduction to Concurrency Models with Ruby. Part I</a></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">EventMachine</span><span style="color:#719e07">.</span>run <span style="color:#719e07">do</span>
+  <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>new {
+    page <span style="color:#719e07">=</span> http_get(<span style="color:#2aa198">&#39;http://www.google.com/&#39;</span>)     
+    <span style="color:#719e07">if</span> page<span style="color:#719e07">.</span>response_header<span style="color:#719e07">.</span>status <span style="color:#719e07">==</span> <span style="color:#2aa198">200</span>
+      about <span style="color:#719e07">=</span> http_get(<span style="color:#2aa198">&#39;https://google.ca/search?q=universe.com&#39;</span>) 
+      <span style="color:#586e75"># ... </span>
+    <span style="color:#719e07">else</span> 
+      <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;Google is down&#34;</span>
+    <span style="color:#719e07">end</span>  
+  }<span style="color:#719e07">.</span>resume 
+<span style="color:#719e07">end</span>
+<span style="color:#719e07">def</span> <span style="color:#268bd2">http_get</span>(url)
+  current_fiber <span style="color:#719e07">=</span> <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>current
+  http <span style="color:#719e07">=</span> <span style="color:#cb4b16">EM</span><span style="color:#719e07">::</span><span style="color:#cb4b16">HttpRequest</span><span style="color:#719e07">.</span>new(url)<span style="color:#719e07">.</span>get    
+  http<span style="color:#719e07">.</span>callback { current_fiber<span style="color:#719e07">.</span>resume(http) }   
+  http<span style="color:#719e07">.</span>errback  { current_fiber<span style="color:#719e07">.</span>resume(http) }    
+  <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>yield
+<span style="color:#719e07">end</span>
+</code></pre></div><ol start="4">
+<li>Ruby 3.0 導入了基於 Actor 模式的 <code>Ractor</code> ，真正能做到利用 Thread 達成 Parallelism，以前會需要 GIL 是為了避免 multi thread 之下的 deadlock / race condition 狀況，但是在 Ractor 中基本上 Object 都不會被共享，參考 <a href="https://blog.golang.org/codelab-share">Share Memory By Communicating</a>
+有些文章會寫 Guild，但我查 Ruby 官方文件只有看到 Ractor</li>
+</ol>
+<blockquote>
+<p><code>Do not communicate by sharing memory; instead, share memory by communicating.</code><br>
+意即如果希望在多個 Thread 中共享資訊，不要透過共享記憶體來溝通，而是透過通信交換資料達到共享資料的目的  <br>
+因為共享記憶體就必須處理 lock，接著就要擔心 dead lock 等問題<br>
+如果不共享記憶體，直接將資料透過通道等方式傳遞，就不用擔心以上的問題，也可以更好的並行運算</p>
+</blockquote>
+<p>優良的資源參考</p>
+<ol>
+<li><a href="https://www.toptal.com/ruby/ruby-concurrency-and-parallelism-a-practical-primer">Ruby Concurrency and Parallelism: A Practical Tutorial</a></li>
+<li><a href="https://engineering.universe.com/introduction-to-concurrency-models-with-ruby-part-i-550d0dbb970">Introduction to Concurrency Models with Ruby. Part I / II</a></li>
+<li><a href="https://www.youtube.com/watch?v=Dtn9Uudw4Mo">RubyConf Taiwan 2019 - The Journey to One Million by Samuel Williams</a></li>
+</ol>
+<h2 id="module">Module</h2>
+<ol>
+<li>Module 提供類似於 Namespace 角色，可以自定義方法與常數不用擔心與其他人衝突</li>
+<li>Module 不能被實體化 (也就是不能被 new)，主要透過 mixin 擴充 Class
+在共享實作方面，Ruby 一個 Class 只能繼承一個 Parent，但是 Module 可以 mixin 多個，在沒有直接關係的情況下想要跨多個 Class 共享某些特定的方法，Module 是不錯的選擇</li>
+<li>使用 Mixin 要小心多個 Module 可能會有不預期的互相干擾，例如修改同一個 instance 變數，有狀態要紀錄記得取一個比較特殊的名稱</li>
+<li>如果 Module 中有 Class 宣告，要指定該 Class 可以用雙冒號 <code>::</code> 連接例如 <code>Module Name::Class Name</code></li>
+</ol>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#586e75">##### calculator.rb</span>
+<span style="color:#719e07">module</span> Greeting
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">sayhi</span>
+    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;hello, </span><span style="color:#2aa198">#{</span>@name<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+  <span style="color:#719e07">end</span>
+  
+  <span style="color:#719e07">class</span> <span style="color:#268bd2">Hi</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#586e75">###### main.rb</span>
+require_relative <span style="color:#2aa198">&#39;./calculator&#39;</span>
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">Greeting</span><span style="color:#719e07">::</span><span style="color:#cb4b16">Hi</span>
+  <span style="color:#719e07">include</span> <span style="color:#cb4b16">Greeting</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
+    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+<span style="color:#b58900">p</span> <span style="color:#719e07">=</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;yoyo&#34;</span>)
+<span style="color:#b58900">p</span><span style="color:#719e07">.</span>sayhi
+</code></pre></div><p>Module 除了可以被 include 外，還有 extend 跟 prepend，請參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-2-module-%E7%9A%84-include-prepend-%E5%92%8C-extend-ae4e1c940097">Ruby 的繼承鍊 (2) — Module 的 include、prepend 和 extend</a></p>
+<h3 id="程式碼拆分檔案">程式碼拆分檔案</h3>
+<p>把全部程式碼塞在同一個檔案十分的可怕，透過適時的拆分可以讓程式碼更好維護，在 Ruby 中如果要 include 其他檔案的宣告，可以用 <code>require_relative '檔案本身的相對路徑'</code>的方式<br>
+目前看起來只有常數、Module、Class 會被自動 export，還再找到相關的文件說明</p>
+<p>require 總共有幾種</p>
+<ol>
+<li><code>require</code>：</li>
+</ol>
+<ul>
+<li>如果是相對路徑，則根據 <code>$LOCAL_PAHT</code> 設定去找對應的 library，通常是用來找外部相依或是 gem</li>
+<li>如果是絕對路徑，則直接載入對應檔案</li>
+</ul>
+<ol start="2">
+<li><code>require_local</code>:<br>
+透過檔案的相對路徑找到檔案，主要是用於在自己專案中的其他檔案</li>
+</ol>
+<h2 id="testing">Testing</h2>
+<p>Ruby 並沒有內建的 Test Framework，評估後選用 RSpec，提供 TDD/BDD Style 語法，透過 describe / it 組合測試案例</p>
+<ol>
+<li>慣例是專案根目錄建立 spec 目錄，待測項目對應檔案名加上 _spec 結尾</li>
+</ol>
+<h3 id="unit-test">Unit Test</h3>
+<ol>
+<li>支援 before / after / around(before + each)，執行頻率分成 each / all / suite</li>
+</ol>
+<blockquote>
+<p>suite 是在整個 test file 只會跑一次，all 則是每個 describe 都會執行一次</p>
+</blockquote>
+<ol start="2">
+<li>如果是有變數要在每一次 test case 前執行，可以用 before(:each)，或是用 <code>let(變數名稱){回傳值}</code></li>
+</ol>
+<p>以下是一個簡單的運費計算</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span>(<span style="color:#2aa198">&#39;rspec&#39;</span>)
+require_relative <span style="color:#2aa198">&#39;../calculator&#39;</span>
+
+describe <span style="color:#cb4b16">Calculator</span> <span style="color:#719e07">do</span>
+  let(<span style="color:#2aa198">:calculator</span>) { <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new }
+  it <span style="color:#2aa198">&#39;small package should get $100 fee&#39;</span> <span style="color:#719e07">do</span>
+    expect(calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">1</span>, <span style="color:#2aa198">5</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">100</span>)
+  <span style="color:#719e07">end</span>
+
+  it <span style="color:#2aa198">&#39;medium size should get $500 fee&#39;</span> <span style="color:#719e07">do</span>
+    expect(calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">10</span>, <span style="color:#2aa198">5</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">500</span>)
+  <span style="color:#719e07">end</span>
+
+  before <span style="color:#719e07">do</span>
+    @calculator <span style="color:#719e07">=</span> <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new
+  <span style="color:#719e07">end</span>
+  around <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>t<span style="color:#719e07">|</span>
+    <span style="color:#b58900">p</span> <span style="color:#2aa198">&#34;before each test&#34;</span>
+    t<span style="color:#719e07">.</span>run
+    <span style="color:#b58900">p</span> <span style="color:#2aa198">&#34;after each test&#34;</span>
+  <span style="color:#719e07">end</span>
+  it <span style="color:#2aa198">&#39;large size should get $700 fee&#39;</span> <span style="color:#719e07">do</span>
+    expect(@calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">100</span>, <span style="color:#2aa198">10</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">750</span>)
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+</code></pre></div><h3 id="stub--mock--spy">Stub / Mock / Spy</h3>
+<p>RSpec 提供 mock 方法叫做 double (出自於 stunt double 演員替身)</p>
+<ol>
+<li>double 可以憑空產生物件，可以自定義 function 與回傳值</li>
+<li>double 可以只覆寫特定方法的回傳值 <code>allow(instance).to receive(method).and_return(value)</code></li>
+<li>spy 不改方法的實作，只確認有沒有被呼叫，以及確認傳入的參數以及呼叫順序是否如預期</li>
+<li>每一個 test case 後都會被自動 restore</li>
+<li>因為是動態語言，所以要 &ldquo;double(string)&rdquo; 等方法都是可以的</li>
+</ol>
+<p>運費計算加上一個 VIP 檢查</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">VIP_Service</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">is_vip?</span>
+    <span style="color:#719e07">raise</span> <span style="color:#2aa198">&#34;do some query&#34;</span>
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+describe 
+  let(<span style="color:#2aa198">:calculator</span>) <span style="color:#719e07">do</span>
+    vip_service <span style="color:#719e07">=</span> <span style="color:#cb4b16">VIP_Service</span><span style="color:#719e07">.</span>new
+    allow(vip_service)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:is_vip?</span>)<span style="color:#719e07">.</span>and_return(<span style="color:#719e07">false</span>)
+    <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new(vip_service)
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span> 
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rspec&#39;</span>
+
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Invitation</span>
+  <span style="color:#719e07">def</span> <span style="color:#268bd2">deliver</span>(email)
+    <span style="color:#b58900">p</span> email
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+
+describe <span style="color:#2aa198">&#34;Invitation&#34;</span> <span style="color:#719e07">do</span>
+  let(<span style="color:#2aa198">:invitation</span>) { spy(<span style="color:#2aa198">&#34;invitation&#34;</span>) }
+
+  before <span style="color:#719e07">do</span>
+    invitation<span style="color:#719e07">.</span>deliver(<span style="color:#2aa198">&#34;foo@example.com&#34;</span>)
+    invitation<span style="color:#719e07">.</span>deliver(<span style="color:#2aa198">&#34;bar@example.com&#34;</span>)
+  <span style="color:#719e07">end</span>
+
+  it <span style="color:#2aa198">&#34;passes when a count constraint is satisfied&#34;</span> <span style="color:#719e07">do</span>
+    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>twice
+  <span style="color:#719e07">end</span>
+
+  it <span style="color:#2aa198">&#34;passes when an order constraint is satisifed&#34;</span> <span style="color:#719e07">do</span>
+    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;foo@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
+    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;bar@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
+  <span style="color:#719e07">end</span>
+<span style="color:#719e07">end</span>
+</code></pre></div><h2 id="http-request--api-server">HTTP Request &amp; API Server</h2>
+<p>Ruby 並沒有提供 http server 的封裝，只有 tcp server，所以我們選用 <a href="https://github.com/rack/rack">Rack</a> 這一套 library，他被 Ruby 生態圈廣泛採用的底層框架，如 RoR 也是</p>
+<blockquote>
+<p>Rack provides a minimal, modular, and adaptable interface for developing web applications in Ruby.</p>
+</blockquote>
+<h3 id="api-server">API Server</h3>
+<p>新增 server.ru，透過 <code>$rackup server.ru</code> 啟動</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rack&#39;</span>
+<span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;json&#39;</span>
+
+rack_proc <span style="color:#719e07">=</span> <span style="color:#b58900">lambda</span> { <span style="color:#719e07">|</span>env<span style="color:#719e07">|</span>
+  req <span style="color:#719e07">=</span> <span style="color:#cb4b16">Rack</span><span style="color:#719e07">::</span><span style="color:#cb4b16">Request</span><span style="color:#719e07">.</span>new(env)
+
+  <span style="color:#719e07">case</span> req<span style="color:#719e07">.</span>request_method <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;:&#34;</span> <span style="color:#719e07">+</span> req<span style="color:#719e07">.</span>path_info
+  <span style="color:#719e07">when</span> <span style="color:#2aa198">&#34;GET:/hello&#34;</span>
+    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">200</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;application/json&#34;</span> }, <span style="color:#719e07">[</span> { <span style="color:#2aa198">&#34;hello&#34;</span> <span style="color:#719e07">=&gt;</span> req<span style="color:#719e07">.</span>params<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;name&#34;</span><span style="color:#719e07">]</span> }<span style="color:#719e07">.</span>to_json <span style="color:#719e07">]]</span>
+  <span style="color:#719e07">when</span> <span style="color:#2aa198">&#34;POST:/world&#34;</span>
+    body <span style="color:#719e07">=</span> <span style="color:#cb4b16">JSON</span><span style="color:#719e07">.</span>parse req<span style="color:#719e07">.</span>body<span style="color:#719e07">.</span>gets
+    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">200</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;application/json&#34;</span> }, <span style="color:#719e07">[</span> { <span style="color:#2aa198">&#34;hello&#34;</span> <span style="color:#719e07">=&gt;</span> body<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;name&#34;</span><span style="color:#719e07">]</span>}<span style="color:#719e07">.</span>to_json <span style="color:#719e07">]]</span>
+  <span style="color:#719e07">else</span>
+    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">406</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;html/txt&#34;</span> }, <span style="color:#719e07">[</span><span style="color:#2aa198">&#39;not_implemented_yet&#39;</span><span style="color:#719e07">]]</span>
+  <span style="color:#719e07">end</span>
+}
+run rack_proc
+</code></pre></div><h3 id="http-request">HTTP Request</h3>
+<p>參考 <a href="https://www.twilio.com/blog/5-ways-make-http-requests-ruby">5 ways to make HTTP requests in Ruby</a></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#34;http&#34;</span>
+
+response <span style="color:#719e07">=</span> <span style="color:#cb4b16">HTTP</span><span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#34;http://localhost:9292/hello&#34;</span>, <span style="color:#2aa198">:params</span> <span style="color:#719e07">=&gt;</span> {<span style="color:#2aa198">:name</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;world&#34;</span>})
+<span style="color:#b58900">p</span> response<span style="color:#719e07">.</span>parse
+
+response <span style="color:#719e07">=</span> <span style="color:#cb4b16">HTTP</span><span style="color:#719e07">.</span>post(<span style="color:#2aa198">&#34;http://localhost:9292/world&#34;</span>, <span style="color:#2aa198">:body</span> <span style="color:#719e07">=&gt;</span> {<span style="color:#2aa198">:name</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;yoyo&#34;</span> }<span style="color:#719e07">.</span>to_json)
+<span style="color:#b58900">p</span> response<span style="color:#719e07">.</span>parse
+</code></pre></div><h2 id="結語">結語</h2>
+<p>寫過最長的文章，整理了這一個禮拜上手 Ruby 的過程，Ruby 實際上還有非常多的 <code>黑魔法</code>，跟新同事們一起上手的過程不斷發現驚喜(恐?!)<br>
+必須坦白說上手到現在沒有很愛 Ruby，因為太自由了，又有太多關鍵字跟寫法，可能要在一段時間熟悉，之後再來慢慢補充</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/ruby/"> ruby </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e7%a8%8b%e5%bc%8f%e8%aa%9e%e8%a8%80/"> 程式語言 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b7%a8%e7%a8%8b%e5%bc%8f%e8%aa%9e%e8%a8%80%e4%b8%8a%e6%89%8b/"> 跨程式語言上手 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -150,7 +150,7 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 <h2 id="nodejs-package---redlock-實作">Nodejs Package - Redlock 實作</h2>
 <p>看完演算法，來看一下 Nodejs 版本的實作 <a href="https://github.com/mike-marcacci/node-redlock">mike-marcacci/node-redlock</a></p>
 <p>他在 <code>Redlock.prototype._lock</code> 部分實現 Lock 機制</p>
-<p>截幾個關鍵片段，輪詢所以的 server</p>
+<p>截幾個關鍵片段，輪詢所有的 server</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">return</span> self.servers.forEach(<span style="color:#268bd2">function</span>(server){
     <span style="color:#719e07">return</span> request(server, loop);
 });
@@ -180,17 +180,15 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 <h2 id="martin-kleppmann-的質疑">Martin Kleppmann 的質疑</h2>
 <h4 id="中斷導致-lock-有效判斷錯誤">中斷導致 Lock 有效判斷錯誤</h4>
 <p>在分散式系統設計中，時間是一個非常難以掌握的因素，程序可能因為各種狀況而導致時間序錯亂，例如說系統時間不準、網路延遲、程式運作遇到垃圾回收、作業系統切換 Process 導致中斷等，所以各種檢查機制都有可能因而出現錯誤，例如以下的例子
-<img src="/posts/img/unsafe-lock.jpeg" alt=""></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. Client1 取得 Lock 後
-
-2. 結果遇到 GC 暫停運作
-
-3. Lock 超過 TTL 自動釋放，此時
-
-4. Client2 成功取得 Lock，並更新 DB 紀錄  
-
-5. 接著 Client 從 GC 中恢復，他以為自己手上有 Lock 可以去更新 DB
-</code></pre></div><p>這樣就違反了 Lock 的安全性原則</p>
+<img src="/posts/img/unsafe-lock.png" alt=""></p>
+<ol>
+<li>Client1 取得 Lock 後</li>
+<li>結果遇到 GC 暫停運作</li>
+<li>Lock 超過 TTL 自動釋放，此時</li>
+<li>Client2 成功取得 Lock，並更新 DB 紀錄</li>
+<li>接著 Client 從 GC 中恢復，他以為自己手上有 Lock 可以去更新 DB</li>
+</ol>
+<p>這樣就違反了 Lock 的安全性原則</p>
 <p>直覺解法是在更新 DB 之前 Client 再去檢查 Lock 的時效性，但 GC 可能卡在檢查完之後的那一個點，所以設定再多檢查都是沒用的</p>
 <p>實際解法也蠻直覺的，系統全域有個不斷遞增的發號機制，每取一次 Lock 就配一個數字，在 DB 更新的時候，檢查對應的數字是不是有大於上次更新的數字，就可以避免掉上述提到的問題，就是 <code>Fencing 機制</code></p>
 <p><img src="/posts/img/fencing-tokens.jpeg" alt=""></p>
@@ -212,16 +210,14 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 <p>作者承認 Redis 應該改用 monotonic time，但是看來還沒有個結論是否要修正 <a href="https://github.com/antirez/redis/issues/416">Redis Repo - (#416) Use monotonic clock when available</a>，主要問題在於並非所有系統都支援 monotonic time API</p>
 <p>關於時間跳動的問題，作者並沒有給出很明確的答案，但看來只能盡量避免(例如 Admin 不要改動系統時間)而不是從演算法的部分改進，因為目前 Redis 還不是用 monotonic time API</p>
 <p>接著考量一個情況</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. 取得當前時間
-
-2. 取得 Lock
-
-3. 計算當前時間
-
-4. 檢查 Lock 是否還在有效期間
-
-5. 如果有 Lock，則繼續處理
-</code></pre></div><p>在步驟一到三，不論是網路延遲、程序中斷等時間問題，都沒有關係，因為步驟四會再次檢查 Lock</p>
+<ol>
+<li>取得當前時間</li>
+<li>取得 Lock</li>
+<li>計算當前時間</li>
+<li>檢查 Lock 是否還在有效期間</li>
+<li>如果有 Lock，則繼續處理</li>
+</ol>
+<p>在步驟一到三，不論是網路延遲、程序中斷等時間問題，都沒有關係，因為步驟四會再次檢查 Lock</p>
 <p>但如果是在第四步到第五步之間，這時候<code>沒有任何有自動釋放機制的分散式 Lock</code> 可以保證 Mutual Exclusive，只能靠關鍵資源本身的機制，這就回到上一步說的 Fencing 機制，例如說 DB 就寫入遞增 Token 或隨機字串，讓後者不能更新</p>
 <blockquote>
 <p>所以 Redlock 安全嗎？</p>
@@ -230,10 +226,10 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 <ol>
 <li>配置多台 Redis Server 並開啟 fsync = always 的 Redlock 機制</li>
 <li>在系統時間沒有大幅度跳動的情況下</li>
-<li>Lock TTL 保證大於關鍵資源的運行時間或是在關鍵資源處有 fencing 機制<br>
-符合這三點 Redlock 就是安全的</li>
+<li>Lock TTL 保證大於關鍵資源的運行時間或是在關鍵資源處有 fencing 機制</li>
 </ol>
-<p>正因為我們沒有其他方法避免 Race Condition，才會採用 Redlock 或是其他樂觀鎖的處理機制</p>
+<p>符合這三點 Redlock 就是安全的<br>
+正因為我們沒有其他方法避免 Race Condition，才會採用 Redlock 或是其他樂觀鎖的處理機制</p>
 
 	</div>
 	
@@ -414,7 +410,17 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 			
 			
 			
+			
+			
+			
+			
+			
+			
 			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
 			
 			
 			
