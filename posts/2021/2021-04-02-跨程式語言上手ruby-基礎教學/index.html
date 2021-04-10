@@ -200,12 +200,12 @@ $sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">hello <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
 world <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
 <span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
-<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id
+<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id <span style="color:#586e75">#true</span>
 
 hello <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
 world <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
 <span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
-<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id
+<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id <span style="color:#586e75">#false</span>
 </code></pre></div><h4 id="hash">Hash</h4>
 <p>Ruby 有 Hash，可以用 <code>=&gt; 或 :</code> 分隔 key value，但是兩者有很大的差異</p>
 <ol>
