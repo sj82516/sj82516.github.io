@@ -2,16 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://yuanchieh.page/posts/</loc>
+    <lastmod>2021-04-23T08:21:40+00:00</lastmod>
+  </url><url>
+    <loc>https://yuanchieh.page/</loc>
+    <lastmod>2021-04-23T08:21:40+00:00</lastmod>
+  </url><url>
+    <loc>https://yuanchieh.page/posts/2021/2021-04-23-%E4%B8%80%E6%97%A5%E5%8F%83%E8%A7%80-arrc-%E5%AF%A6%E9%A9%97%E5%AE%A4/</loc>
+    <lastmod>2021-04-23T08:21:40+00:00</lastmod>
+  </url><url>
     <loc>https://yuanchieh.page/categories/</loc>
     <lastmod>2021-04-02T08:21:40+00:00</lastmod>
   </url><url>
-    <loc>https://yuanchieh.page/posts/</loc>
-    <lastmod>2021-04-02T08:21:40+00:00</lastmod>
-  </url><url>
     <loc>https://yuanchieh.page/categories/ruby/</loc>
-    <lastmod>2021-04-02T08:21:40+00:00</lastmod>
-  </url><url>
-    <loc>https://yuanchieh.page/</loc>
     <lastmod>2021-04-02T08:21:40+00:00</lastmod>
   </url><url>
     <loc>https://yuanchieh.page/posts/2021/2021-04-02-%E8%B7%A8%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E4%B8%8A%E6%89%8Bruby-%E5%9F%BA%E7%A4%8E%E6%95%99%E5%AD%B8/</loc>
