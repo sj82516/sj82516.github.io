@@ -89,7 +89,8 @@
 <p>當你發現要增加新功能很難改動時，<code>先重構</code>到你覺得很好加新功能後，再加上新功能</p>
 </blockquote>
 <h2 id="開始重構">開始重構</h2>
-<p>以下按照書中建議，開始進行重構</p>
+<p>以下按照書中建議，開始進行重構<br>
+<a href="https://github.com/sj82516/refactoring-ruby/commit/37ab1f1d4f998f0c49b7512489cf06b6606740c9">init</a></p>
 <h3 id="1-寫測試">1. 寫測試</h3>
 <p>如何確保在重構過程不把功能改壞？ <code>寫測試！</code> 透過寫測試可以明確表達我們預期的程式碼行為，在與 PM 溝通時透過具體的測試案例也可以避免有認知上的歧異<br>
 <a href="https://github.com/sj82516/refactoring-ruby/commit/4a2efdcff4d2dc6654dd74590bbb59da85a257b6">test: add unit test</a></p>
@@ -100,11 +101,12 @@
 <p>別忘記每改一小步都要跑測試，尤其是動態語言容易卡在變數名稱寫錯等小問題上</p>
 </blockquote>
 <p><a href="https://github.com/sj82516/refactoring-ruby/commit/c734e357cd146243da6bb1b29aa994be40c84589">refactor extract amount_for method</a></p>
-<h4 id="2-2">2-2</h4>
-<p>在新的 amount_for method，改動一下變數名稱有助於含義的表達，不得不推薦一下 RubyMine，一年訂閱要 $89 鎂但是有 Refactor 系列的輔助工具超方便，透過 <code>shift 鍵 * 2 叫出 action dialog 後輸入「refactor this」</code>，就會有一系列的重構方法讓你挑選</p>
+<h4 id="2-2-重新命名幫助認知">2-2 重新命名幫助認知</h4>
+<p>在新的 amount_for method，改動一下變數名稱有助於含義的表達，少用太廣泛的含義例如 element / i 這類</p>
 <blockquote>
 <p>Any fool can write code that a computer can understand. Good programmers write code that humans can understand.</p>
 </blockquote>
+<p>不得不推薦一下 RubyMine，一年訂閱要 $89 鎂但是有 Refactor 系列的輔助工具超方便，透過 <code>shift 鍵 * 2 叫出 action dialog 後輸入「refactor this」</code>，就會有一系列的重構方法讓你挑選</p>
 <p><a href="https://github.com/sj82516/refactoring-ruby/commit/35abc2dd64937c7c77ee6e398b9c1f77376912e7">refactor: rename</a></p>
 <h3 id="3-把邏輯放在正確的物件上---move-method">3. 把邏輯放在正確的物件上 - Move Method</h3>
 <p>仔細看一下 amount_for 方法中，運算邏輯的資料來源都從 Rental 這個物件而來，都沒有用上 Customer 物件上的資料，這時候可以合理的懷疑是不是把方法移到 Rental 會更加合適</p>
