@@ -6,10 +6,22 @@
 		<description>Recent content in Posts on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sat, 01 May 2021 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 30 May 2021 07:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/posts/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>深入理解 WebRTC</title>
+			<link>https://yuanchieh.page/posts/2021/2021-05-30-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-webrtc/</link>
+			<pubDate>Sun, 30 May 2021 07:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-05-30-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-webrtc/</guid>
+			<description>
+				
+				工作中在瀏覽器用過 WebRTC / 也自架過 TURN Server ，決定從實作原理重新認識 WebRTC
+				
+			</description>
+		</item>
 		<item>
 			<title>【Refactoring Ruby Edition】(一) 體驗重構</title>
 			<link>https://yuanchieh.page/posts/2021/2021-05-01-refactoring-ruby-edition%E4%B8%80-%E9%AB%94%E9%A9%97%E9%87%8D%E6%A7%8B/</link>
