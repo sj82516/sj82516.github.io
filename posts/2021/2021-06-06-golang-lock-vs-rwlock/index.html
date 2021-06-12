@@ -5,14 +5,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="description" content=""><meta property="og:title" content="Golang 併發處理 Mutex / RWMutex / SingleFlight" />
-<meta property="og:description" content="這系列寫得太好了 6.2 同步原语与锁，拜讀過後整理以下的提問
-Mutex 實作 分成兩種模式：一般模式與飢餓模式 取得 Lock 時
- 沒有人佔用則直接取得 有人占用時，如果判斷是否能進入自旋模式，所謂的自旋是透過消耗 CPU cylcles 的 buzy waiting，降低 context switch 的花費 重新嘗試取得鎖，如果沒有取得鎖，等到時間超過 1ms 則進入飢餓模式，並等待信號 (runtime_SemacquireMutex)  RWMutex 會產生 Write Starvation 嗎？ RWMutex 採用寫入優先，如果在取得 RWMutex 寫鎖時，發現目前有多個讀鎖
- 先將 readerCount 變成負數，讓後續讀鎖都無法取得 等到信號 writerSem 喚醒  讀鎖在取得時
- 檢查 readerCount 是否為負數，如果是代表有寫鎖 如果有寫鎖，則偵聽 readerSem 信號喚醒執行  在解除寫鎖 / 讀鎖，會分別去出發信號，讓等待的讀鎖 / 寫鎖開始執行
-RWMutex 跟 Mutex 效能比較 實際測試的結果，設定一個寫入比率，單純比較取鎖/釋放鎖，跑一百萬次兩者差異不大
-BenchmarkMutexTest-8 10000000 0.04064 ns/op BenchmarkRWMutexTest BenchmarkRWMutexTest-8 10000000 0.04699 ns/op BenchmarkFakeWrite 加入了讀取跟寫入，有些測試會用 time." />
+	<meta name="description" content="研究 Mutex , RWMutex 性能對比，以及併發下用 SingleFlight 避免擊穿問題"><meta property="og:title" content="Golang 併發處理 Mutex / RWMutex / SingleFlight" />
+<meta property="og:description" content="研究 Mutex , RWMutex 性能對比，以及併發下用 SingleFlight 避免擊穿問題" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-06-06-golang-lock-vs-rwlock/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-06-06T01:21:40&#43;00:00" />
@@ -20,13 +14,7 @@ BenchmarkMutexTest-8 10000000 0.04064 ns/op BenchmarkRWMutexTest BenchmarkRWMute
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Golang 併發處理 Mutex / RWMutex / SingleFlight"/>
-<meta name="twitter:description" content="這系列寫得太好了 6.2 同步原语与锁，拜讀過後整理以下的提問
-Mutex 實作 分成兩種模式：一般模式與飢餓模式 取得 Lock 時
- 沒有人佔用則直接取得 有人占用時，如果判斷是否能進入自旋模式，所謂的自旋是透過消耗 CPU cylcles 的 buzy waiting，降低 context switch 的花費 重新嘗試取得鎖，如果沒有取得鎖，等到時間超過 1ms 則進入飢餓模式，並等待信號 (runtime_SemacquireMutex)  RWMutex 會產生 Write Starvation 嗎？ RWMutex 採用寫入優先，如果在取得 RWMutex 寫鎖時，發現目前有多個讀鎖
- 先將 readerCount 變成負數，讓後續讀鎖都無法取得 等到信號 writerSem 喚醒  讀鎖在取得時
- 檢查 readerCount 是否為負數，如果是代表有寫鎖 如果有寫鎖，則偵聽 readerSem 信號喚醒執行  在解除寫鎖 / 讀鎖，會分別去出發信號，讓等待的讀鎖 / 寫鎖開始執行
-RWMutex 跟 Mutex 效能比較 實際測試的結果，設定一個寫入比率，單純比較取鎖/釋放鎖，跑一百萬次兩者差異不大
-BenchmarkMutexTest-8 10000000 0.04064 ns/op BenchmarkRWMutexTest BenchmarkRWMutexTest-8 10000000 0.04699 ns/op BenchmarkFakeWrite 加入了讀取跟寫入，有些測試會用 time."/>
+<meta name="twitter:description" content="研究 Mutex , RWMutex 性能對比，以及併發下用 SingleFlight 避免擊穿問題"/>
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
@@ -87,7 +75,7 @@ BenchmarkMutexTest-8 10000000 0.04064 ns/op BenchmarkRWMutexTest BenchmarkRWMute
 		</div>
 	</div>
 	<div class="markdown">
-		<p>這系列寫得太好了 <a href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-sync-primitives/">6.2 同步原语与锁</a>，拜讀過後整理以下的提問</p>
+		<p>在與公司前輩請教時，有聊到 Mutex , RWMutex 性能對比，以及併發下用 SingleFlight 避免擊穿問題，所以就花點時間看實作與練習，發現這系列寫得太好了 <a href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-sync-primitives/">6.2 同步原语与锁</a>，拜讀過後整理以下的提問</p>
 <h3 id="mutex-實作">Mutex 實作</h3>
 <p>分成兩種模式：一般模式與飢餓模式
 取得 Lock 時</p>
