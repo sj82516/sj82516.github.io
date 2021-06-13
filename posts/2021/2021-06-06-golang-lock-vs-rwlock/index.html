@@ -123,6 +123,8 @@ BenchmarkRWMutexTest-8             10000             37176 ns/op
 </ul>
 <p>更詳細內容可參考此篇 <a href="https://medium.com/@vCabbage/go-avoid-duplicate-requests-with-sync-singleflight-311601b3068b">Go: Avoid duplicate requests with sync/singleflight</a>，自己寫了一個簡單的範例 <a href="https://play.golang.org/p/_uGNGjyMJ5f">go playground</a></p>
 <p>Singleflight 的實作也十分精練，用一個 map 保存 key 對應 struct，struct 裡面放 mutext 避免同步操作 / wg 讓其他呼叫發現有人在執行就乖乖等待 ，可參考 <a href="https://segmentfault.com/a/1190000018464029">golang防缓存击穿利器&ndash;singleflight</a></p>
+<h3 id="typescript-實作">typescript 實作</h3>
+<p>後來覺得頗有趣就自己實作一個 typescript 版本：<a href="https://github.com/sj82516/go-singleflight">sj82516/go-singleflight</a>，原本想要多一個儲存的 adpter 支援 redis，但卡在 Object / Error 要如何 serialize / deserialize 就先中止了</p>
 <h2 id="go-assembler">Go Assembler</h2>
 <p>往下追 <code>&quot;sync/atomic&quot;</code> 發現沒有相關的 CompareAndSwapInt32 的程式碼，這是因為這些部分是在 runtime 產生，atomic 指令必須由 CPU 提供才能保證執行時的原子性，而指令則是各平台限定，如 x86 / x64 / arm 32 / arm 64 / powerpc 等等，這在編譯的時候可以透過 <code>GOARCH / GOOS</code> 指定編譯的平台</p>
 <p>補充資料可以參考</p>
