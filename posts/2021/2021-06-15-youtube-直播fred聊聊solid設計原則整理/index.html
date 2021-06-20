@@ -101,7 +101,7 @@
 資料處理中的 ETL 是一個職責還是三個原則？</li>
 </ul>
 <p>違反 SRP 的設計可能會長這樣
-<img src="/content/posts/2021/img/0615/srp.png" alt=""></p>
+<img src="/posts/2021/img/0615/srp.png" alt=""></p>
 <p>可維護性問題方面，除了程式碼耦合，也要注意 <code>業務耦合</code>
 一個組件有了用戶相關，又有信用卡相關，結果兩種業務就耦合了</p>
 <blockquote>
@@ -114,7 +114,7 @@
 <li>不要用訂單 ID 格式當作分類的方法，而應該用獨立的欄位 (ex. 突然要改 id 長度就爆炸了)</li>
 </ol>
 <p>透過以下問題思考 SRP 方針
-<img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/60df28ed-9f50-40d7-bb4e-fd51dea34cb8/_2021-06-14_4.38.59.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/60df28ed-9f50-40d7-bb4e-fd51dea34cb8/_2021-06-14_4.38.59.png"></p>
+<img src="/posts/2021/img/0615/srp_test.png" alt=""></p>
 <ol>
 <li>不一定要拆，如果 20 個方法是僅耦合也屬於同業務</li>
 <li>可以，但計算方式應該拆除</li>
@@ -170,10 +170,10 @@
 <h3 id="小結-1">小結</h3>
 <p>組件的耦合，會讓微小的變動也讓系統有大幅度修改，OCP 建議：組件的設計必須讓系統易於擴展，<code>同時限制每次被修改的範圍</code>，實作為將系統劃分一系列的組件，將依賴性關係依照層次結構組織 (<code>穩定的組件不要相依於不穩定的組件</code>)，套用到架構設計也是如此 (Clean Architecture)</p>
 <p>OCP 也是一個很好結合 Design Pattern 的原則</p>
-<p><img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/abf3e27c-42c6-44f4-8f1e-b66ceb8b9f57/open_close.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/abf3e27c-42c6-44f4-8f1e-b66ceb8b9f57/open_close.png"></p>
+<p><img src="/posts/2021/img/0615/open_close.png" alt=""></p>
 <h2 id="依賴反轉原則">依賴反轉原則</h2>
 <p>新提出的設計架構，會分層不同的業務
-<img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c6fbe803-5a94-4c23-901f-a531ffd9f053/_2021-06-14_5.26.38.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c6fbe803-5a94-4c23-901f-a531ffd9f053/_2021-06-14_5.26.38.png"></p>
+<img src="/posts/2021/img/0615/dip_system_layer.png" alt=""></p>
 <p>例如網頁操作會從 web ui 層經過 controller 與業務邏輯最後儲存到 db 層在原路返回給 client，寫程式時如果按照這樣的順序，有可能發生高階組件依賴低階組件，例如客戶匯出雲端發票會儲存於 S3，那我們很容易把 s3 上傳邏輯寫死雲端發票的業務邏輯中，但如果 s3 sdk 升級怎麼辦？</p>
 <p>仔細想想「發票匯出」跟「使用哪一間雲服務」很重要嗎？</p>
 <p>需要一個 <code>彈性組織組件的依賴</code> ，將能力抽象化出業務規則，明確定義出介面方法</p>
@@ -197,15 +197,14 @@
 </ul>
 <h2 id="interface-segregation">Interface Segregation</h2>
 <p>Robert Martin 參與印表機開發，處理/印出/裝訂都會產生一個對應的 job 類別，隨著開發規模，Job 內有上百個 function 與需求，所有的業務邏輯都引用了 Job，到後面 Job 類別的 typo 修正，都會導致專案數個小時的編譯時間</p>
-<p><img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/ac0e564e-3ada-4610-a0b3-c6d87f049d38/_2021-06-14_6.51.19.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/ac0e564e-3ada-4610-a0b3-c6d87f049d38/_2021-06-14_6.51.19.png"></p>
+<p><img src="/posts/2021/img/0615/isp.png" alt=""></p>
 <p>開發只改列印相關的功能，但他不知道其他人有沒有依賴這個方法，應該要具體功能類與 Job 類透過介面分離，功能類只依賴介面 API，讓實際的 Job 類工作避免互相干擾</p>
-<p><img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/06a8e10e-9b59-4aeb-8661-8740ac9f53bc/_2021-06-14_6.53.48.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/06a8e10e-9b59-4aeb-8661-8740ac9f53bc/_2021-06-14_6.53.48.png"></p>
 <p>當一個功能豐富的 concrete class 要給多個調用方提供功能，應該透過介面或抽象類來提供給 <code>不同調用方不同的功能夠過不同的介面隔離</code>
 ⇒ SRP 指導組件的設計，ISP 用於指導介面的設計<br>
-<img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/365916b1-6017-4d46-9e9d-b99da20105d7/_2021-06-14_6.58.53.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/365916b1-6017-4d46-9e9d-b99da20105d7/_2021-06-14_6.58.53.png"></p>
+<img src="/posts/2021/img/0615/isp_result.png" alt=""></p>
 <p>不應讓客戶端知道額外的功能</p>
 <h2 id="總結">總結</h2>
-<p><img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4c4b33c3-14b7-47df-a80a-e04ca2a3c9c3/_2021-06-14_6.59.39.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4c4b33c3-14b7-47df-a80a-e04ca2a3c9c3/_2021-06-14_6.59.39.png"></p>
+<p><img src="/posts/2021/img/0615/conclusion.png" alt=""></p>
 <ul>
 <li>SRP 是軟體架構的理念前提，一個組件不應該被多個不相關的業務而造成耦合帶來維護性上的問題</li>
 <li>OCP 則是設計原則的指導思想，可以透過設計模式、DIP 來達成</li>
@@ -217,7 +216,7 @@
 </ul>
 </li>
 </ul>
-<p><img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d697e0cd-841f-479d-9645-a362c9783649/_2021-06-14_7.03.48.png" alt="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d697e0cd-841f-479d-9645-a362c9783649/_2021-06-14_7.03.48.png"></p>
+<p><img src="/posts/2021/img/0615/extend.png" alt=""></p>
 
 	</div>
 	
