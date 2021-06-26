@@ -6,10 +6,22 @@
 		<description>Recent content in 測試 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Thu, 18 Mar 2021 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sat, 26 Jun 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E6%B8%AC%E8%A9%A6/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>壓測工具：JMeter 使用教學 &#43; 自定義變數使用</title>
+			<link>https://yuanchieh.page/posts/2021/2021-06-26-jmeter-%E4%BD%BF%E7%94%A8%E6%95%99%E5%AD%B8-&#43;-%E8%87%AA%E5%AE%9A%E7%BE%A9%E8%AE%8A%E6%95%B8%E4%BD%BF%E7%94%A8/</link>
+			<pubDate>Sat, 26 Jun 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-06-26-jmeter-%E4%BD%BF%E7%94%A8%E6%95%99%E5%AD%B8-&#43;-%E8%87%AA%E5%AE%9A%E7%BE%A9%E8%AE%8A%E6%95%B8%E4%BD%BF%E7%94%A8/</guid>
+			<description>
+				
+				壓測工具有很多，JMeter 算是蠻主流也是我一直很喜歡的工具，除了針對單一的 request 發送外，可以設定變數讓 request 不在單一，增加測試的真實性
+				
+			</description>
+		</item>
 		<item>
 			<title>Golang Test - 單元測試、Mock與http handler 測試</title>
 			<link>https://yuanchieh.page/posts/2021/2021-03-18-golang-test/</link>

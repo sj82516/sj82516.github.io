@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="壓測工具有很多，JMeter 算是蠻主流也是我一直很喜歡的工具，除了針對單一的 request 發送外，可以設定變數讓 request 不在單一，增加測試的真實性"><meta property="og:title" content="壓測工具：JMeter 使用教學 &#43; 自定義變數使用" />
+<meta property="og:description" content="壓測工具有很多，JMeter 算是蠻主流也是我一直很喜歡的工具，除了針對單一的 request 發送外，可以設定變數讓 request 不在單一，增加測試的真實性" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-06-26-jmeter-%E4%BD%BF%E7%94%A8%E6%95%99%E5%AD%B8-&#43;-%E8%87%AA%E5%AE%9A%E7%BE%A9%E8%AE%8A%E6%95%B8%E4%BD%BF%E7%94%A8/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-06-26T01:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2021-06-26T01:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="壓測工具：JMeter 使用教學 &#43; 自定義變數使用"/>
+<meta name="twitter:description" content="壓測工具有很多，JMeter 算是蠻主流也是我一直很喜歡的工具，除了針對單一的 request 發送外，可以設定變數讓 request 不在單一，增加測試的真實性"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>壓測工具：JMeter 使用教學 &#43; 自定義變數使用 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">26</span>
+				<span class="rest">Jun 2021</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">壓測工具：JMeter 使用教學 &#43; 自定義變數使用</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>最近功能上線遇到一些 OOM 問題，在 Staging 手動驗證流量不夠測不出來有點頭疼，所以回頭用 JMeter 進行壓力測試，因為有 Cache 所以只打單一種 request 是沒有用的，必須組合出多種參數一起執行，好在 JMeter 支援 csv 輸入參數，以下將介紹如何使用</p>
+<p>Sample 可以參考我的 github repo <a href="https://github.com/sj82516/jmeter-pre-post-processor">jmeter-pre-post-processor</a></p>
+<h3 id="安裝">安裝</h3>
+<p>到<a href="https://jmeter.apache.org/download_jmeter.cgi">官網</a>下載最新版，解壓縮完 <code>$ bin/jmeter</code> 即可執行，記得電腦要安裝 java</p>
+<h3 id="sample1-操作">Sample1: 操作</h3>
+<p>進行基本的壓力測試，大概會有以下的步驟</p>
+<ol>
+<li>決定進行幾輪測試</li>
+<li>要發送多少 request、同時間併發數</li>
+<li>request 針對的 host / 參數設定</li>
+<li>結果的顯示，可以將 response 存成檔案 / 圖表顯示 response 速度、成功率等</li>
+</ol>
+<p>對應 JMeter 設定是</p>
+<ol>
+<li><code>Thread Group</code>
+<ol>
+<li>Number of Threads: 多少 request</li>
+<li>Loop Count: 總共幾輪</li>
+<li>Ramp-Up Second: 有點 ticky 的參數，指定多少時間內 Thread 會啟動，假設設定 90 sec 總共有 10 個 thread，則下一個 thread 會上一個 thread 成功後 + 9 (90/10) sec 後啟動，官方建議 <code>預設 = threads 數量再視情況增減</code>，如果要確保同時併發，request 執行時間要大於 thread 啟動時間</li>
+</ol>
+</li>
+<li>在 Thread Group 上，按下右鍵增加
+<ol>
+<li><code>Config Element</code> 系列：可以放共用參數
+<ol>
+<li>Http Request Default: Http request 的預設參數，可以放 host / port 等共用設定</li>
+<li>Http Header Manager: 放共同 Header</li>
+</ol>
+</li>
+<li><code>Sampler</code>: 採樣，也就是要測試的項目
+<ol>
+<li>Http Request: 指定要打的參數</li>
+</ol>
+</li>
+<li><code>Listener</code>: 收集結果
+<ol>
+<li>Summary Report：統計所有 request 的速度與成功率等
+<img src="/content/posts/2021/img/0626/jmeter.png" alt=""></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="sample2-從-csv-讀取參數">Sample2: 從 csv 讀取參數</h3>
+<p>選擇 Config Element &gt; CSV Data Set Config，選擇 csv 檔案後，在 Http Request 可以用 <code>${變數名}</code> 的方式，就可以讀取到對應的 csv 欄位喔
+例如我的 csv 長這樣</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">account,password
+user1,test1
+user2,test2
+user3,test3
+</code></pre></div><p>我希望打出 POST /login 中的 body 帶參數，變成</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{&#34;user&#34;: &#34;${account}&#34;, &#34;password&#34;: &#34;${password}&#34;}
+</code></pre></div><p>JMeter 會依序從上至下不斷輪迴發送喔</p>
+<h3 id="sample3-pre-processor">Sample3: Pre Processor</h3>
+<p>如果我們希望在每次 Request 前做一些預處理，例如產生亂數、字串組合等，就可以用 Pre Processor，有分成很多種，可以用 BeanShell (java-like script language) 或是 JSR223 (javascript / groovy 等更多的 script language)，這邊就用 javascript</p>
+<p>延伸自 Sample2，先將 csv 讀進來的 account / password 當作參數，在 account 前面加一個 &ldquo;prefix_&rdquo; 字串，做法上新增一個 JSR223 Preprocessor，選擇 javascript，並輸入</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> account <span style="color:#719e07">=</span> vars.get(<span style="color:#2aa198">&#34;account&#34;</span>)
+account <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;prefix_&#34;</span> <span style="color:#719e07">+</span> account
+vars.put(<span style="color:#2aa198">&#34;account&#34;</span>, account)
+log.info(vars)
+</code></pre></div><p>有一些環境變數可以使用，例如 <code>vars</code> 可以取得/設定當前的變數，其餘還有 <code>sample</code> 可以改變 sample 結果 / <code>log</code> 打出 log， console.log 是不能用的 / <code>props</code> 取得當前 JMeter 設定等，這些比較進階，可以參考 <a href="https://www.blazemeter.com/blog/how-use-beanshell-jmeters-favorite-built-component">How to Use BeanShell: JMeter&rsquo;s Favorite Built-in Component</a></p>
+<h3 id="post-processor">Post Processor</h3>
+<p>有些時候，我們會希望做一些後處理，例如 parse response 做 assertion 等，可以增加 post-processor，例如我們可以接登入取得的 token，當作下一個 request 的參數，新增一個 JSR223 PostProcessor</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> responseBody <span style="color:#719e07">=</span> sampler.sample().getResponseDataAsString();
+responseBody <span style="color:#719e07">=</span> JSON.parse(responseBody)
+vars.put(<span style="color:#2aa198">&#34;user_id&#34;</span>, <span style="color:#b58900">String</span>(responseBody.id))
+</code></pre></div><p>這樣下一個 request 就可以拿 ${user_id} 了</p>
+<h2 id="結語">結語</h2>
+<p>JMeter 有非常多方便且強大的組件，可以組合出各種客製化的壓測環境</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e6%b8%ac%e8%a9%a6/"> 測試 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
