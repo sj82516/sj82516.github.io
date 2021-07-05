@@ -6,10 +6,22 @@
 		<description>Recent content in 資料庫 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sat, 26 Dec 2020 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Fri, 02 Jul 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E8%B3%87%E6%96%99%E5%BA%AB/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>AWS Aurora 架構研究以及與自駕 MySQL 的差異</title>
+			<link>https://yuanchieh.page/posts/2021/2021-07-02-aws-aurora-%E6%9E%B6%E6%A7%8B%E7%A0%94%E7%A9%B6%E4%BB%A5%E5%8F%8A%E8%88%87%E8%87%AA%E9%A7%95-mysql-%E7%9A%84%E5%B7%AE%E7%95%B0/</link>
+			<pubDate>Fri, 02 Jul 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-07-02-aws-aurora-%E6%9E%B6%E6%A7%8B%E7%A0%94%E7%A9%B6%E4%BB%A5%E5%8F%8A%E8%88%87%E8%87%AA%E9%A7%95-mysql-%E7%9A%84%E5%B7%AE%E7%95%B0/</guid>
+			<description>
+				
+				AWS Aurora 是 AWS 託管的兼容於 MySQL/PostgreSQL 的雲端關聯式資料庫，我一直誤以為他就是個託管服務與管理跨區域 Replica，但為了因應雲端與效能改善，底層儲存架構與自駕的 MySQL 截然不同
+				
+			</description>
+		</item>
 		<item>
 			<title>MySQL Deadlock 問題排查與處理</title>
 			<link>https://yuanchieh.page/posts/2020/2020-12-26_mysql-deadlock-%E5%95%8F%E9%A1%8C%E6%8E%92%E6%9F%A5%E8%88%87%E8%99%95%E7%90%86/</link>
