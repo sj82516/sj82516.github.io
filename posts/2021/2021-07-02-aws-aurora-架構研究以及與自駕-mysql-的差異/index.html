@@ -96,7 +96,7 @@
 <p>其中有幾個目的</p>
 <ol>
 <li>減少 disk I/O 並保障連續性寫入：<br>
-如果每一筆資料進來就馬上更新硬碟上的儲存，這會拖垮 DB 效能，所以 MySQL 讀取時是以 <code>page</code> 為單位，如果發現更新的 page 在記憶體中會標記為 dirty page，後續再 checkpoint 統一更新到硬碟中</li>
+如果每一筆資料進來就馬上更新硬碟上的儲存，這會拖垮 DB 效能，所以 MySQL 讀寫時是以 <code>page</code> 為單位，如果發現更新的 page 在記憶體中會標記為 dirty page，後續再 checkpoint 統一更新到硬碟中</li>
 <li>Redo Log 避免系統 Crash 而資料遺失：<br>
 為了避免資料遺失，所以會先寫入 Redo Log，所以又稱作 Write Ahead Log 先寫入 log 再操作，Redo Log 是一個順序性持續寫入的 Log，所以寫入效能比隨機性更新還要好，當系統 crash 後，會來檢查 Redo Log 中是否存在沒有更新到資料庫硬碟的資料；<br>
 具體寫入硬碟時機看 <code>innodb_flush_log_at_trx_commit</code>，預設 1 為每一筆都及時寫入硬碟中</li>
