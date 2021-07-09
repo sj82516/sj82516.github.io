@@ -75,8 +75,13 @@
 		</div>
 	</div>
 	<div class="markdown">
-		<p>以下內容包含基本的 CRUD 操作，Elasticsearch 提供良好的 REST API 呼叫介面<br>
-另外還有一些系統配置與進階功能，看到 Alias 功能覺得十分有趣，讓維運有更多的彈性跟方法去調整資料儲存與硬體架構</p>
+		<p>以下內容包含基本的 CRUD 操作，Elasticsearch 提供良好的 REST API 呼叫介面，以下模擬情境為書店，旗下有 amazon / eslite 多家書店，每一書店儲存書本相關的資料，如書名、頁數、簡介等</p>
+<p>另外還有一些系統配置與進階功能，看到 Alias 功能覺得十分有趣，讓維運有更多的彈性跟方法去調整資料儲存與硬體架構</p>
+<p>如果想之前架構層面，可以參考 <a href="https://yuanchieh.page/posts/2020/2020-07-08_elasticsearch-%E4%BB%8B%E7%B4%B9%E8%88%87%E8%A9%95%E4%BC%B0/">Elasticsearch 系統介紹與評估</a></p>
+<blockquote>
+<p>基本名詞解釋，Index = MongoDB 的 Collection / MySQL 的 Table；
+Document = MongoDB Document / MySQL Row</p>
+</blockquote>
 <h2 id="基本操作-crud">基本操作 CRUD</h2>
 <h3 id="常見的回傳值">常見的回傳值</h3>
 <p>不論請求是否成功，通常會返回 _index / _type / _id / _version / _shard 等資訊<br>
@@ -84,11 +89,11 @@
 <code>_found</code> 代表文件是否存在</p>
 <h3 id="建立">建立</h3>
 <ol>
-<li>如果已經有 _id</li>
+<li>如果系統已經有規劃 _id</li>
 </ol>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/amazon/book/1?op_type=create
 </code></pre></div><ol start="2">
-<li>如果沒有 _id 且希望由 Elasticsearch 生成，預設生成的 <code>_id 是 22字元長 + Base64 編碼 + URL 合法的字串</code></li>
+<li>如果沒有 _id 則由 Elasticsearch 生成，預設生成的 <code>_id 是 22字元長 + Base64 編碼 + URL 合法的字串</code></li>
 </ol>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPOST http://localhost:9200/amazon/book
 </code></pre></div><h3 id="刪除">刪除</h3>
@@ -254,18 +259,16 @@ curl -XPUT http://localhost:9200/amazon/_settings -H &#39;Content-Type: applicat
 </code></pre></div><p>需注意 sharding number 最好一開始就設定好，可以配置稍微多一點 Primary shard 方便後續 scale out<br>
 後續如果要動態調整很麻煩，要把 Index 設成 read-only 並透過 Split API 修改 / 或是用 Reindex 方式重建新的 Index</p>
 <h4 id="2-指定-index-使用的機型">2. 指定 Index 使用的機型</h4>
-<p>有時候我們會希望某些熱門的 Index 使用較好的硬體，其他冷門的使用差一點的硬體，Elasticsearch 在機器運作時可以打上標記<br>
-結合後續的 Alias 可以配置出更符合實際應用的設定</p>
+<p>有時候我們會希望某些熱門的 Index 使用較好的硬體，其他冷門的使用差一點的硬體，Elasticsearch 在機器運作時可以打上標記 <code>--node.box_type</code></p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ ./bin/elasticsearch --node.box_type strong
-
-// 指定 index 機型
-$ POST /logs_2014-09-30/_settings
+</code></pre></div><p>指定 Index 要存放的機型</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ POST /logs_2014-09-30/_settings
 {
   &#34;index.routing.allocation.include.box_type&#34; : &#34;strong&#34;
 }
-</code></pre></div><h4 id="index-template">Index template</h4>
-<p>當建立新的 Index 時，可以指定 template 套用設定，就不用每次都要打設定<br>
-Elasticsearch 在 7.8 版本中，可以指定 component template 與 index template<br>
+</code></pre></div><p>結合後續的 Alias 可以配置出更符合實際應用的設定</p>
+<h4 id="index-template">Index template</h4>
+<p>當建立新的 Index 時，可以指定 template 套用設定，就不用每次都要打設定，Elasticsearch 在 7.8 版本中，可以指定 component template 與 index template；<br>
 component template 是小單位可以被用來組合的；而 index template 則是 Index 直接套用的</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// Component template
 PUT _component_template/other_component_template
