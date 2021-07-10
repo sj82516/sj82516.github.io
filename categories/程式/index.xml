@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>程式 on Yuanchieh&#39;s Blog</title>
+		<link>https://yuanchieh.page/categories/%E7%A8%8B%E5%BC%8F/</link>
+		<description>Recent content in 程式 on yuanchieh.page</description>
+		<generator>Hugo -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Sat, 10 Jul 2021 01:21:40 +0000</lastBuildDate>
+		
+		<atom:link href="https://yuanchieh.page/categories/%E7%A8%8B%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler</title>
+			<link>https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/</link>
+			<pubDate>Sat, 10 Jul 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/</guid>
+			<description>
+				
+				使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制
+				
+			</description>
+		</item>
+		
+	</channel>
+</rss>
