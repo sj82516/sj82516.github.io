@@ -6,10 +6,22 @@
 		<description>Recent content in Ruby on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sat, 01 May 2021 08:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sat, 10 Jul 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/ruby/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler</title>
+			<link>https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/</link>
+			<pubDate>Sat, 10 Jul 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/</guid>
+			<description>
+				
+				使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制
+				
+			</description>
+		</item>
 		<item>
 			<title>【Refactoring Ruby Edition】(一) 體驗重構</title>
 			<link>https://yuanchieh.page/posts/2021/2021-05-01-refactoring-ruby-edition%E4%B8%80-%E9%AB%94%E9%A9%97%E9%87%8D%E6%A7%8B/</link>
