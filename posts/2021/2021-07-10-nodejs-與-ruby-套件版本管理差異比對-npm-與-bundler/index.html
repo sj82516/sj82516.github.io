@@ -112,7 +112,7 @@ npm install jquery3@npm:jquery@3
 <ol>
 <li>如果 X 是 core module，則返回 core module 並結束</li>
 <li>如果 X 是 / 開頭，則將 Y 設定為 filesystem root (沒用過)</li>
-<li>如果 X 是 ./ ../  / 開頭，則嘗試載入對應路徑的檔案或資料夾</li>
+<li>如果 X 是 ./、 ../ 、 / 開頭，則嘗試載入對應路徑的檔案或資料夾</li>
 <li>如果 X 是 # 開頭，則往上層找到最近有 package.json 的地方 (稱為 scope)，並走 ESM 載入方式</li>
 <li>找到 scope，比對 package.json 中定義，看是不是要載入自己</li>
 <li>不斷地往上一層路徑找到 node_modules，並查詢有沒有對應的 package</li>
@@ -127,7 +127,7 @@ npm install jquery3@npm:jquery@3
 <ol>
 <li>depend_module 1.0.0 / 2.0.0</li>
 <li>yuan_test_module_1 require depend_module@1</li>
-<li>yuan_test_module_2 require depend_module@2
+<li>yuan_test_module_2 require depend_module@2<br>
 最後</li>
 </ol>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">require(<span style="color:#2aa198">&#39;yuan_test_module_1&#39;</span>)
@@ -172,14 +172,14 @@ require tow modules
 +-- C
    `-- D@2
 +-- D@1
-</code></pre></div><p>這樣確實可以共享相同的 module，卻也不用擔心多個版本衝突的問題</p>
+</code></pre></div><p>這樣可以做到預設共享相同版本的 module 避免重複下載，卻也不用擔心多個版本衝突的問題</p>
 <h3 id="環狀相依">環狀相依</h3>
 <p>如果 package A require package B 而 package B 又 require package A，變成環狀相依的情況，在 Nodejs 中這樣不會拋出錯誤，只是行為可能不如預期</p>
 <p>官網的案例中</p>
 <ol>
 <li>main.js require a.js / b.js，因為 a.js 先被 require 則先被載入</li>
 <li>在 a.js 中，執行到 require b.js，則開始載入 b.js</li>
-<li>在 b.js 中，執行到 require a.js，則為了避免無限迴圈，此時會回傳<code>部分載入的 a.js</code>，接著繼續完成 b.js 載入</li>
+<li>在 b.js 中，執行到 require a.js，則為了避免無限迴圈，此時會回傳<code>步驟(2)載入到一半的 a.js</code>，接著繼續完成 b.js 載入</li>
 <li>回到 a.js，此時的 b.js 引用是完整的，繼續載入 a.js</li>
 <li>回到 main.js 中，此時在 main.js 中 a.js / b.js 都是完整的引用</li>
 </ol>
@@ -194,7 +194,7 @@ a done
 <span style="color:#719e07">in</span> main, a.done <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>, b.done <span style="color:#719e07">=</span> <span style="color:#cb4b16">true</span>
 </code></pre></div><h2 id="gem--bundler">Gem / Bundler</h2>
 <p>接著來看 Ruby 生態如何用 Gem Bundler 管理套件，以下內容主要參考 <a href="https://www.honeybadger.io/blog/rbenv-rubygems-bundler-path/">Understanding How Rbenv, RubyGems And Bundler Work Together</a>，首先先安裝 rbenv，用於管理主機上多個 Ruby 版本</p>
-<p>RubyGem 在 Ruby 1.9 後就整合了，安裝路徑可以透過 <code>$gem env</code> 中的 &ldquo;INSTALLATION DIRECTORY&rdquo; 路徑，不同版本有被分開不同的路徑安裝，但不像 npm 會在每個專案下都有獨立的 node_modules</p>
+<p>RubyGem 在 Ruby 1.9 後就整合了，gem 安裝路徑可以透過 <code>$gem env</code> 中的 &ldquo;INSTALLATION DIRECTORY&rdquo; 路徑，不同版本有被分開不同的路徑安裝，但不像 npm 會在每個專案下都有獨立的 node_modules</p>
 <h3 id="載入">載入</h3>
 <p>有三種方式</p>
 <ol>
@@ -205,13 +205,18 @@ a done
 <li>require_relative:<br>
 接受相對路徑載入</li>
 </ol>
-<p>所以看起來 RubyGem 管理相當單純，把 Gem 都安裝在統一的系統安裝路徑上</p>
+<p>所以 RubyGem 管理相當單純，把 Gem 都安裝在統一的安裝路徑下</p>
 <h3 id="bundler">Bundler</h3>
-<p>Bundler 負責讀取 Gemfile 安裝所有對應的 gem，並產生對應的 Gemfile.lock 確保版本的一致性，另外因為 Ruby 不能載入同 gem 多個版本，所以 Bundler 會在指定的版本範圍中找到所有 gem 適合的版號</p>
+<p>Bundler 負責幾項工作</p>
+<ol>
+<li>讀取 Gemfile 並安裝對應適合的版本</li>
+<li>產生 Gemfile.lock 確保在不同環境下還原時版本一致</li>
+<li>因為不能載入多版本，所以 Bundler 會在所有版號中找到適合的，例如 module_a 需要 module_c &gt; 1.0.0，而 module_b 需要 module_c  &lt;=1.1.0，則最後會安裝 <a href="mailto:module_c@1.1.0">module_c@1.1.0</a> 符合兩者需求</li>
+</ol>
 <h3 id="實驗">實驗</h3>
 <p>實驗方式相同，但是發現 Ruby 不能載入多個版本，會出現</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">`raise_if_conflicts&#39;: Unable to activate yuan_test_gem_2-2.0.0, because depend_gem-1.0.0 conflicts with depend_gem (= 2.0.0) (Gem::ConflictError)
-</code></pre></div><p>錯誤，而 Bundler 會因為找不到適合版本而拋錯</p>
+</code></pre></div><p>使用 Bundler 會因為找不到適合版本而拋錯</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">There was an error parsing `Gemfile`: You cannot specify the same gem twice with different version requirements.
 You specified: depend_gem (~&gt; 1.0) and depend_gem (~&gt; 2.0). Bundler cannot continue.
 </code></pre></div><h2 id="結語">結語</h2>
