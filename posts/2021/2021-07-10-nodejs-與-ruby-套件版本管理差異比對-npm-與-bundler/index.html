@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="description" content="使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制"><meta property="og:title" content="Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler" />
+	<meta name="description" content="使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制"><meta property="og:title" content="Nodejs / Ruby / Golang 套件版本管理差異：比對 NPM 與 Bundler" />
 <meta property="og:description" content="使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/" /><meta property="article:section" content="posts" />
@@ -13,13 +13,13 @@
 <meta property="article:modified_time" content="2021-07-10T01:21:40&#43;00:00" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler"/>
+<meta name="twitter:title" content="Nodejs / Ruby / Golang 套件版本管理差異：比對 NPM 與 Bundler"/>
 <meta name="twitter:description" content="使用套件對於一名開發者很重要，畢竟不可能一直重複造輪子，但套件的載入、版本管理不是一件這麼簡單的事，本篇比對 Nodejs 生態中的 NVM 與 Ruby 的 Gem/Bundler，看套件管理有什麼不同的方法與限制"/>
 
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
-	<title>Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+	<title>Nodejs / Ruby / Golang 套件版本管理差異：比對 NPM 與 Bundler | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
 </head>
 <body><header>
 	
@@ -71,7 +71,7 @@
 		</div>
 		
 		<div class="matter">
-			<h1 class="title">Nodejs 與 Ruby 套件版本管理差異：比對 NPM 與 Bundler</h1>
+			<h1 class="title">Nodejs / Ruby / Golang 套件版本管理差異：比對 NPM 與 Bundler</h1>
 		</div>
 	</div>
 	<div class="markdown">
@@ -88,7 +88,7 @@
 - test_module_2
    |- depend_module@2.0.0
 </code></pre></div><blockquote>
-<p>TLDR；NPM 可以在不同模組引用不同的版本，而 Gem 不行</p>
+<p>TLDR；NPM 可以在不同模組引用不同的版本；而 Gem 不行；Golang 可以透過 replace 指定多個版本</p>
 </blockquote>
 <h2 id="npm">NPM</h2>
 <h3 id="npm-install">NPM install</h3>
@@ -219,9 +219,11 @@ a done
 </code></pre></div><p>使用 Bundler 會因為找不到適合版本而拋錯</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">There was an error parsing `Gemfile`: You cannot specify the same gem twice with different version requirements.
 You specified: depend_gem (~&gt; 1.0) and depend_gem (~&gt; 2.0). Bundler cannot continue.
-</code></pre></div><h2 id="結語">結語</h2>
-<p>比對兩者不同的實作蠻有趣，目前看來 npm 會 install 在當下路徑，換來好處是可以載入多個版本的相同模組；而 gem 沒有這樣的彈性
-至於<code>載入多版本的相同模組</code>本身是好是壞就持續往下挖掘看看</p>
+</code></pre></div><h2 id="golang-mod">Golang mod</h2>
+<p>參考<a href="https://www.percona.com/blog/2020/03/09/using-different-versions-of-a-package-in-an-application-via-go-modules/">Using Different Versions of a Package in an Application via Go Modules</a>，Golang 可以在 mod file 中指定 <code>replace</code>，就可以在程式中使用多個版本，也可以指向自己的 fork，相當的方便，<a href="https://golang.org/doc/modules/managing-dependencies#external_fork">官方文件：Requiring external module code from your own repository fork</a></p>
+<h2 id="結語">結語</h2>
+<p>比對不同的實作蠻有趣，目前看來 npm 會 install 在當下路徑，換來好處是可以載入多個版本的相同模組；而 gem 沒有這樣的彈性
+至於<code>載入多版本的相同模組</code>我覺得是蠻現代的需求，不確定為什麼 Ruby / Gem 沒有提供這樣的特性，背後的脈絡不知是如何考量</p>
 
 	</div>
 	
