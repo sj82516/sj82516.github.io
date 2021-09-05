@@ -6,10 +6,22 @@
 		<description>Recent content on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sat, 10 Jul 2021 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 05 Sep 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>使用 InversifyJS 達到 Iversion of Control 控制反轉</title>
+			<link>https://yuanchieh.page/posts/2021/2021-09-05-%E4%BD%BF%E7%94%A8-inversifyjs-%E9%81%94%E5%88%B0-iversion-of-control-%E6%8E%A7%E5%88%B6%E4%BE%9D%E8%B3%B4%E5%8F%8D%E8%BD%89/</link>
+			<pubDate>Sun, 05 Sep 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-09-05-%E4%BD%BF%E7%94%A8-inversifyjs-%E9%81%94%E5%88%B0-iversion-of-control-%E6%8E%A7%E5%88%B6%E4%BE%9D%E8%B3%B4%E5%8F%8D%E8%BD%89/</guid>
+			<description>
+				
+				高層次物件不應該依賴於低層次物件，例如 Controller 處理商業邏輯不應該依賴於資料庫儲存的邏輯，避免低層次物件的改動與耦合導致高層次物件需要跟著修改，透過 InversifyJS 管理 IoC
+				
+			</description>
+		</item>
 		<item>
 			<title>Nodejs / Ruby / Golang 套件版本管理差異：比對 NPM 與 Bundler</title>
 			<link>https://yuanchieh.page/posts/2021/2021-07-10-nodejs-%E8%88%87-ruby-%E5%A5%97%E4%BB%B6%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%B7%AE%E7%95%B0%E6%AF%94%E5%B0%8D-npm-%E8%88%87-bundler/</link>

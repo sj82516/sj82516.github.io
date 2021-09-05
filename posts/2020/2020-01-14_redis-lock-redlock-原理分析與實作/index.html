@@ -133,8 +133,7 @@ Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client �
 <h3 id="釋放-lock-1">釋放 Lock</h3>
 <p>同時向所有的 Redis Master 釋放 Lock</p>
 <h2 id="檢驗演算法">檢驗演算法</h2>
-<p>因為再依序取得 Lock 會有時間差，假設 Client 從第一個 Redis Master 取得 Lock 時間為 <code>T1</code>，最後一個 Master 回傳時間為 <code>T2</code>，那麼第一個 Lock 僅剩的生命時間是 <code>TTL - (T2 - T1) - Clock Drift</code>，這也就是最小有效時間 MIN_VALIDITY
-Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p>
+<p>因為再依序取得 Lock 會有時間差，假設 Client 從第一個 Redis Master 取得 Lock 時間為 <code>T1</code>，最後一個 Master 回傳時間為 <code>T2</code>，那麼第一個 Lock 僅剩的生命時間是 <code>TTL - (T2 - T1) - Clock Drift</code>，這也就是最小有效時間 MIN_VALIDITY；Clock Drift 是上述的時間誤差；(T2-T1) 則是取 Lock 的等待時間</p>
 <p>假設 Client 取 Lock 時間 (T2-T1) &gt; TTL，也就是 Client 取到最後一個 Lock 時第一個 Lock 已經失效了，那此時就會全部釋放，不會有錯誤產生</p>
 <p>假設 Client 成功取得 Lock，那在先前的條件保證，沒有其他用戶可以在 MIN_VALIDITY 內取得大多數 Master 的 Lock，也就不會破壞 Lock 的原則性</p>
 <blockquote>
@@ -245,6 +244,8 @@ Clock Drift 是上述的時間誤差，(T2-T1) 則是取 Lock 的等待時間</p
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			
