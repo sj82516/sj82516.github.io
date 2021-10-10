@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="與同事某一天看到 RDS MySQL read replica 盡然可以 writable，覺得這也太神奇了，花了點時間理解 MySQL Replication，並實驗怎樣的更改會導致 replication 中斷"><meta property="og:title" content="MySQL Replication 與 RDS" />
+<meta property="og:description" content="與同事某一天看到 RDS MySQL read replica 盡然可以 writable，覺得這也太神奇了，花了點時間理解 MySQL Replication，並實驗怎樣的更改會導致 replication 中斷" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2021/2021-10-10-mysql-replication-%E8%88%87-rds/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-10-10T01:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2021-10-10T01:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MySQL Replication 與 RDS"/>
+<meta name="twitter:description" content="與同事某一天看到 RDS MySQL read replica 盡然可以 writable，覺得這也太神奇了，花了點時間理解 MySQL Replication，並實驗怎樣的更改會導致 replication 中斷"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>MySQL Replication 與 RDS | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">10</span>
+				<span class="rest">Oct 2021</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">MySQL Replication 與 RDS</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>公司目前主要資料庫是 MySQL，為了資料分析有開啟新的 Read Replica 避免影響到正式環境，因為一些分析工具 (Metabase) 的限制，所以與同事在思考 <code>Read Replica 如果只同步指定的資料表，同時保留寫入其他資料表的彈性該有多好 ?!</code>，查了一下 RDS 發現這是可以的 <a href="https://aws.amazon.com/premiumsupport/knowledge-center/rds-read-replica/">How can I perform write operations to my Amazon RDS for MariaDB or MySQL DB instance read replica?</a>，當時覺得十分的衝突，為什麼 &ldquo;Read&rdquo; Replica 可以 Write，也借此回到源頭理解 MySQL Replication 設定與機制，才發現這一切都是很合乎情理的</p>
+<p>以下都是以 MySQL v5.7 為主</p>
+<h2 id="mysql-replication">MySQL Replication</h2>
+<p>閱讀過 <a href="https://dev.mysql.com/doc/refman/5.7/en/replication.html">Chapter 16 Replication</a>，簡單整理幾個重點</p>
+<ol>
+<li>Source DB / Replica DB 都要指定 server_id</li>
+<li>Source DB 必須開啟 binlog，有三種格式可以選，後續補充</li>
+<li>Replica DB 可以透過 <code>replication_do_table</code> 指定資料表同步</li>
+<li>Replica DB 可以指定多個 Source DB</li>
+<li>GTIDs 建議開啟，主要是幫助 binlog 的每一個操作都打上 id，方便確認同步進度；不開啟則是用 file 同步，需要紀錄同步的檔案名稱與位置，相對複雜些</li>
+</ol>
+<p>binlog 會紀錄在 master 上的所有操作，而 replica 很單純就是拿到 binlog 把同樣的操作套用在自己身上，用這個角度思考，就可以理解為什麼 replica 同時保留寫入的功能很正常，只要不影響 master binlog 上的操作即可</p>
+<h3 id="binlog-format">binlog format</h3>
+<h4 id="1-statement">1. statement</h4>
+<p>binlog 直接紀錄 master 上 SQL 語句，所以 binlog 本身非常容易閱讀，在做系統操作檢查時，也可以很清楚看到每一個 SQL 操作 (audit)，好處是相對資料量小、好閱讀；缺點是有些 statement 是 undeterminsitic，也就是在 replica 上重新執行會有不同的結果，例如 UUID() / USER() 等一系列操作，有趣的是 RAND() / NOW() 這些看起來就是會有問題的反而不會有問題</p>
+<h4 id="2-row">2. row</h4>
+<p>不紀錄每一個 SQL，而是把 SQL 會影響到的欄位以 Row 的格式紀錄，例如 UPDATE 更新了 10 筆欄位就紀錄 10 筆，好處是重新執行保證結果一致 / 壞處是資料量很大、格式不易閱讀需要工具 decode、沒辦法看到原始的 SQL</p>
+<h4 id="3-mixed">3. mixed</h4>
+<p>結合 statement / row 的優點，只有遇上 undeterministic 的 statement 才會用 row 紀錄，這也是 RDS 預設的格式</p>
+<h2 id="實驗">實驗</h2>
+<p>完整實驗可以參考我的 Repo <a href="https://github.com/sj82516/play-with-mysql-replication">play-with-mysql-replication</a>，主要驗證了</p>
+<ol>
+<li>不要在同步的資料庫新增資料，否則會終止同步</li>
+<li>在非同步的資料庫做任合操作都沒問題</li>
+<li>在同步的資料庫，增加 Index、增加新的欄位、<code>UPDATE 已經同步的資料</code>都沒問題</li>
+<li>如果是修改同步的資料庫欄位格式，例如 varchar(255) =&gt; varchar(200)，在不超過欄位尺寸下，statement 同步正常、row 不能同步</li>
+</ol>
+<p>RDS 上行為類似，差別在預設就不能有 Multi Source 的功能</p>
+<h2 id="結語">結語</h2>
+<p>使用託管服務如 RDS 代為管理 MySQL 蠻有趣的，大幅降低了管理的麻煩，但如果有什麼功能面的問題，回歸工具本身去探索反而可以看得更全面；<br>
+不過 RDS 還有而外跟 Aurora 做結合，可以製作 Aurora Read Replica，不確定有沒有別的行為差異，之後有機會再來研究</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/%e8%b3%87%e6%96%99%e5%ba%ab/"> 資料庫 </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

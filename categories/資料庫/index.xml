@@ -6,10 +6,22 @@
 		<description>Recent content in 資料庫 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Fri, 02 Jul 2021 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 10 Oct 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E8%B3%87%E6%96%99%E5%BA%AB/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>MySQL Replication 與 RDS</title>
+			<link>https://yuanchieh.page/posts/2021/2021-10-10-mysql-replication-%E8%88%87-rds/</link>
+			<pubDate>Sun, 10 Oct 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-10-10-mysql-replication-%E8%88%87-rds/</guid>
+			<description>
+				
+				與同事某一天看到 RDS MySQL read replica 盡然可以 writable，覺得這也太神奇了，花了點時間理解 MySQL Replication，並實驗怎樣的更改會導致 replication 中斷
+				
+			</description>
+		</item>
 		<item>
 			<title>AWS Aurora 架構研究以及與自駕 MySQL 的差異</title>
 			<link>https://yuanchieh.page/posts/2021/2021-07-02-aws-aurora-%E6%9E%B6%E6%A7%8B%E7%A0%94%E7%A9%B6%E4%BB%A5%E5%8F%8A%E8%88%87%E8%87%AA%E9%A7%95-mysql-%E7%9A%84%E5%B7%AE%E7%95%B0/</link>
