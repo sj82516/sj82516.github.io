@@ -6,10 +6,22 @@
 		<description>Recent content in 資料庫 on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sun, 10 Oct 2021 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 14 Nov 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/%E8%B3%87%E6%96%99%E5%BA%AB/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>《Effective SQL》讀後分享</title>
+			<link>https://yuanchieh.page/posts/2021/2021-11-14-effective-sql%E8%AE%80%E5%BE%8C%E5%88%86%E4%BA%AB/</link>
+			<pubDate>Sun, 14 Nov 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-11-14-effective-sql%E8%AE%80%E5%BE%8C%E5%88%86%E4%BA%AB/</guid>
+			<description>
+				
+				《Effective SQL》分享 61 個優化 SQL Database 相關的技巧，有些關於資料表的設計與複雜的關聯式查詢有很多不錯的點子，是本很實用的工具書
+				
+			</description>
+		</item>
 		<item>
 			<title>MySQL Replication 與 RDS</title>
 			<link>https://yuanchieh.page/posts/2021/2021-10-10-mysql-replication-%E8%88%87-rds/</link>
