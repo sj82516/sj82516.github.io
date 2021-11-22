@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Python on Yuanchieh&#39;s Blog</title>
+		<link>https://yuanchieh.page/categories/python/</link>
+		<description>Recent content in Python on yuanchieh.page</description>
+		<generator>Hugo -- gohugo.io</generator>
+		<language>en-us</language>
+		<lastBuildDate>Mon, 22 Nov 2021 01:21:40 +0000</lastBuildDate>
+		
+		<atom:link href="https://yuanchieh.page/categories/python/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Python - 直接執行 package 下的 module 的錯誤</title>
+			<link>https://yuanchieh.page/posts/2021/2021-11-22-python-%E7%9B%B4%E6%8E%A5%E5%9F%B7%E8%A1%8C-package-moculde-%E7%9A%84%E9%8C%AF%E8%AA%A4/</link>
+			<pubDate>Mon, 22 Nov 2021 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2021/2021-11-22-python-%E7%9B%B4%E6%8E%A5%E5%9F%B7%E8%A1%8C-package-moculde-%E7%9A%84%E9%8C%AF%E8%AA%A4/</guid>
+			<description>
+				
+				最近因為資料分析開始大量使用 Python，因為是與同事在同一個 Package 下拆分不同 Module 協作，當我想要直接執行 Module 就遇上 「ModuleNotFoundError No module named」的錯誤
+				
+			</description>
+		</item>
+		
+	</channel>
+</rss>
