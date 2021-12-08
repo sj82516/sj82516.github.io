@@ -183,7 +183,7 @@
 <p>作者較哨如何在組織內導入新的技術，分享 John Kother 博士的組織變革步驟，大致上溝通、小幅嘗試、看到初步效益、融入組織
 <img src="/posts/2021/img/1203/revolution.jpg" alt=""></p>
 <p>再產生變革時，要注意到變革成本，Jeff Bezos 將變革分成兩類：第一類是必然、不可逆的，第二類是可逆、可變化的，第一類需要長期討論、謹慎的思考，第二類可以讓高判斷力的個人或組織迅速做出；
-沒有經常下決策的人通常會誤把第二類當作第一類，讓所有決策都停滯不前
+<code>沒有經常下決策的人通常會誤把第二類當作第一類，讓所有決策都停滯不前</code>
 <img src="/posts/2021/img/1203/decision.jpg" alt=""></p>
 <p>這也呼應到之前工作時公司導入敏捷開發，固然看到快速迭代、持續驗證與微調的優勢，但內部也時常在爭論如小規模實驗是否真的有效、用戶會不會因為實驗而大量流失等等，現在反思起來就是沒有把第一類與第二類決策溝通清楚的緣故</p>
 <h3 id="如何開始">如何開始</h3>
@@ -211,8 +211,7 @@
 <li>新系統完成後可先部署，但此時還未對外開放</li>
 <li>透過金絲雀部署，先放手部分流量到新系統</li>
 <li>確保沒問題，流量完整切換至新系統，汰換舊系統
-<img src="/posts/2021/img/1203/message-queue.jpg" alt="">
-<img src="/posts/2021/img/1203/http-proxy.jpg" alt=""></li>
+<img src="/posts/2021/img/1203/pipe.jpg" alt=""></li>
 </ol>
 <p>在導入代理器時，要注意 <code>Smart Endpoints and Dumb Pipes</code>，不要讓代理器承擔過多的職責，例如說因為舊系統支援 soap 但新系統要支援 grpc，與其讓代理器判斷 soap -&gt; 舊系統 / grpc 走新系統，還不如直接對外公開兩個協定，而舊系統再把 soap 格式轉換到新系統的 grpc
 <img src="/posts/2021/img/1203/proxy.jpg" alt="">
@@ -240,7 +239,7 @@ github 有開源一個 Ruby gem <a href="https://github.com/github/scientist">sc
 <p>如果當前系統無法被修改，卻需要攔截呼叫並額外增加行為，可以考慮用裝飾者模式，透過代理服務器在呼叫完原系統後，額外呼叫微服務；但要小心違反 dump pipe 的風險<br>
 <img src="/posts/2021/img/1203/decoration.jpg" alt=""></p>
 <h4 id="模式四變更資料擷取">模式四：變更資料擷取</h4>
-<p>同樣是不修改當前系統，也不想用裝飾者模式，但同樣希望在行為變動時觸發微服務，如會員註冊後，要打印會員卡，可以透過資料儲存的方式，例如資料庫的 trigger、定期 polling 資料庫；但要小心這耦合在資料庫
+<p>同樣是不修改當前系統，也不想用裝飾者模式，但同樣希望在行為變動時觸發微服務，如會員註冊後，要打印會員卡，可以透過資料儲存的方式，例如資料庫的 trigger、定期 polling 資料庫；但要小心耦合在資料庫
 <img src="/posts/2021/img/1203/data.jpg" alt=""></p>
 <h4 id="模式五使用者介面組成">模式五：使用者介面組成</h4>
 <p>UI 端也可以把頁面拆解成不同的組件，例如 <a href="https://micro-frontends.org/">Micro Frontend</a>，因應 Web 標準的發展支援 custom element，讓不同的團隊可以採用不同的技術實做不同的組件，透過 DOM event 跨組件通信</p>
