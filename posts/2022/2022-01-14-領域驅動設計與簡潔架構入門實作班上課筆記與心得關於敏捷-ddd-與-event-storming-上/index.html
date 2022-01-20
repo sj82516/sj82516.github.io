@@ -221,7 +221,7 @@ HotSpot 是當討論過程卡住、發生意見不同、命名不同時可以貼
 <p>同學在課堂上詢問：「如果我有多個支付，我是不是要把每個 CreditCardPay / ApplePay 都寫成一個 Model？」 <br>
 Teddy 反問：「為什麼需要？如果 Pay 只是一個付款手段，如果沒有很大的差異，一個 Pay 表達實作時再拆分就好」<br>
 我接著提問：「那為什麼 Stage / Swimlane 要拆分？他們也只是一個橫的一個直的」</p>
-<p>Teddy 表示 <code>因為在看板的 Domain 中，直的跟橫的工作流程是截然不同，這是非常核心的商業邏輯</code>，所以 Model 要拆到多細，要不要真的把每個實作的物件都表達，完全看領域專家與開發人員是否很重視彼此的不同</p>
+<p>Teddy 表示 <code>因為在看板的 Domain 中，直的代表工作階段 / 橫的代表不同工作流程是截然不同，這是非常核心的商業邏輯</code>，所以 Model 要拆到多細，要不要真的把每個實作的物件都表達，完全看領域專家與開發人員是否很重視彼此的不同</p>
 <h3 id="7-software-design---找出-aggregate">7. Software Design - 找出 Aggregate</h3>
 <p>最後一步! 也是很抽象的一步，將 Model 分群，有些 Model 明顯是其他 Model 的附庸 ，例如說訂單細項 Order Item 是訂單 Order 的附庸，每次 Order Item 的改動會影響 Order 的計算，會進階影響例如折價券等計算，所以 Order Item 最好不要直接調整，由 Order 統一調整才能確保資料的<code>一致性</code></p>
 <p>要不要把 Model Aggregate 成一塊有兩個作用力</p>
