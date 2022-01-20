@@ -231,8 +231,10 @@ Teddy 反問：「為什麼需要？如果 Pay 只是一個付款手段，如果
 <li>併發操作</li>
 </ul>
 <p>Teddy 帶我們思考的方式是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">今天我改動 Model A，那我可不可以同時改動 Model B ? 我在 Workflow name 的時候，可以同時操作 Board 嗎？
-</code></pre></div><p>切記不要用 Database Relation 思考，例如 User 刪除 Order 也要跟著被刪除，這樣 Aggregate 永遠切不開，更直觀地說 <code>要包 Transaction 操作的都就放在同一個 Aggregate</code><br>
+<blockquote>
+<p>今天我改動 Model A，那我可不可以同時改動 Model B ? 我在 Workflow name 的時候，可以同時操作 Board 嗎？</p>
+</blockquote>
+<p>切記不要用 Database Relation 思考，例如 User 刪除 Order 也要跟著被刪除，這樣 Aggregate 永遠切不開，更直觀地說 <code>要包 Transaction 操作的都就放在同一個 Aggregate</code><br>
 <img src="/posts/2022/img/0114/aggregate-right.png" alt=""></p>
 <p>找出 Aggregate 後，需要找一個 Model 當作 Root，往後 Aggregate 內的 Model 都由他來控制，<code>外人不可直接操作內部 Model</code></p>
 <h3 id="延伸變體還是很想把讀取也放入-event-storming-可以嗎">延伸變體：還是很想把讀取也放入 Event Storming 可以嗎？</h3>
