@@ -178,7 +178,7 @@ A: 不是，只有當商業邏輯足夠複雜才需要，單純的 CRUD、報表
 <li>Generic Domain：User / Team 屬於通用性功能</li>
 <li>Support Domain：圖上沒有，如金流、外部通知系統，這種的找外包即可，不一定要自己開發</li>
 </ul>
-<p>如何知道自己的隔間是否正確？還是回到商業邏輯與說故事的方式，劃分 Bounded Context 後是否能正確拆解出公司的核心與非核心商業邏輯</p>
+<p>如何知道自己的隔間是否正確？回到商業邏輯與說故事的方式，劃分 Bounded Context 後是否能正確拆解出公司的核心與非核心商業邏輯</p>
 <blockquote>
 <p>大家最關心的微服務，通常是一個 Bounded Context 一個部署的元件</p>
 </blockquote>
@@ -190,7 +190,8 @@ HotSpot 是當討論過程卡住、發生意見不同、命名不同時可以貼
 <p>這一步相對單純</p>
 <ul>
 <li>Command 是觸發 Domain Event 的動作，基本上就是把完成式改成現在式表達</li>
-<li>Read Model 則是完成 Command 所需的參數</li>
+<li>Read Model 則是完成 Command 所需的參數
+<img src="/posts/2022/img/0114/command.png" alt=""></li>
 </ul>
 <h4 id="a-建立事件是否要傳入-id">a. 建立事件是否要傳入 id</h4>
 <p>有個有趣的小細節是 Create Board 時我們把 board_id 也寫出來，小組討論時會覺得說 DB 會自動產生 id 所以不用寫到 read model，但 Teddy 說 <code>「錯，我哪管你 id 是 DB 產生還是前端用 UUID 產生，這是實作細節，Board 就是需要 id 識別」</code>，再次強調，不要陷入 UI/DB 的細節</p>
