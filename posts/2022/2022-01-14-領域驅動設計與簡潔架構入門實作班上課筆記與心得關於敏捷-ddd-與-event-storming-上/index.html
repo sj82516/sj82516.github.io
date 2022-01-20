@@ -141,7 +141,7 @@ A: 不是，只有當商業邏輯足夠複雜才需要，單純的 CRUD、報表
 <p>我們一開始把 User Created / User Logined 放在同一列上，同一列在 Event Storming 代表這兩個事件是在差不多時間點發生，但理論上 User Create 必然在 User Logined 之前，所以不該放在同一列上</p>
 <h4 id="b-不要被-ui-綁架">b. 不要被 UI 綁架</h4>
 <p>這是一個非常有趣的案例，在 ezKanban 中你必須在畫面上點擊「Layout Edit」才能編輯工作流程的框架，所以我們組內討論很直覺的想這個事件很重要，所以就補了一個 「Layout Mode Entered」，但老師說不對!! <code>被 UI 綁架了</code>，這只是一個實作細節，我今天可以換一個按鈕或 UI 流程做到同一件事，這屬於應用層面的邏輯</p>
-<p>Domain Event 又可細分長兩種 Core Domain Event / Application Domain Event，前者是滿足核心商業邏輯的事件、後者是應用程式執行時需要的事件，今天以看板系統，用戶哪會關心什麼 Layout Mode，那是你<code>實作的事情</code>，所以不該把這個 Event 放在上面</p>
+<p>Domain Event 又可細分成兩種 Core Domain Event / Application Domain Event，前者是滿足核心商業邏輯的事件、後者是應用程式執行時需要的事件，今天以看板系統，用戶哪會關心什麼 Layout Mode，那是你<code>實作的事情</code>，所以不該把這個 Event 放在上面</p>
 <p>我自己後來在反思這件事情，我嘗試用這樣的邏輯去釐清</p>
 <blockquote>
 <ul>
@@ -149,6 +149,7 @@ A: 不是，只有當商業邏輯足夠複雜才需要，單純的 CRUD、報表
 <li>今天我實作在多平台 Web / App / Server 都需要這個事件嗎？如果要那有可能是核心，如果只有 Web 要實作其他平台不用，那肯定是應用事件</li>
 </ul>
 </blockquote>
+<p>這麼在意是不是 Core Domain Event 的用意是讓 Domain Model 保持簡潔，太多細節參雜會混淆討論</p>
 <h4 id="c-不要被-db-綁架">c. 不要被 DB 綁架</h4>
 <p>在條列 Domain Model 時，我與組員都有一個疑問 <code>「一個 Stage 有 10 個屬性都能夠 CRUD，那我要全部列出來嗎？例如 Stage 的標題、說明欄等，那我是要寫一個 Stage Updated 就好還是要寫 Stage Name Updated？」</code></p>
 <p>除了不要被 UI 綁架外，也不要被資料庫綁架了! 今天用戶才不管你怎麼 CRUD，他真正在意是<code>能不能完成他手中的任務</code>，例如說今天我去 ATM 領錢，系統顯示</p>
