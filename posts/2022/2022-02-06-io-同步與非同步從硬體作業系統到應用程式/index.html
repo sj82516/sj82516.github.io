@@ -323,7 +323,9 @@ exit_group(0)
 </ol>
 <p>更多的討論可以參考文件，不同的 CPU 與作業系統有不同的考量，考慮到排程 realtime OS 的設計又會有不同</p>
 <h2 id="延伸linux-的-asynchronous-io">延伸：Linux 的 Asynchronous I/O</h2>
-<p>現在流行的 network I/O 處理方式是透過 I/O multiplexing，如 Linux 的 epoll，屬於 blocking + asynchrous 的操作，而 asynchrous I/O 看起來十分的迷人，應用程式發出請求後就直接等到作業系統通知，中間完全不用等待，但為什麼目前沒有被大規模採納呢？</p>
+<p>現在流行的 network I/O 處理方式是透過 I/O multiplexing，如 Linux 的 epoll，而 asynchrous I/O 看起來十分的迷人，應用程式發出請求後就直接等到作業系統通知，中間完全不用等待，但為什麼目前沒有被大規模採納呢？</p>
+<p><img src="/posts/2022/img/0206/io2.png" alt=""><br>
+*圖片參考資料 <a href="https://medium.com/@clu1022/%E6%B7%BA%E8%AB%87i-o-model-32da09c619e6">https://medium.com/@clu1022/%E6%B7%BA%E8%AB%87i-o-model-32da09c619e6</a></p>
 <p>參考資料 <a href="https://kernel.dk/io_uring.pdf">Efficient IO with io_uring</a>，AIO 在 Linux 2.5 就已經加入了，但持續被詬病例如針對 buffer i/o 還是會變成 synchronous 且 API 難以使用，在 Linux 5.1 後加入了 <code>io_urning</code>新的 AIO API 並持續優化</p>
 <p>libuv 有開始討論導入 io_uring 的部分，有人提供 <a href="https://github.com/libuv/libuv/issues/1947#issuecomment-485230126">benchmark</a> 在讀取檔案部分可以比原本的 thread pool 設計更快</p>
 <p><a href="https://stackoverflow.com/questions/13407542/is-there-really-no-asynchronous-block-i-o-on-linux">SO: Is there really no asynchronous block I/O on Linux?</a> 裡面有提供很多的相關連結，資料庫如 PostgreSQL / RocksDB 嘗試用 io_uring 提升硬碟讀寫效能，在 networking 方面也有一些嘗試，在另一篇文章 <a href="https://hackmd.io/@shanvia/B1Ds1vlAD">Epoll vs. io_uring 效能測試與比較</a>看起來效能提升不少，CPU 使用率低且能處理更多的 request，之後有機會再深入研究</p>
