@@ -150,14 +150,14 @@ A: 不是，只有當商業邏輯足夠複雜才需要，單純的 CRUD、報表
 </ul>
 </blockquote>
 <p>這麼在意是不是 Core Domain Event 的用意是讓 Domain Model 保持簡潔，太多細節參雜會混淆討論</p>
-<h4 id="c-不要被-db-綁架">c. 不要被 DB 綁架</h4>
+<h4 id="c-不要被-db-綁架---任務驅動而非指令驅動">c. 不要被 DB 綁架 - 任務驅動而非指令驅動</h4>
 <p>在條列 Domain Model 時，我與組員都有一個疑問 <code>「一個 Stage 有 10 個屬性都能夠 CRUD，那我要全部列出來嗎？例如 Stage 的標題、說明欄等，那我是要寫一個 Stage Updated 就好還是要寫 Stage Name Updated？」</code></p>
 <p>除了不要被 UI 綁架外，也不要被資料庫綁架了! 今天用戶才不管你怎麼 CRUD，他真正在意是<code>能不能完成他手中的任務</code>，例如說今天我去 ATM 領錢，系統顯示</p>
 <ol>
 <li>說法 A: 您已提領 1000 元</li>
 <li>說法 B: 已更新您的帳戶餘額為原餘額減去1000 元</li>
 </ol>
-<p>相信你提款後看到說法 B 應該會傻眼</p>
+<p>相信你提款後看到說法 B 應該會傻眼，請以「用戶想要完成什麼任務」的角度描述 Domain Event</p>
 <h4 id="d-用說故事的方式去釐清-model-表達力">d. 用說故事的方式去釐清 Model 表達力</h4>
 <p>我在操作 ezKanban 先跑了建立工作流程，最後才發現 ezKanban 有 Team 的概念，Team 可以邀請其他 User 當作 Member 共享 Project，因為我比較晚看到所以 Team 相關的事件放在時間軸後面</p>
 <p>最後 Teddy 問說：「這樣的 Model 表達了什麼含意？」Model 的意義在於<code>圖形化我們想要解決的問題與發生順序</code>，也就是用戶的使用歷程與每一個使用案例，今天用說故事的方式會像</p>
@@ -198,7 +198,7 @@ HotSpot 是當討論過程卡住、發生意見不同、命名不同時可以貼
 <img src="/posts/2022/img/0114/command.png" alt=""></li>
 </ul>
 <h4 id="a-建立事件是否要傳入-id">a. 建立事件是否要傳入 id</h4>
-<p>有個有趣的小細節是 Create Board 時我們把 board_id 也寫出來，小組討論時會覺得說 DB 會自動產生 id 所以不用寫到 read model，但 Teddy 說 <code>「錯，我哪管你 id 是 DB 產生還是前端用 UUID 產生，這是實作細節，Board 就是需要 id 識別」</code>，再次強調，不要陷入 UI/DB 的細節</p>
+<p>有趣的小細節是 Create Board 時我們把 board_id 也寫出來，小組討論時會覺得 DB 會自動產生 id 所以不用寫到 read model，但 Teddy 說 <code>「錯，我哪管你 id 是 DB 產生還是前端用 UUID 產生，這是實作細節，Board 就是需要 id 識別」</code>，再次強調，不要陷入 UI/DB 的細節</p>
 <h3 id="5-process-modeling---加入policy">5. Process Modeling - 加入Policy</h3>
 <p>Policy/Rule/Process 是指 <code>事件完成後觸發的流程</code>，千萬不要跟動作需要完成的驗證搞混，例如說</p>
 <ul>
@@ -226,7 +226,7 @@ HotSpot 是當討論過程卡住、發生意見不同、命名不同時可以貼
 <p>同學在課堂上詢問：「如果我有多個支付，我是不是要把每個 CreditCardPay / ApplePay 都寫成一個 Model？」 <br>
 Teddy 反問：「為什麼需要？如果 Pay 只是一個付款手段，如果沒有很大的差異，一個 Pay 表達實作時再拆分就好」<br>
 我接著提問：「那為什麼 Stage / Swimlane 要拆分？他們也只是一個橫的一個直的」</p>
-<p>Teddy 表示 <code>因為在看板的 Domain 中，直的代表工作階段 / 橫的代表不同工作流程是截然不同，這是非常核心的商業邏輯</code>，所以 Model 要拆到多細，要不要真的把每個實作的物件都表達，完全看領域專家與開發人員是否很重視彼此的不同</p>
+<p>Teddy 表示 <code>因為在看板的 Domain 中，直的代表工作階段 / 橫的代表工作流程是截然不同的，這是非常核心的商業邏輯</code>，所以 Model 要拆到多細，要不要真的把每個實作的物件都表達，完全看領域專家與開發人員是否很重視每個元件的獨立性與表達性</p>
 <h3 id="7-software-design---找出-aggregate">7. Software Design - 找出 Aggregate</h3>
 <p>最後一步! 也是很抽象的一步，將 Model 分群，有些 Model 明顯是其他 Model 的附庸 ，例如說訂單細項 Order Item 是訂單 Order 的附庸，每次 Order Item 的改動會影響 Order 的計算，會進階影響例如折價券等計算，所以 Order Item 最好不要直接調整，由 Order 統一調整才能確保資料的<code>一致性</code></p>
 <p>要不要把 Model Aggregate 成一塊有兩個作用力</p>
@@ -240,13 +240,13 @@ Teddy 反問：「為什麼需要？如果 Pay 只是一個付款手段，如果
 </blockquote>
 <p>切記不要用 Database Relation 思考，例如 User 刪除 Order 也要跟著被刪除，這樣 Aggregate 永遠切不開，更直觀地說 <code>要包 Transaction 操作的都就放在同一個 Aggregate</code><br>
 <img src="/posts/2022/img/0114/aggregate-right.png" alt=""></p>
-<p>找出 Aggregate 後，需要找一個 Model 當作 Root，往後 Aggregate 內的 Model 都由他來控制，<code>外人不可直接操作內部 Model</code></p>
+<p>找出 Aggregate 後，需要找一個 Model 當作 Root，往後 Aggregate 內的 Model 都由他來控制，<code>外人不可直接操作內部 Model</code>，任何跨 Aggregate 操作只能保證最終一致性</p>
 <h3 id="延伸變體還是很想把讀取也放入-event-storming-可以嗎">延伸變體：還是很想把讀取也放入 Event Storming 可以嗎？</h3>
 <p>Teddy 上課一直強調讀取隨便寫就好，怎麼髒都沒關係因為 Command 才會影響系統狀態 XD Query 效能問題等又是 DB 細節，本身也不是 Event Storming 該關注的層級</p>
-<p>但協作上大家還是想把 UI 放到討論中 / Read Model 如果有前端可能也希望在寫得細一點，這些都可以自己延伸，Teddy 也分享有些流程 UI 可以幫助說明的話他也會放進去
+<p>但協作上大家還是想把 UI 放到討論中 / Read Model 如果有前端可能也希望在寫得細一點，這些都可以自己延伸，Teddy 也分享有些流程 UI 可以幫助說明的話他也會放進去，例如 Command 後回傳另一張 Read Model / UI 圖示放在 Read Model 旁邊等
 <img src="/posts/2022/img/0114/ui.png" alt=""></p>
 <h3 id="延伸問題開發只要這一份文件就好了嗎">延伸問題：開發只要這一份文件就好了嗎？</h3>
-<p>文件的維護也是我課前很想了解的部分，在 DDD 藍皮書中不斷強調 <code>Domain Model 跟程式碼實作要高度一致</code>並持續演進，但工作多年有良好維護文件習慣的人還真的是少數，尤其是文件越多份維護的成本就更高，所以我課後就問 Teddy 他們團隊開發是不是只有這一份文件，他說基本上是，資料庫部分因為他是走 Event Sourcing 所以不用另外的 Schema 設計文件，頂多再多一份 Schema 文件就足夠了</p>
+<p>文件的維護也是我課前很想了解的部分，在 DDD 藍皮書中不斷強調 <code>Domain Model 跟程式碼實作要高度一致</code>並持續演進，但工作多年有良好維護文件習慣的人還真的是少數，尤其是文件越多份維護的成本就更高，所以我課後就問 Teddy 他們團隊開發是不是只有這一份文件，他說基本上是，資料庫部分因為他是走 Event Sourcing 所以不用另外的 Schema 設計文件，如果不是頂多再一份 DB Schema 文件就足夠了</p>
 <h2 id="ddd---tacticle-design--strategic-design">DDD - Tacticle Design &amp; Strategic Design</h2>
 <p>跑過一次 Event Storming 再回來看 DDD 廣為人知的兩張圖就比較能理解了，這邊只額外補充兩件事</p>
 <h4 id="1-entity-與-value-object-區分">1. Entity 與 Value Object 區分</h4>
@@ -377,7 +377,13 @@ Teddy 反問：「為什麼需要？如果 Pay 只是一個付款手段，如果
 			
 			
 			
+			
+			
+			
+			
 			<a href="/categories/%e6%9e%b6%e6%a7%8b/"> 架構 </a>
+			
+			
 			
 			
 			
