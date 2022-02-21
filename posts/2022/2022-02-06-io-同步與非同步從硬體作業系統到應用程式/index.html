@@ -152,12 +152,11 @@ $ sudo insmod {module.ko}
 $ sudo rmmode {module}
 </code></pre></div><p>可以透過 <code>$ sudo journalctl --since &quot;1 hour ago&quot; | grep kernel</code> 查看近一小時 kernel module 打印結果</p>
 <h3 id="device-driver">device driver</h3>
-<p><code>所有的裝置在 linux 中都是 File</code>，資料結構可以參考 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h">include/linux/fs.h</a>，首先要先釐清這邊的 File <code>只存在於 kernel</code>，雖然中文可能都被翻成文件或檔案，但實際上與檔案系統中的檔案概念是不同的! 後者通常是叫做 <strong>inode</strong></p>
-<p>所以每一個裝置在 linux 中都是以一個 file 存在，通常儲存於 <code>/dev/</code> 底下，而 device driver 則是 user space 應用程式與 device 溝通的管道</p>
-<p>實作的流程大致是</p>
+<p><code>所有的裝置在 linux 中都是 file</code>，資料結構可以參考 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h">include/linux/fs.h</a>，首先要先釐清這邊的 File <code>只存在於 kernel</code>，雖然中文可能都被翻成文件或檔案，但實際上與檔案系統中的檔案概念是不同的! 後者通常是叫做 <strong>inode</strong></p>
+<p>所以每一個裝置在 linux 中都是以一個 file 存在，通常儲存於 <code>/dev/</code> 底下，而 device driver 則是 user space 應用程式與 device 溝通的管道，流程大致是</p>
 <ol>
-<li>device driver 向 kernel 註冊取得屬於自己的裝置編號</li>
-<li>driver 內部定義檔案操作</li>
+<li>driver 向 kernel 註冊取得屬於自己的裝置編號與指定檔案</li>
+<li>driver 定義檔案操作</li>
 </ol>
 <h4 id="1-註冊裝置">1. 註冊裝置</h4>
 <p>參考資料 <a href="https://sysprog21.github.io/lkmpg/#device-drivers">lkmpg - 5.6 Device Drivers</a>
@@ -321,7 +320,11 @@ exit_group(0)
 <li>CPU 切換模式立即處理 interrupt，透過 ISR 找到對應的 Interrupt Handler</li>
 <li>Interrupt handler 中有分成 top half / bottom half，top half 是不會被其他 Interrupt 中斷，所以一定會當下完成；而 bottom half 則會被排入 softiqr 重新排成，<code>soft</code> 在 OS 中有時是代表不確定何時會被完成</li>
 </ol>
-<p>更多的討論可以參考文件，不同的 CPU 與作業系統有不同的考量，考慮到排程 realtime OS 的設計又會有不同</p>
+<p>實作面的部分參考 <a href="https://sysprog21.github.io/lkmpg/#detecting-button-presses">lkmpg 15.2 Detecting button presses</a>，透過 <code>request_irq</code> 註冊 IRQ，當指定的 I/O 發生 interrupt 時就會呼叫註冊的 funtion</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">ret <span style="color:#719e07">=</span> request_irq(button_irqs[<span style="color:#2aa198">0</span>], button_isr, 
+                    IRQF_TRIGGER_RISING <span style="color:#719e07">|</span> IRQF_TRIGGER_FALLING, 
+                    <span style="color:#2aa198">&#34;gpiomod#button1&#34;</span>, <span style="color:#b58900">NULL</span>); 
+</code></pre></div><p>更多的討論可以參考文件，不同的 CPU 與作業系統有不同的考量，考慮到排程 realtime OS 的設計又會有不同</p>
 <h2 id="延伸linux-的-asynchronous-io">延伸：Linux 的 Asynchronous I/O</h2>
 <p>現在流行的 network I/O 處理方式是透過 I/O multiplexing，如 Linux 的 epoll，而 asynchrous I/O 看起來十分的迷人，應用程式發出請求後就直接等到作業系統通知，中間完全不用等待，但為什麼目前沒有被大規模採納呢？</p>
 <p><img src="/posts/2022/img/0206/io2.png" alt=""><br>
