@@ -320,7 +320,7 @@ exit_group(0)
 <li>CPU 切換模式立即處理 interrupt，透過 ISR 找到對應的 Interrupt Handler</li>
 <li>Interrupt handler 中有分成 top half / bottom half，top half 是不會被其他 Interrupt 中斷，所以一定會當下完成；而 bottom half 則會被排入 softiqr 重新排成，<code>soft</code> 在 OS 中有時是代表不確定何時會被完成</li>
 </ol>
-<p>實作面的部分參考 <a href="https://sysprog21.github.io/lkmpg/#detecting-button-presses">lkmpg 15.2 Detecting button presses</a>，透過 <code>request_irq</code> 註冊 IRQ，當指定的 I/O 發生 interrupt 時就會呼叫註冊的 funtion</p>
+<p>實作面的部分參考 <a href="https://sysprog21.github.io/lkmpg/#detecting-button-presses">lkmpg 15.2 Detecting button presses</a>，透過 <code>request_irq</code> 註冊 interrupt request，當指定的 I/O 發生 interrupt 時就會呼叫註冊的 funtion</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">ret <span style="color:#719e07">=</span> request_irq(button_irqs[<span style="color:#2aa198">0</span>], button_isr, 
                     IRQF_TRIGGER_RISING <span style="color:#719e07">|</span> IRQF_TRIGGER_FALLING, 
                     <span style="color:#2aa198">&#34;gpiomod#button1&#34;</span>, <span style="color:#b58900">NULL</span>); 
