@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="Golang 可以併發 (concurrent) 數百萬的 goroutine 執行不同的任務，包含運算與 I/O，延續之前對 I/O 的理解，往 Golang 的 Scheduler 邁進，認識 scheduler 到底如何排程確保 fairness 與 performance"><meta property="og:title" content="理解 Golang Scheduler" />
+<meta property="og:description" content="Golang 可以併發 (concurrent) 數百萬的 goroutine 執行不同的任務，包含運算與 I/O，延續之前對 I/O 的理解，往 Golang 的 Scheduler 邁進，認識 scheduler 到底如何排程確保 fairness 與 performance" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2022/2022-02-22-%E7%90%86%E8%A7%A3-go-scheduler/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-02-22T01:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2022-02-22T01:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="理解 Golang Scheduler"/>
+<meta name="twitter:description" content="Golang 可以併發 (concurrent) 數百萬的 goroutine 執行不同的任務，包含運算與 I/O，延續之前對 I/O 的理解，往 Golang 的 Scheduler 邁進，認識 scheduler 到底如何排程確保 fairness 與 performance"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>理解 Golang Scheduler | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">22</span>
+				<span class="rest">Feb 2022</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">理解 Golang Scheduler</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<!-- raw HTML omitted -->
+<p>goroutine 在邏輯上是一個<code>可運行的 thread</code>，更準確來說他是 user space thread，也會被叫做 green thread / coroutine；另一方面對於 CPU 而言真正的最小運行單元是 kernel thread</p>
+<p>goroutine 當初在設計時有幾個目標</p>
+<ul>
+<li>輕量，更準確的說是希望一個 process 能建立出百萬個 goroutine</li>
+<li>可以平行處理 (parallel)並有良好的擴展性 (scalable)</li>
+<li>最簡單的 API (只有建立 goroutine)</li>
+<li>每個 goroutine 有無限的 stack</li>
+<li>良好的處理 I/O、system call，不用 callback 的方式處理</li>
+</ul>
+<p>基本範例如下</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">resultChan = <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> Result)
+<span style="color:#719e07">go</span> <span style="color:#268bd2">func</span>() {
+    response <span style="color:#719e07">:=</span> <span style="color:#268bd2">sendRequest</span>()
+    result <span style="color:#719e07">:=</span> <span style="color:#268bd2">parseInt</span>(response)
+    resultChan <span style="color:#719e07">&lt;-</span> result
+}()
+<span style="color:#268bd2">process</span>(<span style="color:#719e07">&lt;-</span>resultChan)
+</code></pre></div><p>究竟 go scheduler 如何調整 goroutine 的排程、channel 的阻塞如何影響 goroutine 運行的方式，更具體的來說，需要釐清</p>
+<ol>
+<li>goroutine 到底怎麼分辨是不是被 block 住</li>
+<li>channel 如何知道哪些 goroutine 該被 block</li>
+<li>goroutine 從 block 變成 runnable，是如何重新被 scheduler 排程</li>
+</ol>
+<hr>
+<h4 id="thread-per-goroutine-">thread per goroutine ?</h4>
+<ol>
+<li>memory 開銷過高，每個 thread 至少要 32K</li>
+<li>效能差，context switch 會涉及太多的 system call</li>
+<li>stack 大小受到限制</li>
+</ol>
+<h4 id="thread-pool-">thread pool ?</h4>
+<p>復用 thread 可以讓 goroutine 建立速度更快，但上面三個問題依然沒有解決</p>
+<h4 id="simple-scheduler">Simple scheduler</h4>
+<p>system call
+=&gt; 不知道何時會結束，只能等待 callback
+=&gt; 為了避免 deadlock，也不想被 block，建立新的 thread 執行其他的 goroutine，所以 thread &gt; core</p>
+<ol>
+<li>輕量 goroutine</li>
+<li>I/O system call</li>
+<li>parallel</li>
+</ol>
+<p>=&gt; lock free
+distributed run queue，每個 thread 有自己的 run queue</p>
+<ul>
+<li>scallable</li>
+</ul>
+<p>work stilling，從別人的 runqueue 偷東西來做</p>
+<p>=&gt;
+如果被 system call block，會產生很多 thread 成常數增長
+MPN，用 Processor 去控制 run queue，將 Processor 控制在 CPU core 數量</p>
+<p>當 thread 發生 system call，Processor 會 handoff 到新的 thread 避免被 block</p>
+<p>每個 Processor cache 對應到 CPU，增加 memory cache 效益</p>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="tags">
+		<div class="taxosfloating_left">
+			<p>Categories</p>
+		</div>
+		<div class="termsfloating_right">
+			<p>
+			
+			
+			
+			
+			
+			
+			
+			<a href="/categories/golang/"> golang </a>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			</p>
+		</div>
+		<div class="clearit"></div>
+		
+		
+		
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
