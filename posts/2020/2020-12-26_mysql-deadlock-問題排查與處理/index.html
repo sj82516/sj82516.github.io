@@ -99,16 +99,17 @@
 <li>盡可能減少 Update / Delete 在單一 Transaction 中的數量</li>
 <li>Lock 時請依照同樣的順序 (例如 select &hellip; for update)</li>
 <li>降低 Lock 的層級，避免 lock tables 的操作</li>
-<li>警慎選擇 index，因為過多的 index 可能會造成 deadlock</li>
-</ol>
+<li>警慎選擇 index，因為過多的 index 可能會造成 deadlock，後續會再展開描述
 <blockquote>
 <p>InnoDB uses automatic row-level locking. You can get <code>deadlocks even in the case of transactions that just insert or delete a single row</code>. That is because these operations are not really “atomic”; they automatically set <code>locks on the (possibly several) index records</code> of the row inserted or deleted.</p>
 </blockquote>
-<p>後續會再展開描述
-5. 考慮降低 isolation level，高層級的 <code>isolation level 會去改變 read 的操作</code>，例如 MySQL 中 <code>serializable 其實就是隱式把所有 select 都加上 lock for share</code>，引自於官方文件 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html">15.7.2.1 Transaction Isolation Levels</a></p>
+</li>
+<li>考慮降低 isolation level，高層級的 <code>isolation level 會去改變 read 的操作</code>，例如 MySQL 中 <code>serializable 其實就是隱式把所有 select 都加上 lock for share</code>，引自於官方文件 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html">15.7.2.1 Transaction Isolation Levels</a>
 <blockquote>
 <p>This level is like REPEATABLE READ, but InnoDB implicitly converts all plain SELECT statements to SELECT &hellip; FOR SHARE if autocommit is disabled.</p>
 </blockquote>
+</li>
+</ol>
 <p>Deadlock detection 預設是開啟，但如果在高流量下會有效能的影響，如果預期 Deadlock 狀況不多可以改透過 <code>innodb_deadlock_detect</code> 選項關閉，用 <code>innodb_lock_wait_timeout</code> 一直等不到 lock 發生 timeout 而觸發 rollback 取代</p>
 <p>MySQL 可以透過 SQL 指令 <code>&gt; SHOW ENGINE INNODB STATUS</code> 看最後一筆發生 Deadlock 的原因，或是開啟 <code>innodb_print_all_deadlocks</code> 把每一次 Deadlock 原因都輸出到 error log 中<br>
 開啟設定的 SQL 為 <code>&gt; SET GLOBAL innodb_print_all_deadlocks=ON;</code></p>
