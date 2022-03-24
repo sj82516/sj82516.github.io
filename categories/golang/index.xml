@@ -6,22 +6,10 @@
 		<description>Recent content in Golang on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Tue, 22 Feb 2022 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 06 Jun 2021 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/categories/golang/index.xml" rel="self" type="application/rss+xml" />
 		
-		<item>
-			<title>理解 Golang Scheduler</title>
-			<link>https://yuanchieh.page/posts/2022/2022-02-22-%E7%90%86%E8%A7%A3-go-scheduler/</link>
-			<pubDate>Tue, 22 Feb 2022 01:21:40 +0000</pubDate>
-			
-			<guid>https://yuanchieh.page/posts/2022/2022-02-22-%E7%90%86%E8%A7%A3-go-scheduler/</guid>
-			<description>
-				
-				Golang 可以併發 (concurrent) 數百萬的 goroutine 執行不同的任務，包含運算與 I/O，延續之前對 I/O 的理解，往 Golang 的 Scheduler 邁進，認識 scheduler 到底如何排程確保 fairness 與 performance
-				
-			</description>
-		</item>
 		<item>
 			<title>Golang 併發處理 Mutex / RWMutex / SingleFlight</title>
 			<link>https://yuanchieh.page/posts/2021/2021-06-06-golang-lock-vs-rwlock/</link>
