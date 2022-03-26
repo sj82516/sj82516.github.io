@@ -83,34 +83,66 @@
 這次改用jest，由FB開源可供前後端的測試框架，此次順便分享如何建構程式碼才方便寫測試的小小心得。</p>
 <h3 id="jest-如何使用">Jest 如何使用</h3>
 <p>Jest 使用上有點像 Mocha + Chai，除了測試環境外還以自定義的斷言，提供多種編寫語意化的測試情境。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// ./sum.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> sum(a, b) {  
-   <span style="color:#719e07">return</span> a <span style="color:#719e07">+</span> b;  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// ./sum.js  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">sum</span>(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>) {  
+   <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">b</span>;  
 }  
-module.exports <span style="color:#719e07">=</span> sum;
+<span style="color:#a6e22e">module</span>.<span style="color:#a6e22e">exports</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">sum</span>;
 
-<span style="color:#586e75">// ./sum.test.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> sum <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>sum’);  
-test(‘adds <span style="color:#2aa198">1</span> <span style="color:#719e07">+</span> <span style="color:#2aa198">2</span> to equal <span style="color:#2aa198">3</span>’, () =&gt; {  
-   expect(sum(<span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>)).toBe(<span style="color:#2aa198">3</span>);  
+<span style="color:#75715e">// ./sum.test.js  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sum</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#960050;background-color:#1e0010">‘</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">sum</span><span style="color:#960050;background-color:#1e0010">’</span>);  
+<span style="color:#a6e22e">test</span>(<span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">adds</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span> <span style="color:#a6e22e">to</span> <span style="color:#a6e22e">equal</span> <span style="color:#ae81ff">3</span><span style="color:#960050;background-color:#1e0010">’</span>, () =&gt; {  
+   <span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">sum</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>)).<span style="color:#a6e22e">toBe</span>(<span style="color:#ae81ff">3</span>);  
 });
-</code></pre></div><p>// 執行<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>// 執行<br>
 &gt; jest</p>
 <p>另一點方便的是 Jest對於 Callback、Promise、Async/Await支援相當好，當初在Mocha中搞了一陣子….</p>
 <h3 id="邊寫測試的小細節">邊寫測試的小細節</h3>
 <p>使用Mock，透過預設情景與假資料，不用架設複雜的環境或是真的發出非同步請求，就可以達到測試的效果；<br>
 在使用Mock之前，有一點要注意 <code>盡量把API包成函式或整理成物件方法而非直接呼叫</code></p>
 <p>例如說在設計API: GET /user/:userId</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 不要這樣直接呼叫 mongoose 方法  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> getUserById(){  
- <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> mongoose.findById(….)  
-}<span style="color:#586e75">// 拆開成獨立的函式，方便後續做 Mock  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">function</span> getUserById(){  
- <span style="color:#268bd2">let</span> user <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> getUserByIdInModel(id)  
-}<span style="color:#268bd2">function</span> getUserByIdInModel(){  
- <span style="color:#719e07">return</span> mongoose.findById(…)  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// 不要這樣直接呼叫 mongoose 方法  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getUserById</span>(){  
+ <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">user</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">findById</span>(<span style="color:#960050;background-color:#1e0010">…</span>.)  
+}<span style="color:#75715e">// 拆開成獨立的函式，方便後續做 Mock  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getUserById</span>(){  
+ <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">user</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">getUserByIdInModel</span>(<span style="color:#a6e22e">id</span>)  
+}<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getUserByIdInModel</span>(){  
+ <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">mongoose</span>.<span style="color:#a6e22e">findById</span>(<span style="color:#960050;background-color:#1e0010">…</span>)  
 }
-</code></pre></div><p>將非同步請求整理包成函式在調用有幾個好處<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>將非同步請求整理包成函式在調用有幾個好處<br>
 1. 解耦，多一層抽象化<br>
 試想今天是用MongoDB當作資料庫，但如果某天需要換成 PostgreSQL，把資料庫調用寫死在 API邏輯中會導致整份程式碼需要重寫；<br>
 但如果拆開成獨立函式，就只要改函式調用的DB Client與對應原本的回傳資料格式即可(親身經驗<br>
@@ -120,74 +152,162 @@ test(‘adds <span style="color:#2aa198">1</span> <span style="color:#719e07">+<
 <h4 id="mock">Mock</h4>
 <p>產生假資料可以分為 func<br>
 假設我們原本的程式碼為</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// index.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> api <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>apiWrapper’);  
-<span style="color:#268bd2">const</span> Obj <span style="color:#719e07">=</span> require(‘.<span style="color:#719e07">/</span>objectWrapper’);exports.callAPI <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(t){  
-  <span style="color:#268bd2">let</span> content <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> api.readFile(t)  
-  <span style="color:#719e07">return</span> content  
-}exports.callObject <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(){  
-  <span style="color:#268bd2">let</span> obj <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Obj(“jay”)  
-  <span style="color:#719e07">return</span> obj.sayHi()  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// index.js  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">api</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#960050;background-color:#1e0010">‘</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">apiWrapper</span><span style="color:#960050;background-color:#1e0010">’</span>);  
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Obj</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#960050;background-color:#1e0010">‘</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">objectWrapper</span><span style="color:#960050;background-color:#1e0010">’</span>);<span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">callAPI</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">t</span>){  
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">content</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">api</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#a6e22e">t</span>)  
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">content</span>  
+}<span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">callObject</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>(){  
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">obj</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Obj</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">jay</span><span style="color:#960050;background-color:#1e0010">”</span>)  
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">sayHi</span>()  
 }
 
-<span style="color:#586e75">// ./util/apiWrapper.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> fs <span style="color:#719e07">=</span> require(‘mz<span style="color:#719e07">/</span>fs’);exports.readFile <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span>(params){  
-  <span style="color:#719e07">return</span> fs.readFile(“.<span style="color:#719e07">/</span>test.txt”);  
+<span style="color:#75715e">// ./util/apiWrapper.js  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">mz</span><span style="color:#f92672">/</span><span style="color:#a6e22e">fs</span><span style="color:#960050;background-color:#1e0010">’</span>);<span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">readFile</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">params</span>){  
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#960050;background-color:#1e0010">“</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">test</span>.<span style="color:#a6e22e">txt</span><span style="color:#960050;background-color:#1e0010">”</span>);  
 }
 
-<span style="color:#586e75">// ./model/objWrapper.js  
-</span><span style="color:#586e75"></span>module.exports <span style="color:#719e07">=</span> <span style="color:#268bd2">class</span> Test{  
-  constructor(name){  
-    <span style="color:#719e07">this</span>.name <span style="color:#719e07">=</span> name  
-  }sayHi(){  
-    <span style="color:#719e07">return</span> \<span style="color:#586e75">`hi from </span><span style="color:#2aa198">${</span><span style="color:#719e07">this</span>.name<span style="color:#2aa198">}</span><span style="color:#586e75">\`  
-</span><span style="color:#586e75">  }  
-</span><span style="color:#586e75">}
-</span></code></pre></div><p>基本上就是index.js對外輸出兩個函式，此兩個函式內有非同步請求與創建物件的方法，通常個人資料夾目錄是共用的非同步API Call會叫做 util，如果是資料庫相關的物件則是 model。</p>
+<span style="color:#75715e">// ./model/objWrapper.js  
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">module</span>.<span style="color:#a6e22e">exports</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span>{  
+  <span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">name</span>){  
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">name</span>  
+  }<span style="color:#a6e22e">sayHi</span>(){  
+    <span style="color:#66d9ef">return</span> <span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">`hi from </span><span style="color:#e6db74">${</span><span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span><span style="color:#e6db74">}</span><span style="color:#e6db74">\`  
+</span><span style="color:#e6db74">  }  
+</span><span style="color:#e6db74">}
+</span></code></pre></td></tr></table>
+</div>
+</div><p>基本上就是index.js對外輸出兩個函式，此兩個函式內有非同步請求與創建物件的方法，通常個人資料夾目錄是共用的非同步API Call會叫做 util，如果是資料庫相關的物件則是 model。</p>
 <p>接著看測試檔 index.test.js</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> index <span style="color:#719e07">=</span> require(“.<span style="color:#719e07">/</span>index”)
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">index</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#960050;background-color:#1e0010">“</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">index</span><span style="color:#960050;background-color:#1e0010">”</span>)
 
-jest.mock(“.<span style="color:#719e07">/</span>util<span style="color:#719e07">/</span>apiWrapper”)  
-jest.mock(“.<span style="color:#719e07">/</span>model<span style="color:#719e07">/</span>objectWrapper”)
+<span style="color:#a6e22e">jest</span>.<span style="color:#a6e22e">mock</span>(<span style="color:#960050;background-color:#1e0010">“</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">util</span><span style="color:#f92672">/</span><span style="color:#a6e22e">apiWrapper</span><span style="color:#960050;background-color:#1e0010">”</span>)  
+<span style="color:#a6e22e">jest</span>.<span style="color:#a6e22e">mock</span>(<span style="color:#960050;background-color:#1e0010">“</span>.<span style="color:#f92672">/</span><span style="color:#a6e22e">model</span><span style="color:#f92672">/</span><span style="color:#a6e22e">objectWrapper</span><span style="color:#960050;background-color:#1e0010">”</span>)
 
-test(“mock api test”, <span style="color:#268bd2">async</span> ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callAPI(<span style="color:#2aa198">1</span>);  
-  expect(res).toBe(“jest”);  
+<span style="color:#a6e22e">test</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">mock</span> <span style="color:#a6e22e">api</span> <span style="color:#a6e22e">test</span><span style="color:#960050;background-color:#1e0010">”</span>, <span style="color:#66d9ef">async</span> ()=&gt;{  
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">res</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">index</span>.<span style="color:#a6e22e">callAPI</span>(<span style="color:#ae81ff">1</span>);  
+  <span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">res</span>).<span style="color:#a6e22e">toBe</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">jest</span><span style="color:#960050;background-color:#1e0010">”</span>);  
 })
 
-test(“mock api test2”, <span style="color:#268bd2">async</span> ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callAPI(<span style="color:#2aa198">2</span>);  
-  expect(res).toBe(“jest2”);  
+<span style="color:#a6e22e">test</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">mock</span> <span style="color:#a6e22e">api</span> <span style="color:#a6e22e">test2</span><span style="color:#960050;background-color:#1e0010">”</span>, <span style="color:#66d9ef">async</span> ()=&gt;{  
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">res</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">index</span>.<span style="color:#a6e22e">callAPI</span>(<span style="color:#ae81ff">2</span>);  
+  <span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">res</span>).<span style="color:#a6e22e">toBe</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">jest2</span><span style="color:#960050;background-color:#1e0010">”</span>);  
 })
 
-test(“mock obj test”, <span style="color:#268bd2">async</span> ()=&gt;{  
-  <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> index.callObject();  
-  expect(res).toBe(“hi from jest”);  
+<span style="color:#a6e22e">test</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">mock</span> <span style="color:#a6e22e">obj</span> <span style="color:#a6e22e">test</span><span style="color:#960050;background-color:#1e0010">”</span>, <span style="color:#66d9ef">async</span> ()=&gt;{  
+  <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">res</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">index</span>.<span style="color:#a6e22e">callObject</span>();  
+  <span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">res</span>).<span style="color:#a6e22e">toBe</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">hi</span> <span style="color:#a6e22e">from</span> <span style="color:#a6e22e">jest</span><span style="color:#960050;background-color:#1e0010">”</span>);  
 })  
-</code></pre></div><p>這裡先定義了三個測試情境，並透過 jest.mock()顯式宣告 Mock檔案的位置；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>這裡先定義了三個測試情境，並透過 jest.mock()顯式宣告 Mock檔案的位置；<br>
 接著注意 mock預設有固定的資料路徑與命名規則。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">index.js  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">index.js  
 index.test.js   
  — util   
  | — — apiWrapper.js   
  | — — __mocks__  
  | — — apiWrapper.js  
-</code></pre></div><p>需注意mock要定義在檔案的同層 <strong>mocks</strong> 資料夾下，並且檔名需要一致且輸出同樣的函式名。<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>需注意mock要定義在檔案的同層 <strong>mocks</strong> 資料夾下，並且檔名需要一致且輸出同樣的函式名。<br>
 如果是要 mock 如 ‘fs’等原生模組，直接定義在專案最上層的 __mocks__中即可。</p>
 <p>在 jest.fn()中，有需多 mock資料的方式
 1. mockImplementation(fn)，可以取得函式調用的參數，並決定如何回傳</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// ./util/__mocks__/apiWrapper.js  
-</span><span style="color:#586e75"></span>exports.readFile <span style="color:#719e07">=</span> jest.fn().mockImplementation(params =&gt; {  
- <span style="color:#719e07">if</span>(params <span style="color:#719e07">==</span> <span style="color:#2aa198">1</span>){  
-    <span style="color:#719e07">return</span> “jest”  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// ./util/__mocks__/apiWrapper.js  
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">readFile</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">jest</span>.<span style="color:#a6e22e">fn</span>().<span style="color:#a6e22e">mockImplementation</span>(<span style="color:#a6e22e">params</span> =&gt; {  
+ <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">params</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>){  
+    <span style="color:#66d9ef">return</span> <span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">jest</span><span style="color:#960050;background-color:#1e0010">”</span>  
  }  
- <span style="color:#719e07">return</span> “jest2”  
+ <span style="color:#66d9ef">return</span> <span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">jest2</span><span style="color:#960050;background-color:#1e0010">”</span>  
 })
-</code></pre></div><p>2. mockReturnValueOnce 一次性的回傳值</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">jest.fn()  
- .mockReturnValueOnce(<span style="color:#2aa198">10</span>)  
- .mockReturnValueOnce(‘x’)
-</code></pre></div><p>3. mockReturnValue 固定的回傳值</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>2. mockReturnValueOnce 一次性的回傳值</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">jest</span>.<span style="color:#a6e22e">fn</span>()  
+ .<span style="color:#a6e22e">mockReturnValueOnce</span>(<span style="color:#ae81ff">10</span>)  
+ .<span style="color:#a6e22e">mockReturnValueOnce</span>(<span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">x</span><span style="color:#960050;background-color:#1e0010">’</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>3. mockReturnValue 固定的回傳值</p>
 <p>有定義並宣告使用 mock，jest在執行原腳本時會改呼叫被 mock覆寫定義的函式 jest.fn()，達到產生假資料的效果，同時紀錄 fn()呼叫的次數與傳遞的參數；<br>
 物件則同樣也是透過改寫物件的呼叫方法。</p>
 <p>其餘的在程式碼中，<a href="https://github.com/sj82516/very-simple-jest-example">https://github.com/sj82516/very-simple-jest-example</a></p>

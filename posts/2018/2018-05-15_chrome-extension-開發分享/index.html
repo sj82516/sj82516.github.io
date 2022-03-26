@@ -107,27 +107,56 @@ browser-action 代表 Extesion 是普遍性在每個網站都可以用，而 pag
 background：event.js，主要註冊與定義右鍵按下出現的選單行為<br>
 popup page：分成 popup.html / popup.js，主要是定義瀏覽器右上角的工具列跳出視窗行為，並定義為 browser-action</p>
 <p>因為右鍵行為跟 popup 行為類似，所以我將行為收整成 util/handleShare.js，需注意在 background 中要使用其他 script 必須宣告在 manifest.json 中；</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#2aa198">&#34;background&#34;</span>: {
-    <span style="color:#268bd2">&#34;scripts&#34;</span>: [<span style="color:#2aa198">&#34;util/handleShare.js&#34;</span>, <span style="color:#2aa198">&#34;event.js&#34;</span>],
-    <span style="color:#268bd2">&#34;persistent&#34;</span>: <span style="color:#cb4b16">true</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#e6db74">&#34;background&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
+    <span style="color:#f92672">&#34;scripts&#34;</span>: [<span style="color:#e6db74">&#34;util/handleShare.js&#34;</span>, <span style="color:#e6db74">&#34;event.js&#34;</span>],
+    <span style="color:#f92672">&#34;persistent&#34;</span>: <span style="color:#66d9ef">true</span>
 }
-</code></pre></div><p>而在 popup page 則以 <code>&lt;script src=&quot;util/handleShare&quot;&gt;</code>加入 html 中即可。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>而在 popup page 則以 <code>&lt;script src=&quot;util/handleShare&quot;&gt;</code>加入 html 中即可。</p>
 <h3 id="另開新頁popup-script-與-content-script-溝通">另開新頁、Popup script 與 Content script 溝通</h3>
 <p>社群媒體分享必須另開該網站的新頁面，同時為了可以自動把反白選取的文字自動插入，在開啟新頁，首先要設法取得新頁面的 Tab，之後要執行 content script</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 先取得所有的分頁資料，可以透過 tab 的 url / title 找到指定頁面
-</span><span style="color:#586e75"></span>chrome.tabs.query({
-  active<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>
-}, <span style="color:#268bd2">function</span>(tabs){})
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// 先取得所有的分頁資料，可以透過 tab 的 url / title 找到指定頁面
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">chrome</span>.<span style="color:#a6e22e">tabs</span>.<span style="color:#a6e22e">query</span>({
+  <span style="color:#a6e22e">active</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>
+}, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">tabs</span>){})
 
-<span style="color:#586e75">// 必須確保分頁已經加載完成，這樣 content script 才有用
-</span><span style="color:#586e75"></span>chrome.tabs.onUpdated.addListener(<span style="color:#268bd2">function</span> (tabId, info) {
- <span style="color:#719e07">if</span> (tabId <span style="color:#719e07">==</span> factoryTab.id <span style="color:#719e07">&amp;&amp;</span> info.status <span style="color:#719e07">==</span> <span style="color:#2aa198">&#39;complete&#39;</span>) {
- <span style="color:#586e75">// 在該分頁注入 content script
-</span><span style="color:#586e75"></span> chrome.tabs.executeScript(factoryTab.id, {
- file<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;content/share.js&#34;</span>
+<span style="color:#75715e">// 必須確保分頁已經加載完成，這樣 content script 才有用
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">chrome</span>.<span style="color:#a6e22e">tabs</span>.<span style="color:#a6e22e">onUpdated</span>.<span style="color:#a6e22e">addListener</span>(<span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">tabId</span>, <span style="color:#a6e22e">info</span>) {
+ <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">tabId</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">factoryTab</span>.<span style="color:#a6e22e">id</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">info</span>.<span style="color:#a6e22e">status</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;complete&#39;</span>) {
+ <span style="color:#75715e">// 在該分頁注入 content script
+</span><span style="color:#75715e"></span> <span style="color:#a6e22e">chrome</span>.<span style="color:#a6e22e">tabs</span>.<span style="color:#a6e22e">executeScript</span>(<span style="color:#a6e22e">factoryTab</span>.<span style="color:#a6e22e">id</span>, {
+ <span style="color:#a6e22e">file</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;content/share.js&#34;</span>
  })
  ....
-</code></pre></div><p>上面有個小 tricky 是必須要等到新分頁加載完成才可以執行 <code>chrome.tabs.executeScript</code> ，否則會出現 tab is closed 之類的錯誤訊息!</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面有個小 tricky 是必須要等到新分頁加載完成才可以執行 <code>chrome.tabs.executeScript</code> ，否則會出現 tab is closed 之類的錯誤訊息!</p>
 <p>在跨 script 傳輸資料一次性可以使用<code>sendMessage(tabId, message)</code>/ <code>chrome.runtime.onMessage.addListener((message, sender, sendResponse)=&gt;{})</code> <br>
 其餘方式可以在查詢文件。</p>
 <h3 id="結語">結語</h3>

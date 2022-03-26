@@ -76,12 +76,28 @@
 	</div>
 	<div class="markdown">
 		<p>在最新的一期 Javascript Weekly 中看到 V8 部落格 2019/07/09 的文章，裡頭提到 ECMAScript Spec 將 Sorting 改成 <code>Stable</code>，也就是如果排序上兩個元素順序相同，則最終排序完成的陣列中的相同順序元素，會依照原本的順序排列，例如</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">[{name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;a&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">2</span>}, {name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;b&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">2</span>}, {name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;c&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">1</span>}]
-</code></pre></div><p>依照 value 排序 ===&gt;</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">[{name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;c&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">1</span>}, {name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;a&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">2</span>}, {name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;b&#39;</span>, value<span style="color:#719e07">:</span> <span style="color:#2aa198">2</span>}]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">[{<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>}, {<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>}, {<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;c&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>}]
+</code></pre></td></tr></table>
+</div>
+</div><p>依照 value 排序 ===&gt;</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">[{<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;c&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>}, {<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>}, {<span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>}]
 
-<span style="color:#586e75">// a 跟 b 順序相同，而 a 維持在 b 之前
-</span></code></pre></div><p>先前的 Spec 沒有特別定義，所以各平台的實作不同，之後Chrome 70+ 與 Nodejs 12+ 開始支援 Stable Sorting，其餘的平台還不確定。</p>
+<span style="color:#75715e">// a 跟 b 順序相同，而 a 維持在 b 之前
+</span></code></pre></td></tr></table>
+</div>
+</div><p>先前的 Spec 沒有特別定義，所以各平台的實作不同，之後Chrome 70+ 與 Nodejs 12+ 開始支援 Stable Sorting，其餘的平台還不確定。</p>
 <h2 id="timsort">TimSort</h2>
 <p><a href="https://en.wikipedia.org/wiki/Timsort"><strong>Timsort</strong></a></p>
 <p>作者原文</p>
@@ -106,10 +122,19 @@
 <p>假使我們先提出一個演算法：找到陣列開頭最長的連續升序排序的陣列，其餘當作第二子陣列，以遞迴方式持續處理</p>
 <p>這個演算法利用了已排序的陣列去減少 merge 的次數，但有個問題 如果陣列剛好是倒序，就會落入 worst case O(n²) ，稱不上是個理想的排序演算法，所以實作時會補上如果發現連續的子陣列是降序，則 in memory 反序。</p>
 <p><strong>先退回最基本的 Merge Sort</strong></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{{1}, {2}, {3}, {4}}  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{{1}, {2}, {3}, {4}}  
 {{1, 2}, {3, 4}}  
 {{1, 2, 3, 4}}
-</code></pre></div><p>這是 Merge Sort 的流程，將陣列分拆到為一然後在逐步 merge，我們將第一步分拆的過程改為已排序好的區間(稱為 Run)，然後進行 merge。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這是 Merge Sort 的流程，將陣列分拆到為一然後在逐步 merge，我們將第一步分拆的過程改為已排序好的區間(稱為 Run)，然後進行 merge。</p>
 <p>Tim Sort 在 merge 時會盡量 Balance，所以會設定 minrun，如果這次的 RUN 長度小於 minrun，則會補足到 minrun長度後，接著使用 binary insertion sort，如何選擇 minrun 是個學問，作者提到一個實務上的設定是</p>
 <p>take the first 6 bits of N, and add 1 if any of the remaining bits are set</p>
 <p>N 是陣列長度，最主要是希望如果遇到 random array，則N 盡可能被 minrun 切成 2 次方倍 RUN，在 merge 時可以最平衡。</p>
@@ -123,17 +148,49 @@
 <h3 id="決定何時-merge"><strong>決定何時 merge?</strong></h3>
 <p>Tim Sort 會用一個 Stack 暫存 RUN，並不是一開始就輪詢整個陣列產生RUN，而是逐步進行，避免要用掉過多的記憶體。</p>
 <p>基於這兩個原則，Tim Sort 實作上有個函式 <code>merge_collapse</code> ，這個函式主要判斷目前 Stack 最上層的三個 RUN 是否符合以下規則</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1\.  A &gt; B+C  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1\.  A &gt; B+C  
 2\.  B &gt; C
-</code></pre></div><p>如果符合，則將下一個 RUN push 到 Stack上，反之則比較 A跟Ｃ，較小者與 B merge，例如</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A:30  B:20  C:10  
+</code></pre></td></tr></table>
+</div>
+</div><p>如果符合，則將下一個 RUN push 到 Stack上，反之則比較 A跟Ｃ，較小者與 B merge，例如</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A:30  B:20  C:10  
 A &lt;= B + C 所以不符合 merge_collapse，又因為 C &lt; A，所以 C 跟 B merge 變成 A:30 BC: 30
-</code></pre></div><p>透過這樣的方式，讓保留在 Stack 上的 RUN 長度平衡，另一個重點是合併只能是 A+(B+C) 或是 (A+B)+C，因為要保持 Stable，所以 merge 一定要相鄰兩個 RUN。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>透過這樣的方式，讓保留在 Stack 上的 RUN 長度平衡，另一個重點是合併只能是 A+(B+C) 或是 (A+B)+C，因為要保持 Stable，所以 merge 一定要相鄰兩個 RUN。</p>
 <h4 id="如何-merge">如何 merge</h4>
 <p>要將兩個相鄰子陣列，用 in memory 方式 merge 在實作上會有困難，實務上因為要造成大量的 memory 操作其實也不會比較快，所以 Tim Sort 使用一塊暫存記憶區，大小為 (A,B) 陣列的最小長度</p>
 <p>如果 A &lt; B，則先將 A 放進暫存記憶區，最直覺的方式是 A 跟 B 從頭開始比對，小的放進 A 的位置，直到 A 跟 B 排序完成，如同一般 merge sort 的做法，又稱為 <code>one-pair-at-a-time</code>。</p>
 <p>但因為 A 跟 B 都已經是排序好的陣列，所以有個優化的方式是找出 B[0] 在 A陣列排序的位置，然後A該位置之前都是小於 B[0]，所以可以整段放進去，接著找剩餘A[0]在 B的位置，不斷輾轉直到排列結束，也就是 <code>gollaping mode</code>。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A: [1,2,3,7,8,9] B: [4,5,6,8,9,10,11]  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A: [1,2,3,7,8,9] B: [4,5,6,8,9,10,11]  
 A &lt; B，所以 A 放入暫存區 temp
 
 先找 B[0] 在 A 的位置，也就是在 A[2]、A[3]之間，因為 B[0] &gt; A[2]，也就是 A[0]~A[2] 可以直接放回去，變成  
@@ -145,7 +202,9 @@ A: [1,2,3,4,5,6] B: [9,10,1]
 temp: [7,8,9]
 
 接著找 B[0] 在 temp 的位置，持續反覆
-</code></pre></div><p>這優化的方式大多數是有正向的效果，但如果遇到 random array，可能會比原本的 <code>one-pair-at-a-time</code> 還要慢，但作者提及</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這優化的方式大多數是有正向的效果，但如果遇到 random array，可能會比原本的 <code>one-pair-at-a-time</code> 還要慢，但作者提及</p>
 <blockquote>
 <p>It&rsquo;s generally true in this algorithm that we&rsquo;re willing to gamble a little to win a lot, even though the net expectation is negative for random data</p>
 </blockquote>
@@ -170,12 +229,23 @@ binary search 時間複雜度為 <code>O(n)</code>，n 是查詢陣列的長度�
 <p>也有 js 版，但是註解較少</p>
 <p><a href="https://github.com/mziccard/node-timsort/blob/master/src/timsort.js"><strong>mziccard/node-timsort</strong></a></p>
 <p><code>minRunLength()</code> 定義如何決定 minrun的值</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#dc322f">int</span> r <span style="color:#719e07">=</span> 0<span style="color:#719e07">;</span>      <span style="color:#586e75">// Becomes 1 if any 1 bits are shifted off        while (n &gt;= MIN_MERGE) {              
-</span><span style="color:#586e75"></span>    r <span style="color:#719e07">|=</span> <span style="color:#719e07">(</span>n <span style="color:#719e07">&amp;</span> 1<span style="color:#719e07">);</span>              
-    n <span style="color:#719e07">&gt;&gt;=</span> 1<span style="color:#719e07">;</span>          
-<span style="color:#719e07">}</span>          
-<span style="color:#719e07">return</span> n <span style="color:#719e07">+</span> r<span style="color:#719e07">;</span>
-</code></pre></div><p><code>gallopLeft()</code> 用 galloping search 找出最左 ≤ element 的位置，因為是 pass 整個 array 的 reference，所以會有 base / hint 去定位元素，看起來稍微複雜</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>      <span style="color:#75715e">// Becomes 1 if any 1 bits are shifted off        while (n &gt;= MIN_MERGE) {              
+</span><span style="color:#75715e"></span>    r <span style="color:#f92672">|=</span> <span style="color:#f92672">(</span>n <span style="color:#f92672">&amp;</span> 1<span style="color:#f92672">);</span>              
+    n <span style="color:#f92672">&gt;&gt;=</span> 1<span style="color:#f92672">;</span>          
+<span style="color:#f92672">}</span>          
+<span style="color:#66d9ef">return</span> n <span style="color:#f92672">+</span> r<span style="color:#f92672">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>gallopLeft()</code> 用 galloping search 找出最左 ≤ element 的位置，因為是 pass 整個 array 的 reference，所以會有 base / hint 去定位元素，看起來稍微複雜</p>
 <p><code>mergeLo()、mergeHi()</code> 分別對應 (A+B)+C / A+(B+C) 兩種情況，邏輯類似， <code>outer</code> 段落就是在 one-pair-at-a-time mode，只有任一邊陣列連續大於 minGallop 才會切到 galloping mode；<br>
 接著再 galloping mode，找到的元素必須位置大於 MIN_GALLOP，否則就會跳出 galloping mode，同時 minGallop會 +=2，也就是下次待在 one-pair-at-a-time mode 會更久。</p>
 <p>透過 minGallop 與 MIN_GALLOP，確保 merge 在兩種模式中取得較佳的效率。</p>
@@ -184,103 +254,221 @@ binary search 時間複雜度為 <code>O(n)</code>，n 是查詢陣列的長度�
 <p><a href="http://www.envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/"><strong>Envisage: Engineering Virtualized Services</strong></a></p>
 <p>主要在講 java 版的實作，可能會出現 OutMemeroyBound 的問題，主要是因為在 allocate Stack 的長度時，會有以下極端狀況導致 Stack 長度預設過短而記憶體不夠用</p>
 <p>問題出在timsort本身的約束條件</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1\. runLen[i-2] &gt; runLen[i-1] + runLen[i]  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1\. runLen[i-2] &gt; runLen[i-1] + runLen[i]  
 2\. runLen[i-1] &gt; runLen[i]
-</code></pre></div><p>在runLen為以下情況時，<code>120, 80, 25, 20, 30</code>，<code>25&lt;20+30</code>所以進行run[3]，run[4]合併，變為，<code>120, 80, 45, 30</code><br>
+</code></pre></td></tr></table>
+</div>
+</div><p>在runLen為以下情況時，<code>120, 80, 25, 20, 30</code>，<code>25&lt;20+30</code>所以進行run[3]，run[4]合併，變為，<code>120, 80, 45, 30</code><br>
 這時候由於 <code>80&gt;45+30, 45&gt;30</code> 條件滿足了，merge就終止了</p>
 <p>但此時<code>120&lt;80+45</code>是不滿足約束條件的，但我們只對上層進行判斷<br>
 如果（精心策劃）一些特殊數組造成大量這樣的情況，而在原始碼中 空間是這樣申請的</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">int stackLen = (len &lt; 120 ? 5 :  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">int stackLen = (len &lt; 120 ? 5 :  
  len &lt; 1542 ? 10 :  
  len &lt; 119151 ? 19 : 40);  
 runBase = new int[stackLen];  
 runLen = new int[stackLen];
-</code></pre></div><p>上面stackLen,是滿足上面提到的約束條件跟MIN_MERGE情況下去估計的最大可能數量，但剛也說了，只對上層進行判斷，會有例外狀況導致所需要的大小可能超出原本預想的，至於修復的方式是把檢查最後三個runLen變成檢查最後四個runLen</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#268bd2">private</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">newMergeCollapse</span><span style="color:#719e07">()</span> <span style="color:#719e07">{</span> 
- <span style="color:#719e07">while</span> <span style="color:#719e07">(</span>stackSize <span style="color:#719e07">&gt;</span> 1<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>  
-  <span style="color:#dc322f">int</span> n <span style="color:#719e07">=</span> stackSize <span style="color:#719e07">-</span> 2<span style="color:#719e07">;**</span>  
-  <span style="color:#719e07">if</span> <span style="color:#719e07">(</span>   <span style="color:#719e07">(</span>n <span style="color:#719e07">&gt;=</span> 1 <span style="color:#719e07">&amp;&amp;</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">-</span>1<span style="color:#719e07">]</span> <span style="color:#719e07">&lt;=</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">]</span> <span style="color:#719e07">+</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">+</span>1<span style="color:#719e07">])</span> <span style="color:#719e07">||</span> <span style="color:#719e07">(</span>n <span style="color:#719e07">&gt;=</span> 2 <span style="color:#719e07">&amp;&amp;</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">-</span>2<span style="color:#719e07">]</span> <span style="color:#719e07">&lt;=</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">]</span> <span style="color:#719e07">+</span> runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">-</span>1<span style="color:#719e07">]))</span> <span style="color:#719e07">{</span>  
-  <span style="color:#719e07">if</span> <span style="color:#719e07">(</span>runLen<span style="color:#719e07">[</span>n <span style="color:#719e07">-</span> 1<span style="color:#719e07">]</span> <span style="color:#719e07">&lt;</span> runLen<span style="color:#719e07">[</span>n <span style="color:#719e07">+</span> 1<span style="color:#719e07">])</span> n<span style="color:#719e07">--;</span>
-  <span style="color:#719e07">}</span> <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> <span style="color:#719e07">(</span>runLen<span style="color:#719e07">[</span>n<span style="color:#719e07">]</span> <span style="color:#719e07">&gt;</span> runLen<span style="color:#719e07">[</span>n <span style="color:#719e07">+</span> 1<span style="color:#719e07">])</span> <span style="color:#719e07">{</span> 
-    <span style="color:#719e07">break</span><span style="color:#719e07">;</span> <span style="color:#586e75">// Invariant is  established
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">}</span>
-  mergeAt<span style="color:#719e07">(</span>n<span style="color:#719e07">);</span>  
- <span style="color:#719e07">}</span> 
-<span style="color:#719e07">}</span>
-</code></pre></div><p>以上 Bug 部分也是由強者公司同事 Frank 補充，有興趣者可以點進去看原文，原文包含說明了如何用工具與方法找出問題的，但因為還沒有到非常理解就不多做說明。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面stackLen,是滿足上面提到的約束條件跟MIN_MERGE情況下去估計的最大可能數量，但剛也說了，只對上層進行判斷，會有例外狀況導致所需要的大小可能超出原本預想的，至於修復的方式是把檢查最後三個runLen變成檢查最後四個runLen</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">newMergeCollapse</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span> 
+ <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>stackSize <span style="color:#f92672">&gt;</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>  
+  <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> stackSize <span style="color:#f92672">-</span> 2<span style="color:#f92672">;**</span>  
+  <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>   <span style="color:#f92672">(</span>n <span style="color:#f92672">&gt;=</span> 1 <span style="color:#f92672">&amp;&amp;</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">-</span>1<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;=</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">+</span>1<span style="color:#f92672">])</span> <span style="color:#f92672">||</span> <span style="color:#f92672">(</span>n <span style="color:#f92672">&gt;=</span> 2 <span style="color:#f92672">&amp;&amp;</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">-</span>2<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;=</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">-</span>1<span style="color:#f92672">]))</span> <span style="color:#f92672">{</span>  
+  <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>runLen<span style="color:#f92672">[</span>n <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;</span> runLen<span style="color:#f92672">[</span>n <span style="color:#f92672">+</span> 1<span style="color:#f92672">])</span> n<span style="color:#f92672">--;</span>
+  <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>runLen<span style="color:#f92672">[</span>n<span style="color:#f92672">]</span> <span style="color:#f92672">&gt;</span> runLen<span style="color:#f92672">[</span>n <span style="color:#f92672">+</span> 1<span style="color:#f92672">])</span> <span style="color:#f92672">{</span> 
+    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span> <span style="color:#75715e">// Invariant is  established
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">}</span>
+  mergeAt<span style="color:#f92672">(</span>n<span style="color:#f92672">);</span>  
+ <span style="color:#f92672">}</span> 
+<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>以上 Bug 部分也是由強者公司同事 Frank 補充，有興趣者可以點進去看原文，原文包含說明了如何用工具與方法找出問題的，但因為還沒有到非常理解就不多做說明。</p>
 <p>這 Bug 已經被修復，在 Python 的 Bug回報討論中，Tim Peter 提到其實現有的機器沒有足夠的 Memory 去產生這樣的問題，Java 版實作也是有一些改動才有辦法復現，不過最終基於邏輯的完整性，還是先修復了此問題，避免未來有問題。</p>
 <h2 id="v8的實作">V8的實作</h2>
 <p><a href="https://v8.dev/blog/array-sort#timsort"><strong>Getting things sorted in V8</strong></a></p>
 <h2 id="前言">前言</h2>
 <p>在評估排序演算法上，會考量<code>比對次數</code>跟<code>記憶體用量</code>，在動態語言包含 JS 中比對次數相對重要，因為在比對的時候會使用到用戶寫的程式碼</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> array <span style="color:#719e07">=</span> [<span style="color:#2aa198">4</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">1</span>];
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">array</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>];
 
-<span style="color:#268bd2">function</span> compare(a, b) {  <span style="color:#586e75">// Arbitrary code goes here, e.g. `array.push(1);`. 
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> a <span style="color:#719e07">-</span> b;
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">compare</span>(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span>) {  <span style="color:#75715e">// Arbitrary code goes here, e.g. `array.push(1);`. 
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">b</span>;
 }
 
-<span style="color:#586e75">// A “typical” sort 
-</span><span style="color:#586e75"></span>call.array.sort(compare);
-</code></pre></div><p>比對函式回傳 <code>0 、1(或其他正值)、-1(或其他負值)</code>分別代表 <code>等於、大於、小於</code> ，在比對函式中用戶可能會有 Side-Effect 操作等</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> array <span style="color:#719e07">=</span> [<span style="color:#2aa198">4</span>, <span style="color:#2aa198">2</span>, <span style="color:#2aa198">5</span>, <span style="color:#2aa198">3</span>, <span style="color:#2aa198">1</span>];
+<span style="color:#75715e">// A “typical” sort 
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">call</span>.<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">sort</span>(<span style="color:#a6e22e">compare</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>比對函式回傳 <code>0 、1(或其他正值)、-1(或其他負值)</code>分別代表 <code>等於、大於、小於</code> ，在比對函式中用戶可能會有 Side-Effect 操作等</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">array</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>];
 
-array.push({  toString() {    <span style="color:#586e75">// Arbitrary code goes here, e.g. `array.push(1);`.    
-</span><span style="color:#586e75"></span>  <span style="color:#719e07">return</span> <span style="color:#2aa198">&#39;42&#39;</span>;  
+<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">push</span>({  <span style="color:#a6e22e">toString</span>() {    <span style="color:#75715e">// Arbitrary code goes here, e.g. `array.push(1);`.    
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;42&#39;</span>;  
 }});
 
-<span style="color:#586e75">// Sort without a comparison 
-</span><span style="color:#586e75"></span><span style="color:#268bd2">function</span>.array.sort();
-</code></pre></div><p>預設的比對函式會先呼叫 <code>toString()</code>  轉成字串比對</p>
+<span style="color:#75715e">// Sort without a comparison 
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span>.<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">sort</span>();
+</code></pre></td></tr></table>
+</div>
+</div><p>預設的比對函式會先呼叫 <code>toString()</code>  轉成字串比對</p>
 <p>接著把 Spec 先放在腦後，有一部分是 <code>Implementation-defined</code>  ，在一些 Spec 保留實作彈性的部分，工程師有機會去自由發揮，做出理想中用戶會希望看到的行為，但這部分各個 JS Engine 行為差異很大，例如說遇上了 <code>accessors(getter/setter)</code> 或<code>prototype-chain</code> ，強烈建議不要這樣寫程式，這裡僅作說明</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> array <span style="color:#719e07">=</span> [<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1</span>, <span style="color:#2aa198">2</span>];
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">array</span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>];
 
-<span style="color:#b58900">Object</span>.defineProperty(array, <span style="color:#2aa198">&#39;0&#39;</span>, {
-    get() {
-        console.log(<span style="color:#2aa198">&#39;get 0&#39;</span>);
-        <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+Object.<span style="color:#a6e22e">defineProperty</span>(<span style="color:#a6e22e">array</span>, <span style="color:#e6db74">&#39;0&#39;</span>, {
+    <span style="color:#a6e22e">get</span>() {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;get 0&#39;</span>);
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
     },
-    set(v) {
-        console.log(<span style="color:#2aa198">&#39;set 0&#39;</span>);
+    <span style="color:#a6e22e">set</span>(<span style="color:#a6e22e">v</span>) {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;set 0&#39;</span>);
     }
 });
 
-<span style="color:#b58900">Object</span>.defineProperty(array, <span style="color:#2aa198">&#39;1&#39;</span>, {
-    get() {
-        console.log(<span style="color:#2aa198">&#39;get 1&#39;</span>);
-        <span style="color:#719e07">return</span> <span style="color:#2aa198">1</span>;
+Object.<span style="color:#a6e22e">defineProperty</span>(<span style="color:#a6e22e">array</span>, <span style="color:#e6db74">&#39;1&#39;</span>, {
+    <span style="color:#a6e22e">get</span>() {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;get 1&#39;</span>);
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
     },
-    set(v) {
-        console.log(<span style="color:#2aa198">&#39;set 1&#39;</span>);
+    <span style="color:#a6e22e">set</span>(<span style="color:#a6e22e">v</span>) {
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;set 1&#39;</span>);
     }
 });
 
-array.sort();
+<span style="color:#a6e22e">array</span>.<span style="color:#a6e22e">sort</span>();
 
-<span style="color:#268bd2">const</span> object <span style="color:#719e07">=</span> {
-    <span style="color:#2aa198">1</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;d1&#39;</span>,
-    <span style="color:#2aa198">2</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;c1&#39;</span>,
-    <span style="color:#2aa198">3</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;b1&#39;</span>,
-    <span style="color:#2aa198">4</span><span style="color:#719e07">:</span> <span style="color:#cb4b16">undefined</span>,
-    __proto__<span style="color:#719e07">:</span> {
-        length<span style="color:#719e07">:</span> <span style="color:#2aa198">10000</span>,
-        <span style="color:#2aa198">1</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;e2&#39;</span>,
-        <span style="color:#2aa198">10</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;a2&#39;</span>,
-        <span style="color:#2aa198">100</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;b2&#39;</span>,
-        <span style="color:#2aa198">1000</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;c2&#39;</span>,
-        <span style="color:#2aa198">2000</span><span style="color:#719e07">:</span> <span style="color:#cb4b16">undefined</span>,
-        <span style="color:#2aa198">8000</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;d2&#39;</span>,
-        <span style="color:#2aa198">12000</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;XX&#39;</span>,
-        __proto__<span style="color:#719e07">:</span> {
-            <span style="color:#2aa198">0</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;e3&#39;</span>,
-            <span style="color:#2aa198">1</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;d3&#39;</span>,
-            <span style="color:#2aa198">2</span><span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;c3&#39;</span>,
-            <span style="color:#2aa198">6</span><span style="color:#719e07">:</span> <span style="color:#cb4b16">undefined</span>,
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">object</span> <span style="color:#f92672">=</span> {
+    <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;d1&#39;</span>,
+    <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;c1&#39;</span>,
+    <span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b1&#39;</span>,
+    <span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">undefined</span>,
+    <span style="color:#a6e22e">__proto__</span><span style="color:#f92672">:</span> {
+        <span style="color:#a6e22e">length</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">10000</span>,
+        <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;e2&#39;</span>,
+        <span style="color:#ae81ff">10</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;a2&#39;</span>,
+        <span style="color:#ae81ff">100</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;b2&#39;</span>,
+        <span style="color:#ae81ff">1000</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;c2&#39;</span>,
+        <span style="color:#ae81ff">2000</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">undefined</span>,
+        <span style="color:#ae81ff">8000</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;d2&#39;</span>,
+        <span style="color:#ae81ff">12000</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;XX&#39;</span>,
+        <span style="color:#a6e22e">__proto__</span><span style="color:#f92672">:</span> {
+            <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;e3&#39;</span>,
+            <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;d3&#39;</span>,
+            <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;c3&#39;</span>,
+            <span style="color:#ae81ff">6</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">undefined</span>,
         },
     }
 };
 
-<span style="color:#b58900">Array</span>.prototype.sort.call(object);
-</code></pre></div><h2 id="v8-在排序前後的處理">V8 在排序前後的處理</h2>
+Array.<span style="color:#a6e22e">prototype</span>.<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">call</span>(<span style="color:#a6e22e">object</span>);
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="v8-在排序前後的處理">V8 在排序前後的處理</h2>
 <p>在 Spec中，將排序的元素分成三部分</p>
 <ol>
 <li>non-undefined value，這部分會套用比對函式決定排序</li>

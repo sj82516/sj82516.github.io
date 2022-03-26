@@ -94,14 +94,27 @@
 <h3 id="how-to-run-blockingcode">How to run blocking code</h3>
 <p>現實上不可避免還是會需要執行耗時的運算或是運行用 sync 設計的函式庫，這時可以用 executeBlocking，類似於 Promise的設計，但會運作到從 Worker Thread Pool 取得的 Thread 上，避免卡住 Event Loop</p>
 <p>但文件描述到 executeBlocking 雖然是用於 blocking code execution，但建議超過 10s 的操作還是另外管理 Thread</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">vertx<span style="color:#719e07">.</span>executeBlocking<span style="color:#719e07">(</span>function <span style="color:#719e07">(</span>promise<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>    
-   <span style="color:#586e75">// Call some blocking API that takes a significant amount of time to return_     
-</span><span style="color:#586e75"></span>    var result <span style="color:#719e07">=</span> someAPI<span style="color:#719e07">.</span>blockingMethod<span style="color:#719e07">(</span><span style="color:#2aa198">&#34;hello&#34;</span><span style="color:#719e07">);</span>  
-    promise<span style="color:#719e07">.</span>complete<span style="color:#719e07">(</span>result<span style="color:#719e07">);</span>   
-<span style="color:#719e07">},</span> function <span style="color:#719e07">(</span>res<span style="color:#719e07">,</span> res_err<span style="color:#719e07">)</span> <span style="color:#719e07">{</span>     
-   console<span style="color:#719e07">.</span>log<span style="color:#719e07">(</span><span style="color:#2aa198">&#34;The result is: &#34;</span> <span style="color:#719e07">+</span> res<span style="color:#719e07">);</span>   
-<span style="color:#719e07">});</span>
-</code></pre></div><h3 id="concurrent-composition">Concurrent composition</h3>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">vertx<span style="color:#f92672">.</span><span style="color:#a6e22e">executeBlocking</span><span style="color:#f92672">(</span>function <span style="color:#f92672">(</span>promise<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>    
+   <span style="color:#75715e">// Call some blocking API that takes a significant amount of time to return_     
+</span><span style="color:#75715e"></span>    var result <span style="color:#f92672">=</span> someAPI<span style="color:#f92672">.</span><span style="color:#a6e22e">blockingMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;hello&#34;</span><span style="color:#f92672">);</span>  
+    promise<span style="color:#f92672">.</span><span style="color:#a6e22e">complete</span><span style="color:#f92672">(</span>result<span style="color:#f92672">);</span>   
+<span style="color:#f92672">},</span> function <span style="color:#f92672">(</span>res<span style="color:#f92672">,</span> res_err<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>     
+   console<span style="color:#f92672">.</span><span style="color:#a6e22e">log</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;The result is: &#34;</span> <span style="color:#f92672">+</span> res<span style="color:#f92672">);</span>   
+<span style="color:#f92672">});</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="concurrent-composition">Concurrent composition</h3>
 <p>非同步操作一大要解決的問題就是操作順序，Vertx 提供像 <code>CompositeFuture.all、CompositeFuture.any</code> 等 API，從 JS 角度應該都不陌生</p>
 <p>直接使用 Vertx 的 JS 方案有一個很大的問題</p>
 <blockquote>
@@ -125,33 +138,83 @@
 <p>簡單整合兩者的 Example Code，用 ES4X 執行一個 Web Server，並用 GraalVm 當作運行環境，採用 R繪製圖表。</p>
 <h4 id="安裝">安裝</h4>
 <p>到 <a href="https://github.com/oracle/graal/releases/tag/vm-19.1.1">https://github.com/oracle/graal/releases/tag/vm-19.1.1</a> 下載安裝檔，解壓縮後加入路徑</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span>&lt;檔案位置&gt;/graalvm-ce-19.1.1/Contents/Home/bin:<span style="color:#268bd2">$PATH</span>  
-$ <span style="color:#b58900">export</span> <span style="color:#268bd2">JAVA_HOME</span><span style="color:#719e07">=</span>&lt;檔案位置&gt;/Contents/Home
-</code></pre></div><p>設定好之後，可以使用以下幾個 command，node 改成用 GraalVM執行，預設僅支援 Java/Javascript，如果需要其他語言則要 <code>$gu install python</code> 等</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ js   
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ export PATH<span style="color:#f92672">=</span>&lt;檔案位置&gt;/graalvm-ce-19.1.1/Contents/Home/bin:$PATH  
+$ export JAVA_HOME<span style="color:#f92672">=</span>&lt;檔案位置&gt;/Contents/Home
+</code></pre></td></tr></table>
+</div>
+</div><p>設定好之後，可以使用以下幾個 command，node 改成用 GraalVM執行，預設僅支援 Java/Javascript，如果需要其他語言則要 <code>$gu install python</code> 等</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ js   
 runs a JavaScript console with GraalVM.
 
 $ node  
-replacement <span style="color:#719e07">for</span> Node.js, using GraalVM’s JavaScript engine.
+replacement <span style="color:#66d9ef">for</span> Node.js, using GraalVM’s JavaScript engine.
 
 $ lli   
 is a high-performance LLVM bitcode interpreter integrated with GraalVM.
 
-$ gu <span style="color:#719e07">(</span>GraalVM Updater<span style="color:#719e07">)</span>   
-can be used to install language packs <span style="color:#719e07">for</span> Python, R, and Ruby.
-</code></pre></div><p>簡單試一下跨語言的特性</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 儲存成 test.js  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> array <span style="color:#719e07">=</span> Polyglot.<span style="color:#b58900">eval</span>(<span style="color:#2aa198">&#34;python&#34;</span>, <span style="color:#2aa198">&#34;[1,2,42,4]&#34;</span>)  
-console.log(array[<span style="color:#2aa198">2</span>]);
+$ gu <span style="color:#f92672">(</span>GraalVM Updater<span style="color:#f92672">)</span>   
+can be used to install language packs <span style="color:#66d9ef">for</span> Python, R, and Ruby.
+</code></pre></td></tr></table>
+</div>
+</div><p>簡單試一下跨語言的特性</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// 儲存成 test.js  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">array</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Polyglot</span>.eval(<span style="color:#e6db74">&#34;python&#34;</span>, <span style="color:#e6db74">&#34;[1,2,42,4]&#34;</span>)  
+<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">array</span>[<span style="color:#ae81ff">2</span>]);
 
-$ node <span style="color:#719e07">--</span>polyglot <span style="color:#719e07">--</span>jvm test.js
-</code></pre></div><p>使用 <code>Ployglot.eval</code> 可以執行其他指定語言的語法，</p>
+<span style="color:#a6e22e">$</span> <span style="color:#a6e22e">node</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">polyglot</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">jvm</span> <span style="color:#a6e22e">test</span>.<span style="color:#a6e22e">js</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>使用 <code>Ployglot.eval</code> 可以執行其他指定語言的語法，</p>
 <p>剛執行時會需要花比較多的時間 warn up，所以如果要當作 Command line tool 或其他生命週期短的應用程式，就建議繼續使用 Nodejs 即可；<br>
 長時間運行的話，GraalVM 的效能與 V8 其實是差不多的，但如果多考量跨語言的特性，GraalVM 會是個不錯的選擇</p>
 <h2 id="es4x">ES4X</h2>
 <p>先安裝初始化</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm install -g es4x-pm  
-$ mkdir <span style="color:#b58900">test</span>  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ npm install -g es4x-pm  
+$ mkdir test  
 $ npm init  
 $ es4x init
 
@@ -160,17 +223,34 @@ $ npm install @vertx/unit --save-dev
 $ npm install @vertx/core --save-prod  
 $ npm install @vertx/web --save-prod  
 $ npm install
-</code></pre></div><p>index.js，接著用 <code>$npm run start</code> 執行</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">/// &lt;reference types=&#34;@vertx/core/runtime&#34; /&gt;  
-</span><span style="color:#586e75">// @ts-check
-</span><span style="color:#586e75"></span>
-vertx  
-  .createHttpServer()  
-  .requestHandler(<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> (req) {  
-    req.response().end(<span style="color:#2aa198">&#34;hello world.&#34;</span>);  
+</code></pre></td></tr></table>
+</div>
+</div><p>index.js，接著用 <code>$npm run start</code> 執行</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">/// &lt;reference types=&#34;@vertx/core/runtime&#34; /&gt;  
+</span><span style="color:#75715e">// @ts-check
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">vertx</span>  
+  .<span style="color:#a6e22e">createHttpServer</span>()  
+  .<span style="color:#a6e22e">requestHandler</span>(<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">req</span>) {  
+    <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">response</span>().<span style="color:#a6e22e">end</span>(<span style="color:#e6db74">&#34;hello world.&#34;</span>);  
    })  
-   .listen(<span style="color:#2aa198">8080</span>);
-</code></pre></div><p>需注意，如果要達到最佳性能的提升需要使用它提供的 web framework <code>@vertx/web</code>，如果是使用像 Express.js底層的 System API Call 就不會走 Vertx，而是用當下 Runtime 環境的處理方式 (Node.js or GraalVM)，細節還需要更近一步理解專案才能解釋，不過從作者的描述現況是如此，所以舊專案要移植會重寫的門檻</p>
+   .<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">8080</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>需注意，如果要達到最佳性能的提升需要使用它提供的 web framework <code>@vertx/web</code>，如果是使用像 Express.js底層的 System API Call 就不會走 Vertx，而是用當下 Runtime 環境的處理方式 (Node.js or GraalVM)，細節還需要更近一步理解專案才能解釋，不過從作者的描述現況是如此，所以舊專案要移植會重寫的門檻</p>
 <p>另外目前不支援 GraalVM的 Polyglot，已回報給作者需要等他實作。</p>
 <h2 id="總結">總結</h2>
 <p>跳脫框架，以前沒想過透過替換 JS Runtime 可以換取性能的提升，也不曾接觸過像 GraalVM這樣多語言支援的 Runtime，細節有蠻多關於 Compiler 相關的知識，自己很多都忘了，需要在加強才行</p>

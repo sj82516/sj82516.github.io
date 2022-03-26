@@ -116,35 +116,73 @@
 <h3 id="如何產生-k-個獨立的-hash-function">如何產生 k 個獨立的 Hash Function</h3>
 <p>如何產生一個運算快速、足夠隨機且 Universal 的 Hash function 是非常關鍵的一步，影響後續的錯誤率，選擇用 non-cryptographic hash function 即可，強度不高但是性能夠好，差別在於 hash 後被逆推的可能性(沒有強抗碰撞與弱抗碰撞的保證)，可能會遭遇 HashDos，被發現碰撞後就不斷嘗試導致性能變差</p>
 <p>回歸正題，爬了一些 Bloom Filter 的實作，有發現使用 xxHash、MurMurHash 等已知的 hash function library，這一個實作蠻有趣 <a href="https://github.com/jasondavies/bloomfilter.js">bloomfilter.js</a>，Hash function 是實作 <a href="http://isthe.com/chongo/tech/comp/fnv/">Fowler–Noll–Vo(FNV) hash function</a>，程式碼如下</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">  <span style="color:#268bd2">function</span> fnv_1a(v, seed) {
-    <span style="color:#268bd2">var</span> a <span style="color:#719e07">=</span> <span style="color:#2aa198">2166136261</span> <span style="color:#719e07">^</span> (seed <span style="color:#719e07">||</span> <span style="color:#2aa198">0</span>);
-    <span style="color:#719e07">for</span> (<span style="color:#268bd2">var</span> i <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>, n <span style="color:#719e07">=</span> v.length; i <span style="color:#719e07">&lt;</span> n; <span style="color:#719e07">++</span>i) {
-      <span style="color:#268bd2">var</span> c <span style="color:#719e07">=</span> v.charCodeAt(i),
-          d <span style="color:#719e07">=</span> c <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff00</span>;
-      <span style="color:#719e07">if</span> (d) a <span style="color:#719e07">=</span> fnv_multiply(a <span style="color:#719e07">^</span> d <span style="color:#719e07">&gt;&gt;</span> <span style="color:#2aa198">8</span>);
-      a <span style="color:#719e07">=</span> fnv_multiply(a <span style="color:#719e07">^</span> c <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">  <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fnv_1a</span>(<span style="color:#a6e22e">v</span>, <span style="color:#a6e22e">seed</span>) {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2166136261</span> <span style="color:#f92672">^</span> (<span style="color:#a6e22e">seed</span> <span style="color:#f92672">||</span> <span style="color:#ae81ff">0</span>);
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">n</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">n</span>; <span style="color:#f92672">++</span><span style="color:#a6e22e">i</span>) {
+      <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">charCodeAt</span>(<span style="color:#a6e22e">i</span>),
+          <span style="color:#a6e22e">d</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff00</span>;
+      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">d</span>) <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">fnv_multiply</span>(<span style="color:#a6e22e">a</span> <span style="color:#f92672">^</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">8</span>);
+      <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">fnv_multiply</span>(<span style="color:#a6e22e">a</span> <span style="color:#f92672">^</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>);
     }
-    <span style="color:#719e07">return</span> fnv_mix(a);
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fnv_mix</span>(<span style="color:#a6e22e">a</span>);
   }
 
-  <span style="color:#586e75">// a * 16777619 mod 2**32
-</span><span style="color:#586e75"></span>  <span style="color:#268bd2">function</span> fnv_multiply(a) {
-    <span style="color:#719e07">return</span> a <span style="color:#719e07">+</span> (a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">1</span>) <span style="color:#719e07">+</span> (a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">4</span>) <span style="color:#719e07">+</span> (a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">7</span>) <span style="color:#719e07">+</span> (a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">8</span>) <span style="color:#719e07">+</span> (a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">24</span>);
+  <span style="color:#75715e">// a * 16777619 mod 2**32
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fnv_multiply</span>(<span style="color:#a6e22e">a</span>) {
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">+</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">4</span>) <span style="color:#f92672">+</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">7</span>) <span style="color:#f92672">+</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">+</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">24</span>);
   }
 
-  <span style="color:#586e75">// See https://web.archive.org/web/20131019013225/http://home.comcast.net/~bretm/hash/6.html
-</span><span style="color:#586e75"></span>  <span style="color:#268bd2">function</span> fnv_mix(a) {
-    a <span style="color:#719e07">+=</span> a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">13</span>;
-    a <span style="color:#719e07">^=</span> a <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">7</span>;
-    a <span style="color:#719e07">+=</span> a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">3</span>;
-    a <span style="color:#719e07">^=</span> a <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">17</span>;
-    a <span style="color:#719e07">+=</span> a <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">5</span>;
-    <span style="color:#719e07">return</span> a <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xffffffff</span>;
+  <span style="color:#75715e">// See https://web.archive.org/web/20131019013225/http://home.comcast.net/~bretm/hash/6.html
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fnv_mix</span>(<span style="color:#a6e22e">a</span>) {
+    <span style="color:#a6e22e">a</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">13</span>;
+    <span style="color:#a6e22e">a</span> <span style="color:#f92672">^=</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">7</span>;
+    <span style="color:#a6e22e">a</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">3</span>;
+    <span style="color:#a6e22e">a</span> <span style="color:#f92672">^=</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">17</span>;
+    <span style="color:#a6e22e">a</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">5</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xffffffff</span>;
   }
-</code></pre></div><p>在 Stack Exchange 看到有趣的問答 <a href="https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed">Which hashing algorithm is best for uniqueness and speed?</a>，有強者比較多種 Hash Function 的效能以及碰撞機率，FNV-1a 表現還不錯，但作者比較推薦 Murmur2</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>在 Stack Exchange 看到有趣的問答 <a href="https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed">Which hashing algorithm is best for uniqueness and speed?</a>，有強者比較多種 Hash Function 的效能以及碰撞機率，FNV-1a 表現還不錯，但作者比較推薦 Murmur2</p>
 <p>接著，有另一篇論文 <a href="https://www.eecs.harvard.edu/~michaelm/postscripts/tr-02-05.pdf">Building a Better Bloom Filter</a> 證明如果要產生多個 Hash function 應用在 Bloom filter 上，只需要產生兩個 Hash function 再加上係數的組合出其他的 Hash function 即可</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">gi(x) <span style="color:#719e07">=</span> h1(x)<span style="color:#719e07">+</span> ih2(x) mod p <span style="color:#586e75">// p 是質數
-</span></code></pre></div><h2 id="總結">總結</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">gi</span>(<span style="color:#a6e22e">x</span>) <span style="color:#f92672">=</span> <span style="color:#a6e22e">h1</span>(<span style="color:#a6e22e">x</span>)<span style="color:#f92672">+</span> <span style="color:#a6e22e">ih2</span>(<span style="color:#a6e22e">x</span>) <span style="color:#a6e22e">mod</span> <span style="color:#a6e22e">p</span> <span style="color:#75715e">// p 是質數
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="總結">總結</h2>
 <p>如果原本的鍵值很長，再容忍一定的 False Positive 下使用 Bloom Filter 可以節省非常大量的儲存空間，但需注意 Hash 運算會多一些 CPU 資源</p>
 
 	</div>

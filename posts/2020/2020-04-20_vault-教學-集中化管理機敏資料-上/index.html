@@ -129,35 +129,70 @@ format 是選擇性回指定回傳格式</li>
 <h3 id="啟動-aws-secret-engine-取得動態-accesskey--accesssecret">啟動 AWS Secret Engine 取得動態 AccessKey / AccessSecret</h3>
 <p>先前提到 Vault 一大特色是支援多種 Secret，而且 Secret 可以是動態生成的，每一個 Client 來索取都能要到獨立的 Secret</p>
 <p>透過 aws secret engine，可以指定 Role 與權限並給予動態 secret，首先讓我們啟動 secret <code>$vault secrets enable -path=aws aws</code>，接著設定 aws 帳號</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault write aws/config/root <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    <span style="color:#268bd2">access_key</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">AWS</span> Access Key<span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    <span style="color:#268bd2">secret_key</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">AWS</span> Secret key<span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    <span style="color:#268bd2">region</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">AWS</span> Region<span style="color:#2aa198">}</span>
-</code></pre></div><blockquote>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault write aws/config/root <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    access_key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>AWS Access Key<span style="color:#e6db74">}</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    secret_key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>AWS Secret key<span style="color:#e6db74">}</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    region<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>AWS Region<span style="color:#e6db74">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
 <p>絕對不建議在生產環境如此使用，因為 shell command 會被記錄在 log 中</p>
 </blockquote>
 <p>後續的操作，Vault 就會用這組帳密去管理 IAM</p>
 <p>接著創建角色</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault write aws/roles/my-role <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>        <span style="color:#268bd2">credential_type</span><span style="color:#719e07">=</span>iam_user <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>        <span style="color:#268bd2">policy_document</span><span style="color:#719e07">=</span>-<span style="color:#2aa198">&lt;&lt;EOF
-</span><span style="color:#2aa198">{
-</span><span style="color:#2aa198">  &#34;Version&#34;: &#34;2012-10-17&#34;,
-</span><span style="color:#2aa198">  &#34;Statement&#34;: [
-</span><span style="color:#2aa198">    {
-</span><span style="color:#2aa198">      &#34;Sid&#34;: &#34;Stmt1426528957000&#34;,
-</span><span style="color:#2aa198">      &#34;Effect&#34;: &#34;Allow&#34;,
-</span><span style="color:#2aa198">      &#34;Action&#34;: [
-</span><span style="color:#2aa198">        &#34;ec2:*&#34;
-</span><span style="color:#2aa198">      ],
-</span><span style="color:#2aa198">      &#34;Resource&#34;: [
-</span><span style="color:#2aa198">        &#34;*&#34;
-</span><span style="color:#2aa198">      ]
-</span><span style="color:#2aa198">    }
-</span><span style="color:#2aa198">  ]
-</span><span style="color:#2aa198">}
-</span><span style="color:#2aa198">EOF</span>
-</code></pre></div><p>這裡給予了 ec2 全部的權限</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault write aws/roles/my-role <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>        credential_type<span style="color:#f92672">=</span>iam_user <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>        policy_document<span style="color:#f92672">=</span>-<span style="color:#e6db74">&lt;&lt;EOF
+</span><span style="color:#e6db74">{
+</span><span style="color:#e6db74">  &#34;Version&#34;: &#34;2012-10-17&#34;,
+</span><span style="color:#e6db74">  &#34;Statement&#34;: [
+</span><span style="color:#e6db74">    {
+</span><span style="color:#e6db74">      &#34;Sid&#34;: &#34;Stmt1426528957000&#34;,
+</span><span style="color:#e6db74">      &#34;Effect&#34;: &#34;Allow&#34;,
+</span><span style="color:#e6db74">      &#34;Action&#34;: [
+</span><span style="color:#e6db74">        &#34;ec2:*&#34;
+</span><span style="color:#e6db74">      ],
+</span><span style="color:#e6db74">      &#34;Resource&#34;: [
+</span><span style="color:#e6db74">        &#34;*&#34;
+</span><span style="color:#e6db74">      ]
+</span><span style="color:#e6db74">    }
+</span><span style="color:#e6db74">  ]
+</span><span style="color:#e6db74">}
+</span><span style="color:#e6db74">EOF</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>這裡給予了 ec2 全部的權限</p>
 <p>接著要產生 Secret 通過 <code>$vault read aws/creds/my-role</code>，此時就會回傳一組新的 role，每次呼叫都會回傳獨立的 Secret (為什麼用 read 代表創建動作就不確定設計的原理了 :thinking_face)，從 IAM Console 可以看到被創建的用戶
 <img src="/posts/img/20200423/vault_aws_user.png" alt=""></p>
 <p>如果要 revoke 的話，通過 <code>$vault lease revoke aws/creds/my-role/{lease id}</code> 即可</p>
@@ -183,62 +218,140 @@ format 是選擇性回指定回傳格式</li>
 <p>Token 建立後會回傳 id / accessor / policy 等資訊，<code>accessor</code> 可以用來操作 token 相關的指令例如 renew / revoke / 反查 token id 等等，不太確定為什麼不直接用 token id 而是要多產生另一組 accessor 代號，但目前看到要條列出所有 token 只能透過列出 accessors 再去反查 token</p>
 <p>以上的 Token 是指 <code>Service Token</code>，也就是預設最常使用的 Token 形式；另外還有 Batch Token 用在 Vault 操作上，暫時沒有看到用處就先略過</p>
 <p>接著實際操作看看</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 透過 root 生成的 token，ttl 預設為無過期
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 透過 root 生成的 token，ttl 預設為無過期
 $ vault token create
 
 ----- 開啟另一個 shell，試著用剛剛的 token 登入
-$ <span style="color:#b58900">export</span> <span style="color:#268bd2">VAULT_ADDR</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;http://127.0.0.1:8200&#39;</span>
-$ vault login <span style="color:#719e07">{</span>token<span style="color:#719e07">}</span>
+$ export VAULT_ADDR<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;http://127.0.0.1:8200&#39;</span>
+$ vault login <span style="color:#f92672">{</span>token<span style="color:#f92672">}</span>
 ------
 
 // 刪除剛才的 token
-$ vault token revoke <span style="color:#719e07">{</span>token<span style="color:#719e07">}</span>
+$ vault token revoke <span style="color:#f92672">{</span>token<span style="color:#f92672">}</span>
 
 // 新增一個 ttl 為 1h 的 token
-$ vault token create -ttl<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;1h&#34;</span>
-</code></pre></div><p>其他的部分，覺得透過 api 下指令比較方便，東西也比較全面，可以參考<a href="https://www.vaultproject.io/api/auth/token">文件</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 查看所有的 accessors
-$ curl <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --header <span style="color:#2aa198">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --request LIST <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    http://127.0.0.1:8200/v1/auth/token/accessors
+$ vault token create -ttl<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1h&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其他的部分，覺得透過 api 下指令比較方便，東西也比較全面，可以參考<a href="https://www.vaultproject.io/api/auth/token">文件</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">// 查看所有的 accessors
+$ curl <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --header <span style="color:#e6db74">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --request LIST <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    http://127.0.0.1:8200/v1/auth/token/accessors
 
 // 查看各別 accessor
-$ curl <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --header <span style="color:#2aa198">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --request POST <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --data <span style="color:#2aa198">&#39;{&#34;accessor&#34;: &#34;{accessor id}&#34;}&#39;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    http://127.0.0.1:8200/v1/auth/token/lookup-self
+$ curl <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --header <span style="color:#e6db74">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --request POST <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --data <span style="color:#e6db74">&#39;{&#34;accessor&#34;: &#34;{accessor id}&#34;}&#39;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    http://127.0.0.1:8200/v1/auth/token/lookup-self
 
 
 // 透過 accessor revoke token
-$ curl <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --header <span style="color:#2aa198">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --request POST <span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    --data  <span style="color:#2aa198">&#39;{&#34;accessor&#34;: &#34;{accessor token}&#34;}&#39;</span><span style="color:#cb4b16">\
-</span><span style="color:#cb4b16"></span>    http://127.0.0.1:8200/v1/auth/token/revoke-accessor
-</code></pre></div><h2 id="設定-policy">設定 Policy</h2>
+$ curl <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --header <span style="color:#e6db74">&#34;X-Vault-Token: {token}&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --request POST <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --data  <span style="color:#e6db74">&#39;{&#34;accessor&#34;: &#34;{accessor token}&#34;}&#39;</span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    http://127.0.0.1:8200/v1/auth/token/revoke-accessor
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="設定-policy">設定 Policy</h2>
 <p>接著就是設定 Policy 部分，限制不同 Token 能夠操作 Secret 的權限，Vault 撰寫 policy 的格式是採用 hcl，也就是 HashiCorp 自己內部的 Config 描述語言，在路徑下建立檔案 <code>my-policy.hcl</code> 並貼上以下內容</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">path <span style="color:#2aa198">&#34;kv/foo&#34;</span> <span style="color:#719e07">{</span>
-  <span style="color:#268bd2">capabilities</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;create&#34;</span>, <span style="color:#2aa198">&#34;update&#34;</span> <span style="color:#719e07">]</span>
-<span style="color:#719e07">}</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">path <span style="color:#e6db74">&#34;kv/foo&#34;</span> <span style="color:#f92672">{</span>
+  capabilities <span style="color:#f92672">=</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span> <span style="color:#f92672">]</span>
+<span style="color:#f92672">}</span>
 
-path <span style="color:#2aa198">&#34;secret/data/foo&#34;</span> <span style="color:#719e07">{</span>
-  <span style="color:#268bd2">capabilities</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;create&#34;</span>, <span style="color:#2aa198">&#34;update&#34;</span> <span style="color:#719e07">]</span>
-<span style="color:#719e07">}</span>
-</code></pre></div><p>上述文件的意思是這個 Policy 只能操作 secret/foo 的新&amp;更新，其他的操作都一率被禁止，<code>/data/</code> 指的是預設 Key Value 的 Secret 路徑，如果是另外啟動的如 <code>$vault secrets enable -path=kv kv</code>，則可以不用加 /data 變成 <code>kv/foo</code> 即可</p>
+path <span style="color:#e6db74">&#34;secret/data/foo&#34;</span> <span style="color:#f92672">{</span>
+  capabilities <span style="color:#f92672">=</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span> <span style="color:#f92672">]</span>
+<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>上述文件的意思是這個 Policy 只能操作 secret/foo 的新&amp;更新，其他的操作都一率被禁止，<code>/data/</code> 指的是預設 Key Value 的 Secret 路徑，如果是另外啟動的如 <code>$vault secrets enable -path=kv kv</code>，則可以不用加 /data 變成 <code>kv/foo</code> 即可</p>
 <p>接著實際操作</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault policy write my-policy my-policy.hcl
-$ vault token create -policy<span style="color:#719e07">=</span>my-policy
-</code></pre></div><p>可以看到 token 的 policy 窩了自定義的 my-policy</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault policy write my-policy my-policy.hcl
+$ vault token create -policy<span style="color:#f92672">=</span>my-policy
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到 token 的 policy 窩了自定義的 my-policy</p>
 <p>接著開另一個 shell 登入</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault login <span style="color:#719e07">{</span>token<span style="color:#719e07">}</span>
-$ vault kv put secret/foo <span style="color:#268bd2">bar</span><span style="color:#719e07">=</span>baz
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault login <span style="color:#f92672">{</span>token<span style="color:#f92672">}</span>
+$ vault kv put secret/foo bar<span style="color:#f92672">=</span>baz
 
 // permission denied
-$ vault kv <span style="color:#b58900">read</span> secret/foo
-$ vault kv put secret/foo/bar <span style="color:#268bd2">bar</span><span style="color:#719e07">=</span>baz
-</code></pre></div><p>後來發現 $vault login 會影響所有的 shell，這點在測試要稍加留意</p>
+$ vault kv read secret/foo
+$ vault kv put secret/foo/bar bar<span style="color:#f92672">=</span>baz
+</code></pre></td></tr></table>
+</div>
+</div><p>後來發現 $vault login 會影響所有的 shell，這點在測試要稍加留意</p>
 <p>Vault Policy 設定可以很彈性，主要有幾項關鍵字</p>
 <h4 id="1-path">1. path</h4>
 <p>路徑選擇，可以用 <code>*</code> 代表以下所有路徑 / <code>+</code> 代表此路徑匹配任何字元等方式，如果有多組 path，Vault 採取最長匹配的原則</p>
@@ -250,28 +363,55 @@ sudo 指的是受 root 保護的權限 / deny 是禁止任何操作包含 sudo �
 <h4 id="4-min_wrapping_ttl--max_wrapping_ttl">4. min_wrapping_ttl &amp; max_wrapping_ttl</h4>
 <p>產生子 Token 的最長與最短 TTL</p>
 <p>以下是綜合範例</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">path <span style="color:#2aa198">&#34;secret/foo&#34;</span> <span style="color:#719e07">{</span>
-  <span style="color:#268bd2">capabilities</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;create&#34;</span><span style="color:#719e07">]</span>
-  <span style="color:#268bd2">allowed_parameters</span> <span style="color:#719e07">=</span> <span style="color:#719e07">{</span>
-    <span style="color:#2aa198">&#34;foo&#34;</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[]</span>
-    <span style="color:#2aa198">&#34;bar&#34;</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;zip&#34;</span>, <span style="color:#2aa198">&#34;zap&#34;</span><span style="color:#719e07">]</span>
-  <span style="color:#719e07">}</span>
-  <span style="color:#268bd2">min_wrapping_ttl</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;1s&#34;</span>
-  <span style="color:#268bd2">max_wrapping_ttl</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;90s&#34;</span>
-<span style="color:#719e07">}</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">path <span style="color:#e6db74">&#34;secret/foo&#34;</span> <span style="color:#f92672">{</span>
+  capabilities <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;create&#34;</span><span style="color:#f92672">]</span>
+  allowed_parameters <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;foo&#34;</span> <span style="color:#f92672">=</span> <span style="color:#f92672">[]</span>
+    <span style="color:#e6db74">&#34;bar&#34;</span> <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;zip&#34;</span>, <span style="color:#e6db74">&#34;zap&#34;</span><span style="color:#f92672">]</span>
+  <span style="color:#f92672">}</span>
+  min_wrapping_ttl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1s&#34;</span>
+  max_wrapping_ttl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;90s&#34;</span>
+<span style="color:#f92672">}</span>
 
-path <span style="color:#2aa198">&#34;secret/bar/*&#34;</span> <span style="color:#719e07">{</span>
-  <span style="color:#268bd2">capabilities</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;create&#34;</span><span style="color:#719e07">]</span>
-  <span style="color:#268bd2">required_parameters</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;bar&#34;</span>, <span style="color:#2aa198">&#34;baz&#34;</span><span style="color:#719e07">]</span>
-<span style="color:#719e07">}</span>
+path <span style="color:#e6db74">&#34;secret/bar/*&#34;</span> <span style="color:#f92672">{</span>
+  capabilities <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;create&#34;</span><span style="color:#f92672">]</span>
+  required_parameters <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;bar&#34;</span>, <span style="color:#e6db74">&#34;baz&#34;</span><span style="color:#f92672">]</span>
+<span style="color:#f92672">}</span>
 
-path <span style="color:#2aa198">&#34;secret/baz/+/data-*&#34;</span> <span style="color:#719e07">{</span>
-  <span style="color:#268bd2">capabilities</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">&#34;create&#34;</span><span style="color:#719e07">]</span>
-  <span style="color:#268bd2">denied_parameters</span> <span style="color:#719e07">=</span> <span style="color:#719e07">{</span>
-    <span style="color:#2aa198">&#34;deny-*&#34;</span> <span style="color:#719e07">=</span> <span style="color:#719e07">[]</span>
-  <span style="color:#719e07">}</span>
-<span style="color:#719e07">}</span>
-</code></pre></div><p>針對 secret/foo，在創建時只允許參數 foo / bar，其中 foo 的 value 不受限，但是 bar 只能是 zip 或是 zap</p>
+path <span style="color:#e6db74">&#34;secret/baz/+/data-*&#34;</span> <span style="color:#f92672">{</span>
+  capabilities <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;create&#34;</span><span style="color:#f92672">]</span>
+  denied_parameters <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;deny-*&#34;</span> <span style="color:#f92672">=</span> <span style="color:#f92672">[]</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>針對 secret/foo，在創建時只允許參數 foo / bar，其中 foo 的 value 不受限，但是 bar 只能是 zip 或是 zap</p>
 <p>第二條是指 secret/bar 底下的任意路徑適用，包含 secret/bar/baz 和 secret/bar/baz/foo&hellip;. 等等，並且必須包含 bar, baz 這兩個參數</p>
 <p>第三條是路徑會匹配如 secret/baz/foo/data-bar，且不允許 deny- 開頭的 key</p>
 <h3 id="多重-policy-與衝突">多重 Policy 與衝突</h3>
@@ -284,41 +424,95 @@ path <span style="color:#2aa198">&#34;secret/baz/+/data-*&#34;</span> <span styl
 <ol>
 <li>啟動 dev server，關掉資料則全部消失</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault server --dev
-</code></pre></div><ol start="2">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault server --dev
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>登入與設定路徑</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault login <span style="color:#719e07">{</span>token<span style="color:#719e07">}</span>
-$ <span style="color:#b58900">export</span> <span style="color:#268bd2">VAULT_ADDR</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;http://127.0.0.1:8200&#39;</span>
-</code></pre></div><ol start="3">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault login <span style="color:#f92672">{</span>token<span style="color:#f92672">}</span>
+$ export VAULT_ADDR<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;http://127.0.0.1:8200&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li>Secret Engine 是與路徑匹配，secret/data 是預設 Key Store Secret Engine，可以另外開啟新的路徑</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault secrets <span style="color:#b58900">enable</span> -path<span style="color:#719e07">=</span>kv kv
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault secrets enable -path<span style="color:#f92672">=</span>kv kv
 // 條列
 $ vault secrets list -detailed
-$ vault secrets disable <span style="color:#719e07">{</span>path<span style="color:#719e07">}</span>
-</code></pre></div><ol start="4">
+$ vault secrets disable <span style="color:#f92672">{</span>path<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
 <li>新增&amp;更新/取得／刪除 Token</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault kv put kv/foo <span style="color:#268bd2">foo</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;123&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault kv put kv/foo foo<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;123&#34;</span>
 $ vault kv get kv/foo
 $ vault kv delete kv/foo
-</code></pre></div><ol start="5">
+</code></pre></td></tr></table>
+</div>
+</div><ol start="5">
 <li>Authentication</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault token create -ttl<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;1h&#34;</span> -policy<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;my_policy&#34;</span>
-$ vault token revoke <span style="color:#719e07">{</span>token id<span style="color:#719e07">}</span>
-</code></pre></div><ol start="6">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault token create -ttl<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1h&#34;</span> -policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;my_policy&#34;</span>
+$ vault token revoke <span style="color:#f92672">{</span>token id<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="6">
 <li>Authorization<br>
 另外用 hcl 檔儲存 Policy，並匯入設定中</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault policy write my-policy my-policy.hcl
-$ vault token capabilities <span style="color:#719e07">{</span>token<span style="color:#719e07">}</span> <span style="color:#719e07">{</span>path<span style="color:#719e07">}</span>
-$ vault policy <span style="color:#b58900">read</span> my-policy
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ vault policy write my-policy my-policy.hcl
+$ vault token capabilities <span style="color:#f92672">{</span>token<span style="color:#f92672">}</span> <span style="color:#f92672">{</span>path<span style="color:#f92672">}</span>
+$ vault policy read my-policy
 $ vault policy list
 $ vault policy delete my-policy  
 
-</code></pre></div><p>想不到初步介紹就花這麼大的篇幅，下一篇要實作結合 AWS 與搭配 API Server 的流程</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>想不到初步介紹就花這麼大的篇幅，下一篇要實作結合 AWS 與搭配 API Server 的流程</p>
 
 	</div>
 	

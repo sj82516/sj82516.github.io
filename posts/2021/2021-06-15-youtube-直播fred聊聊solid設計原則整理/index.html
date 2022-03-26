@@ -135,26 +135,51 @@
 <p>系統要可以妥善預測複雜度的發生點，並建立適合的 <code>擴展點</code> ，而發生行為變更時，透過擴展點變更，原本的主流成與使用該擴展點本身的 client 本身不需要修改</p>
 </blockquote>
 <p>例如有一個外賣平台，有多種會員身份，對應不同的折數，</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-jsx" data-lang="jsx">calPrice(){
-	<span style="color:#719e07">if</span>(用戶是專屬會員) {
-		<span style="color:#719e07">if</span>(金額 <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">200</span>){
-			打七折
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-jsx" data-lang="jsx"><span style="color:#a6e22e">calPrice</span>(){
+	<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">用戶是專屬會員</span>) {
+		<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">金額</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">200</span>){
+			<span style="color:#a6e22e">打七折</span>
 		}
 	}
 
-	<span style="color:#719e07">if</span>(用戶是 vip 會員){
-		打八折
+	<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">用戶是</span> <span style="color:#a6e22e">vip</span> <span style="color:#a6e22e">會員</span>){
+		<span style="color:#a6e22e">打八折</span>
 	}
 
-	<span style="color:#719e07">if</span>(普通會員){
-		<span style="color:#719e07">if</span>(上個月還是 vip 會員){
-			打八折	
+	<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">普通會員</span>){
+		<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">上個月還是</span> <span style="color:#a6e22e">vip</span> <span style="color:#a6e22e">會員</span>){
+			<span style="color:#a6e22e">打八折</span>	
 		}
 	}
 
-	原價
+	<span style="color:#a6e22e">原價</span>
 }
-</code></pre></div><p>如果 PM 説</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果 PM 説</p>
 <ol>
 <li>會員制度增加</li>
 <li>調整折數

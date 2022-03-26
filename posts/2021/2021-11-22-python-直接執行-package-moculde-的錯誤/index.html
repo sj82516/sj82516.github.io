@@ -99,41 +99,85 @@
 如果 Module 是 <code>top-level modules</code>，也就是 <code>__name__ == __main__</code>，則 __package__ 為 None</li>
 </ol>
 <p>以下參考自 <a href="https://stackoverflow.com/questions/16981921/relative-imports-in-python-3">Relative imports in Python 3</a>，假設目前的專案目錄是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">main.py
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">main.py
 mypackage/
     __init__.py
     mymodule.py
     myothermodule.py
-</code></pre></div><p>在 myothermodule.py 中，載入 mymodule，可以透過完整路徑 <code>import mypackage.mymodule</code> 或是相對路徑 <code>import .mymodule</code> 的方式，但如果直接執行 $python myothermodule 會分別遇到以下錯誤</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>在 myothermodule.py 中，載入 mymodule，可以透過完整路徑 <code>import mypackage.mymodule</code> 或是相對路徑 <code>import .mymodule</code> 的方式，但如果直接執行 $python myothermodule 會分別遇到以下錯誤</p>
 <ol>
 <li>完整路徑</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ModuleNotFoundError: No module named &#39;mypackage&#39;
-</code></pre></div><ol start="2">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ModuleNotFoundError: No module named &#39;mypackage&#39;
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>相對路徑</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ImportError: attempted relative import with no known parent package
-</code></pre></div><p>完整路徑的錯誤原因是因為 sys.path 中沒有 mypackage，sys.path 是加入<code>script 當前的資料夾 (./mypackage)</code>而不是 ./，所以 mypackage 是無法被載入的；<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ImportError: attempted relative import with no known parent package
+</code></pre></td></tr></table>
+</div>
+</div><p>完整路徑的錯誤原因是因為 sys.path 中沒有 mypackage，sys.path 是加入<code>script 當前的資料夾 (./mypackage)</code>而不是 ./，所以 mypackage 是無法被載入的；<br>
 相對路徑的錯誤則是因為當前 myothermodule.py 是 top-level module， __package__ 被設定為 None，所以相對路徑解析會失敗</p>
 <h2 id="如何解決">如何解決</h2>
 <p>分別針對完整路徑與相對路徑提出解決方案</p>
 <h3 id="1-完整路徑">1. 完整路徑</h3>
 <p>既然完整路徑是因為 sys.path 沒有包含到 package 的上層路徑而沒有被載入，那就加上去即可</p>
 <p>Python 鼓勵但不強制 import 都要放在檔案開頭</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> sys
-<span style="color:#719e07">from</span> pathlib <span style="color:#719e07">import</span> Path <span style="color:#586e75"># if you haven&#39;t already done so</span>
-<span style="color:#b58900">file</span> <span style="color:#719e07">=</span> Path(__file__)<span style="color:#719e07">.</span>resolve()
-parent, root <span style="color:#719e07">=</span> <span style="color:#b58900">file</span><span style="color:#719e07">.</span>parent, <span style="color:#b58900">file</span><span style="color:#719e07">.</span>parents[<span style="color:#2aa198">1</span>]
-sys<span style="color:#719e07">.</span>path<span style="color:#719e07">.</span>append(<span style="color:#b58900">str</span>(root))
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> sys
+<span style="color:#f92672">from</span> pathlib <span style="color:#f92672">import</span> Path <span style="color:#75715e"># if you haven&#39;t already done so</span>
+file <span style="color:#f92672">=</span> Path(__file__)<span style="color:#f92672">.</span>resolve()
+parent, root <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span>parent, file<span style="color:#f92672">.</span>parents[<span style="color:#ae81ff">1</span>]
+sys<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>append(str(root))
 
-<span style="color:#586e75"># Additionally remove the current file&#39;s directory from sys.path</span>
-<span style="color:#719e07">try</span>:
-    sys<span style="color:#719e07">.</span>path<span style="color:#719e07">.</span>remove(<span style="color:#b58900">str</span>(parent))
-<span style="color:#719e07">except</span> <span style="color:#cb4b16">ValueError</span>: <span style="color:#586e75"># Already removed</span>
-    <span style="color:#719e07">pass</span>
+<span style="color:#75715e"># Additionally remove the current file&#39;s directory from sys.path</span>
+<span style="color:#66d9ef">try</span>:
+    sys<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>remove(str(parent))
+<span style="color:#66d9ef">except</span> <span style="color:#a6e22e">ValueError</span>: <span style="color:#75715e"># Already removed</span>
+    <span style="color:#66d9ef">pass</span>
 
-<span style="color:#719e07">import</span> mypackage.mymodule <span style="color:#586e75"># 成功 Import</span>
-</code></pre></div><h4 id="直接安裝-package">直接安裝 package</h4>
+<span style="color:#f92672">import</span> mypackage.mymodule <span style="color:#75715e"># 成功 Import</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="直接安裝-package">直接安裝 package</h4>
 <p>另一個作法是透過 setuptools 直接安裝相依的套件，這樣就能從 site-package import，但這改動相對麻煩些，且變成套件要額外管理反而麻煩</p>
 <h3 id="2-相對路徑">2. 相對路徑</h3>
 <h4 id="使用--m-執行">使用 -m 執行</h4>
@@ -143,28 +187,55 @@ sys<span style="color:#719e07">.</span>path<span style="color:#719e07">.</span>a
 </blockquote>
 <h4 id="手動指定">手動指定</h4>
 <p>手動實作 PEP366 的提案，參考<a href="https://gist.github.com/vaultah/d63cb4c86be2774377aa674b009f759a">PEP366_boilerplate.py</a>，加入對應的 sys.path 並指定 __package__，達到跟 -m 相同的效果</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#719e07">import</span> sys<span style="color:#719e07">,</span> importlib
-<span style="color:#719e07">from</span> pathlib <span style="color:#719e07">import</span> Path
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#f92672">import</span> sys<span style="color:#f92672">,</span> importlib
+<span style="color:#f92672">from</span> pathlib <span style="color:#f92672">import</span> Path
 
 
-<span style="color:#719e07">def</span> <span style="color:#268bd2">import_parents</span>(level<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>):
-    <span style="color:#719e07">global</span> __package__
-    <span style="color:#b58900">file</span> <span style="color:#719e07">=</span> Path(__file__)<span style="color:#719e07">.</span>resolve()
-    parent, top <span style="color:#719e07">=</span> <span style="color:#b58900">file</span><span style="color:#719e07">.</span>parent, <span style="color:#b58900">file</span><span style="color:#719e07">.</span>parents[level]
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">import_parents</span>(level<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>):
+    <span style="color:#66d9ef">global</span> __package__
+    file <span style="color:#f92672">=</span> Path(__file__)<span style="color:#f92672">.</span>resolve()
+    parent, top <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span>parent, file<span style="color:#f92672">.</span>parents[level]
     
-    sys<span style="color:#719e07">.</span>path<span style="color:#719e07">.</span>append(<span style="color:#b58900">str</span>(top))
-    <span style="color:#719e07">try</span>:
-        sys<span style="color:#719e07">.</span>path<span style="color:#719e07">.</span>remove(<span style="color:#b58900">str</span>(parent))
-    <span style="color:#719e07">except</span> <span style="color:#cb4b16">ValueError</span>: <span style="color:#586e75"># already removed</span>
-        <span style="color:#719e07">pass</span>
+    sys<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>append(str(top))
+    <span style="color:#66d9ef">try</span>:
+        sys<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>remove(str(parent))
+    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">ValueError</span>: <span style="color:#75715e"># already removed</span>
+        <span style="color:#66d9ef">pass</span>
 
-    __package__ <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;.&#39;</span><span style="color:#719e07">.</span>join(parent<span style="color:#719e07">.</span>parts[<span style="color:#b58900">len</span>(top<span style="color:#719e07">.</span>parts):])
-    importlib<span style="color:#719e07">.</span>import_module(__package__) <span style="color:#586e75"># won&#39;t be needed after that</span>
+    __package__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;.&#39;</span><span style="color:#f92672">.</span>join(parent<span style="color:#f92672">.</span>parts[len(top<span style="color:#f92672">.</span>parts):])
+    importlib<span style="color:#f92672">.</span>import_module(__package__) <span style="color:#75715e"># won&#39;t be needed after that</span>
 
 
-<span style="color:#719e07">if</span> __name__ <span style="color:#719e07">==</span> <span style="color:#2aa198">&#39;__main__&#39;</span> <span style="color:#719e07">and</span> __package__ <span style="color:#719e07">is</span> <span style="color:#268bd2">None</span>:
-    import_parents(level<span style="color:#719e07">=...</span>)
-</code></pre></div><h2 id="結語">結語</h2>
+<span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span> <span style="color:#f92672">and</span> __package__ <span style="color:#f92672">is</span> None:
+    import_parents(level<span style="color:#f92672">=...</span>)
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="結語">結語</h2>
 <p>第一次接觸 Python 覺得頗神奇，有許多 magic number 以及獨樹一格的 package 管理方式，包含 virtual env 的使用等</p>
 
 	</div>

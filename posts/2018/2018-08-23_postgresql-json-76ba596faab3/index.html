@@ -80,13 +80,25 @@
 <p><a href="https://www.db-fiddle.com/f/vk8sCioCh1RstjSWXsZnWr/4"><strong>DB Fiddle - SQL Database Playground</strong></a></p>
 <p>基本就是是 Orders / Products 兩張表，Orders 中資料用 data jsonb 格式存儲，Products 則是常規的欄位定義。</p>
 <p>Orders 資料大約長這樣</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">1</span>,
-  <span style="color:#268bd2">&#34;cost&#34;</span>: <span style="color:#2aa198">200</span>,
-  <span style="color:#268bd2">&#34;products&#34;</span>: [{<span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">1</span>, <span style="color:#268bd2">&#34;nums&#34;</span>: <span style="color:#2aa198">5</span>}, {<span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">2</span>, <span style="color:#268bd2">&#34;nums&#34;</span>: <span style="color:#2aa198">3</span>}],
-  <span style="color:#268bd2">&#34;details&#34;</span>: {<span style="color:#268bd2">&#34;title&#34;</span>: <span style="color:#2aa198">&#34;memo&#34;</span>}
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">1</span>,
+  <span style="color:#f92672">&#34;cost&#34;</span>: <span style="color:#ae81ff">200</span>,
+  <span style="color:#f92672">&#34;products&#34;</span>: [{<span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">1</span>, <span style="color:#f92672">&#34;nums&#34;</span>: <span style="color:#ae81ff">5</span>}, {<span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">2</span>, <span style="color:#f92672">&#34;nums&#34;</span>: <span style="color:#ae81ff">3</span>}],
+  <span style="color:#f92672">&#34;details&#34;</span>: {<span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;memo&#34;</span>}
 }
-</code></pre></div><h4 id="操作-json">操作 JSON</h4>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="操作-json">操作 JSON</h4>
 <p>如果是要做 json 的欄位索取，可以用 <code>-&gt;</code> ，如果要回傳字串結果用 <code>-&gt;&gt;</code></p>
 <p>例如說 <code>data-&gt;’details’-&gt;&gt;’title’</code> 就會回傳 <code>“memo”</code></p>
 <p>陣列也可以指定哪個位置，例如 <code>data-&gt;’product’-&gt;0-&gt;’id’</code></p>
@@ -104,12 +116,23 @@
 <p>算是做第一正規化，我希望透過 Join Products 計算每筆訂單的總額，但因為 Orders 中的 data-&gt;product 是陣列，所以需要 <code>jsonb_array_elements</code> ，<code>jsonb_array_elements</code> 會直接回傳 set</p>
 <p><code>select jsonb_array_elements(data-&gt;’products’) as product_item from Orders;</code> 這樣就可以做到第一正規化</p>
 <p>接著蠻神奇的是可以直接將 Order 與 <code>jsonb_array_elements</code> 做 CROSS JOIN</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#719e07">select</span> Orders.id,  
-<span style="color:#719e07">Sum</span>(<span style="color:#719e07">Cast</span>(product_item<span style="color:#719e07">-&gt;&gt;</span><span style="color:#2aa198">&#39;nums&#39;</span> <span style="color:#719e07">as</span> <span style="color:#b58900">int</span>) \<span style="color:#719e07">*</span> Products.price) <span style="color:#719e07">from</span> Orders,  
- jsonb_array_elements(<span style="color:#719e07">data</span><span style="color:#719e07">-&gt;</span><span style="color:#2aa198">&#39;products&#39;</span>) <span style="color:#719e07">as</span> product_item  
- <span style="color:#719e07">left</span> <span style="color:#719e07">join</span> Products <span style="color:#719e07">on</span> <span style="color:#719e07">Cast</span>(product_item<span style="color:#719e07">-&gt;&gt;</span><span style="color:#2aa198">&#39;id&#39;</span> <span style="color:#719e07">as</span> <span style="color:#b58900">int</span>) <span style="color:#719e07">=</span> Products.id  
- <span style="color:#719e07">group</span> <span style="color:#719e07">by</span> Orders.id;
-</code></pre></div><p>但結果竟然不是預期的笛卡爾積 N*M，而是會自動幫你把屬於該訂單的 product 對應好，到現在還想不透怎麼會這樣。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> Orders.id,  
+<span style="color:#66d9ef">Sum</span>(<span style="color:#66d9ef">Cast</span>(product_item<span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;nums&#39;</span> <span style="color:#66d9ef">as</span> int) <span style="color:#960050;background-color:#1e0010">\</span><span style="color:#f92672">*</span> Products.price) <span style="color:#66d9ef">from</span> Orders,  
+ jsonb_array_elements(<span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;</span><span style="color:#e6db74">&#39;products&#39;</span>) <span style="color:#66d9ef">as</span> product_item  
+ <span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> Products <span style="color:#66d9ef">on</span> <span style="color:#66d9ef">Cast</span>(product_item<span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;id&#39;</span> <span style="color:#66d9ef">as</span> int) <span style="color:#f92672">=</span> Products.id  
+ <span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> Orders.id;
+</code></pre></td></tr></table>
+</div>
+</div><p>但結果竟然不是預期的笛卡爾積 N*M，而是會自動幫你把屬於該訂單的 product 對應好，到現在還想不透怎麼會這樣。</p>
 <h4 id="json-vsjsonb">json vs jsonb</h4>
 <p>Postgresql 支援兩種合法 json 可插入的格式 <code>json</code> <code>jsonb</code> ，但兩者有些微的差異</p>
 <ol>

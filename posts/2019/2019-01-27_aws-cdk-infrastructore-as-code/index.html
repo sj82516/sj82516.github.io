@@ -112,10 +112,31 @@
 <li>安裝 aws-cdk， <code>npm install -g aws-cdk@0.22.0</code></li>
 </ol>
 <p>aws-cdk 主要提供幾個指令</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">// 用於初始化專案，可以指定語言  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">// 用於初始化專案，可以指定語言  
 $ cdk init 
 
-// 查看目前所有的 stack <span style="color:#719e07">(</span>後續介紹什麼是 stack<span style="color:#719e07">)</span>  
+// 查看目前所有的 stack <span style="color:#f92672">(</span>後續介紹什麼是 stack<span style="color:#f92672">)</span>  
 $ cdk ls
 
 // 查看目前程式碼轉換的 cloud formation  
@@ -129,7 +150,9 @@ $ cdk deploy
 
 // 初始化環境  
 $ cdk bootstrap
-</code></pre></div><p>目前我習慣使用 Typescript 開發，搭配 VSCode 有連好的自動提示非常方便。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>目前我習慣使用 Typescript 開發，搭配 VSCode 有連好的自動提示非常方便。</p>
 <h3 id="實戰部署-scheduled-event-觸發lambda">實戰：部署 Scheduled Event 觸發 Lambda</h3>
 <p>Let’s write some code~ <br>
 這次做一個部署到多個區域，定期 2 分鐘去打 <a href="https://www.president.gov.tw/">https://www.president.gov.tw/</a> 看台灣總統府頁面在全球的網頁回應速度，接著發訊息到 slack 頻道。</p>

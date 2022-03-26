@@ -92,10 +92,19 @@
 <p>一開始聽朋友分享，會覺得<code>熟悉工具使用好像很 low，身為工程師應該更專注於演算法、架構層面</code>，但殊不知自己一天的工作時間都浪費在無謂的鍵盤按鍵與滑鼠移動</p>
 <p>上課的第一個課程是，兩兩一組，一人寫 Tennis Kata，另一個人紀錄寫程式的人浪費多少無謂的方向鍵，或是在怎樣的場景使用滑鼠，這無關乎熟不熟悉 Tennis Kata，而是對於<code>寫程式這項技藝是否簡潔到沒有多餘的動作</code></p>
 <p>在寫測試案例，我們是否每次都要重新打</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">it(<span style="color:#2aa198">&#39;....&#39;</span>, ()=&gt;{
-    expect(...).toBe(...)
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#39;....&#39;</span>, ()=&gt;{
+    <span style="color:#a6e22e">expect</span>(...).<span style="color:#a6e22e">toBe</span>(...)
 })
-</code></pre></div><p>我們眼睛盯著程式碼第 100 行的 name 這個詞，是否能夠很精準又快速跳到單字上，並重新命名為 firstName 然後套用到所有的引用上？</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>我們眼睛盯著程式碼第 100 行的 name 這個詞，是否能夠很精準又快速跳到單字上，並重新命名為 firstName 然後套用到所有的引用上？</p>
 <p>上完課最震撼的是，自己從沒有抽絲剝繭「寫程式」這件事，而明明有好的工具 / 好的方法，為什麼不用呢？！</p>
 <h2 id="如何練習">如何練習</h2>
 <p>上完課 91 笑著說，每天只練 30 分鐘就好，因為多練也可能是重複錯誤的動作，遵守老師的吩咐，我固定每天早上練習 30 分鐘，雖然有時候會超過，但盡量不要讓自己練習到心煩，避免容易中斷習慣</p>
@@ -107,12 +116,23 @@
 <li>調整 .ideavimrm<br>
 這部分很花時間，但很建議自己掃過整個檔案，把多餘的指令移除，並確保自己大概知道每個指令的含義，尤其是 zr 系列</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">zri: inline
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">zri: inline
 zrp: 抽參數
 zrm: 抽方法
 zrf: 抽成 field
 zrn: 我自己加的，refactor element
-</code></pre></div><p>像是用 Mac 開發，要使用 F1~F12 都很痛苦，我就去查 <code>:actionlist</code> 找出 idealvim 支援的 action，或是查這一分 <a href="https://gist.github.com/zchee/9c78f91cc5ad771c1f5d">IdeaVim actionlist</a><br>
+</code></pre></td></tr></table>
+</div>
+</div><p>像是用 Mac 開發，要使用 F1~F12 都很痛苦，我就去查 <code>:actionlist</code> 找出 idealvim 支援的 action，或是查這一分 <a href="https://gist.github.com/zchee/9c78f91cc5ad771c1f5d">IdeaVim actionlist</a><br>
 雖然設定 keymap 也可以，但想說能夠用一套就全部用一套，所以切換檔案我也重新綁過</p>
 <p>第一週只做到 tune ide，並練習到 &lsquo;thirty love&rsquo;，並熟悉 zr 系列的快捷鍵</p>
 <h3 id="第二週">第二週</h3>
@@ -128,14 +148,27 @@ zrn: 我自己加的，refactor element
 <li>取消 Webstorm 抽參數時補上預設<br>
 假設以下要把 &ldquo;joey&rdquo; 抽成參數，我的預設會是帶入預設值，這樣會讓原本在初始化 Tennis 時不會自動補上 new Tennis(&ldquo;joey&rdquo;)</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">constructor(){
-    <span style="color:#719e07">this</span>.firstPlayerName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;joey&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">constructor</span>(){
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">firstPlayerName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;joey&#34;</span>
 }
 
-constructor(firstPlayerName <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;joey&#34;</span>){
-    <span style="color:#268bd2">let</span> firstPlayerName <span style="color:#719e07">=</span> firstPlayerName
+<span style="color:#a6e22e">constructor</span>(<span style="color:#a6e22e">firstPlayerName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;joey&#34;</span>){
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">firstPlayerName</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">firstPlayerName</span>
 }
-</code></pre></div><p>在抽參數時會有小提示，記得要點掉<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>在抽參數時會有小提示，記得要點掉<br>
 <img src="/posts/2021/img/0126/default-param.png" alt=""></p>
 <p>另一個練習是檔案目錄操作，例如說多建一個 folder / 把檔案移動過去 / 刪除檔案這些，原本 Tennis 沒有練到這部分，但實務上這些動作很需要，就有花額外的時間練習</p>
 <h3 id="第四週練習">第四週練習</h3>

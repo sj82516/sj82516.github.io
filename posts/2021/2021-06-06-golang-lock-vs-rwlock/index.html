@@ -98,17 +98,37 @@
 <p>在解除寫鎖 / 讀鎖，會分別去出發信號，讓等待的讀鎖 / 寫鎖開始執行</p>
 <h3 id="rwmutex-跟-mutex-效能比較">RWMutex 跟 Mutex 效能比較</h3>
 <p>實際測試的結果，設定一個寫入比率，單純比較取鎖/釋放鎖，跑一百萬次兩者差異不大</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest-8            10000000                 0.04064 ns/op
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest-8            10000000                 0.04064 ns/op
 BenchmarkRWMutexTest
 BenchmarkRWMutexTest-8          10000000                 0.04699 ns/op
 BenchmarkFakeWrite
-</code></pre></div><p>加入了讀取跟寫入，有些測試會用 time.Sleep ，但我實驗因為同時跑 goroutine 關係，如果全部 goroutine 都在 sleep 會出錯，所以改用簡單的計數從零數到一百萬當作讀取，而寫入則是五倍的讀取時間</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>加入了讀取跟寫入，有些測試會用 time.Sleep ，但我實驗因為同時跑 goroutine 關係，如果全部 goroutine 都在 sleep 會出錯，所以改用簡單的計數從零數到一百萬當作讀取，而寫入則是五倍的讀取時間</p>
 <p>寫入比例抓 0.2 的話，RWMutex 用起來有優勢很多</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest
 BenchmarkMutexTest-8               10000             58176 ns/op
 BenchmarkRWMutexTest
 BenchmarkRWMutexTest-8             10000             37176 ns/op
-</code></pre></div><p>測試的程式碼在此 <a href="https://github.com/sj82516/go-rwmutex-benchmark">go-rwmutex-benchmark</a></p>
+</code></pre></td></tr></table>
+</div>
+</div><p>測試的程式碼在此 <a href="https://github.com/sj82516/go-rwmutex-benchmark">go-rwmutex-benchmark</a></p>
 <p>總結</p>
 <blockquote>
 <p>RWMutex 測試起來效能蠻好的，在考量到讀取比較多的情況表現會比 Mutex 還要好</p>
@@ -136,16 +156,31 @@ BenchmarkRWMutexTest-8             10000             37176 ns/op
 <p>這邊實作有趣的地方在於 Rob Pike 表示雖然每個平台的指令/暫存器名稱都不同，但是基本的使用可以被抽象化，所以 Go Compiler 會編譯出 semi pseudo code，接著依照指定的平台轉換成對應的 assembly code，這部分實作了 <code>obj</code> library</p>
 <p>這樣的好處是對於 Compiler 來說產生 semi pseudo code 就是單純的文字轉換</p>
 <p>在影片中的範例</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">ADDW AX, BX
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">ADDW</span> <span style="color:#a6e22e">AX</span>, <span style="color:#a6e22e">BX</span>
 
-<span style="color:#719e07">-----</span>
+<span style="color:#f92672">-----</span>
 
-<span style="color:#719e07">&amp;</span>obj.Prod{
-    As: arch.Instructions[<span style="color:#2aa198">&#34;ADDW&#34;</span>],
-    From: obj.Addr{Reg: arch.Register[<span style="color:#2aa198">&#34;AX&#34;</span>]},
-    To: obj.Addr{Reg: arch.Register[<span style="color:#2aa198">&#34;BX&#34;</span>]}
+<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Prod</span>{
+    <span style="color:#a6e22e">As</span>: <span style="color:#a6e22e">arch</span>.<span style="color:#a6e22e">Instructions</span>[<span style="color:#e6db74">&#34;ADDW&#34;</span>],
+    <span style="color:#a6e22e">From</span>: <span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Addr</span>{<span style="color:#a6e22e">Reg</span>: <span style="color:#a6e22e">arch</span>.<span style="color:#a6e22e">Register</span>[<span style="color:#e6db74">&#34;AX&#34;</span>]},
+    <span style="color:#a6e22e">To</span>: <span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Addr</span>{<span style="color:#a6e22e">Reg</span>: <span style="color:#a6e22e">arch</span>.<span style="color:#a6e22e">Register</span>[<span style="color:#e6db74">&#34;BX&#34;</span>]}
 }
-</code></pre></div><p>最後提到他們在開發工具，直接讀 PDF 產生各平台對應的 instruction set
+</code></pre></td></tr></table>
+</div>
+</div><p>最後提到他們在開發工具，直接讀 PDF 產生各平台對應的 instruction set
 <img src="" alt=""></p>
 <p>在思考的過程中，開始想 assembly 夾在 source code / machine code 的地位，這一篇 SO 給出了回答 <a href="https://stackoverflow.com/questions/51780158/why-do-we-even-need-assembler-when-we-have-compiler">Why do we even need assembler when we have compiler?</a><br>
 正如同夾在中間的地位，machine code 人類無法讀，source code 又太 high level，如果要確認 compiler 是否編譯出有效的 machine code，那查看 assembly 看實際人類可讀的指令是最好的</p>

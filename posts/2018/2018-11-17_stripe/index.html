@@ -96,8 +96,15 @@ Terminal(整合硬體Reader，限定持有該硬體才能交易)、Issuing(可�
 <p>整合 Stripe Client-side有兩種模式 <code>Simple</code>、<code>Custom</code></p>
 <h3 id="simple">Simple</h3>
 <p>用一個 <code>&lt;form/&gt;</code> 定義如何轉交給token給 server，接著內部嵌入 stripe script 並定義參數，最基本的幾個參數</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#268bd2">form</span> action<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;your-server-side-code&#34;</span> method<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;POST&#34;</span>&gt;  &lt;<span style="color:#268bd2">script</span>    src<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;https://checkout.stripe.com/checkout.js&#34;</span> class<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;stripe-button&#34;</span>    data-key<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;YOUR_KEY&#34;</span>    data-amount<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;999&#34;</span>    data-name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;COMPANY&#34;</span>    data-description<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Example charge&#34;</span>    data-image<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;https://stripe.com/img/documentation/checkout/marketplace.png&#34;</span>    data-locale<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;auto&#34;</span>    data-currency<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;hkd&#34;</span>&gt;  &lt;/<span style="color:#268bd2">script</span>&gt;&lt;/<span style="color:#268bd2">form</span>&gt;
-</code></pre></div><p>對，就這麼簡單就完成了，接著就是到 form定義的 server api 收 token資料</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;your-server-side-code&#34;</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;POST&#34;</span>&gt;  &lt;<span style="color:#f92672">script</span>    <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://checkout.stripe.com/checkout.js&#34;</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;stripe-button&#34;</span>    <span style="color:#a6e22e">data-key</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;YOUR_KEY&#34;</span>    <span style="color:#a6e22e">data-amount</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;999&#34;</span>    <span style="color:#a6e22e">data-name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;COMPANY&#34;</span>    <span style="color:#a6e22e">data-description</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Example charge&#34;</span>    <span style="color:#a6e22e">data-image</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://stripe.com/img/documentation/checkout/marketplace.png&#34;</span>    <span style="color:#a6e22e">data-locale</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;auto&#34;</span>    <span style="color:#a6e22e">data-currency</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hkd&#34;</span>&gt;  &lt;/<span style="color:#f92672">script</span>&gt;&lt;/<span style="color:#f92672">form</span>&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>對，就這麼簡單就完成了，接著就是到 form定義的 server api 收 token資料</p>
 <h3 id="custom">Custom</h3>
 <p>如果希望有更細緻的用戶體驗，例如客製化自己的付費表單、顯示錯誤訊息等，就需要自己客製化，這部分也十分的簡單，用 vanilla js 也可以輕鬆完成</p>
 <p>這部分程式碼可以參考<a href="https://stripe.com/docs/checkout#integration-custom">文件</a></p>
@@ -131,37 +138,77 @@ Terminal(整合硬體Reader，限定持有該硬體才能交易)、Issuing(可�
 <p>Source 此時僅代表支付方式，實際的支付要透過 Source 建立 <strong>Charge</strong> 物件，Charge 物件同樣有幾個 webhook 可以串接，非同步支付初始化會是等待用戶支付<code>charge.pending</code> 、成功收到用戶支付<code>charge.succeeded</code> 、與支付失敗<code>charge.failed</code></p>
 <p>webhook 部分則是在後台設定。</p>
 <p>以下擷取官方案例，僅作於理解使用</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">stripe.createSource({  type<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;ach_credit_transfer&#39;</span>,  currency<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;usd&#39;</span>,  owner<span style="color:#719e07">:</span> {    email<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;jenny.rosen@example.com&#39;</span>,  },}).then(<span style="color:#268bd2">function</span>(result) {  
-  <span style="color:#586e75">// 這裡會回傳 Source基本資料如 id等  
-</span><span style="color:#586e75"></span>  <span style="color:#586e75">// 還有用戶需要知道的轉帳資訊如銀行帳號
-</span><span style="color:#586e75"></span>});
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">createSource</span>({  <span style="color:#a6e22e">type</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;ach_credit_transfer&#39;</span>,  <span style="color:#a6e22e">currency</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;usd&#39;</span>,  <span style="color:#a6e22e">owner</span><span style="color:#f92672">:</span> {    <span style="color:#a6e22e">email</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;jenny.rosen@example.com&#39;</span>,  },}).<span style="color:#a6e22e">then</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">result</span>) {  
+  <span style="color:#75715e">// 這裡會回傳 Source基本資料如 id等  
+</span><span style="color:#75715e"></span>  <span style="color:#75715e">// 還有用戶需要知道的轉帳資訊如銀行帳號
+</span><span style="color:#75715e"></span>});
 
 
-<span style="color:#586e75">// 掛webhook，指定source.chargeable  
-</span><span style="color:#586e75"></span>app.post(<span style="color:#2aa198">&#34;/webhook/to/source.chargable&#34;</span>, (req, res) =&gt; {  
-    console.log(req.body.read)  
+<span style="color:#75715e">// 掛webhook，指定source.chargeable  
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#34;/webhook/to/source.chargable&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {  
+    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">read</span>)  
 })
-</code></pre></div><p>某些支付方式是可以多次扣款，例如信用卡，Stripe 提供 Customer 概念，也就是可以創建一個 Customer 代表用戶，接著將 Source 綁定到該用戶上，一個用戶可以綁定多個 Source，到時候如果要扣款可以從 Source中選擇其中一個，相當的方便<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>某些支付方式是可以多次扣款，例如信用卡，Stripe 提供 Customer 概念，也就是可以創建一個 Customer 代表用戶，接著將 Source 綁定到該用戶上，一個用戶可以綁定多個 Source，到時候如果要扣款可以從 Source中選擇其中一個，相當的方便<br>
 需注意 Source 必須是 chargable 才可以扣款</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// 建立 customer
-</span><span style="color:#586e75"></span>stripe.customers.create({
-    email<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;paying.user@example.com&#34;</span>,
-    source<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;src_18eYalAHEMiOZZp1l9ZTjSU0&#34;</span>,
-}, <span style="color:#268bd2">function</span>(err, customer) { <span style="color:#586e75">// asynchronously called
-</span><span style="color:#586e75"></span>});
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// 建立 customer
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">customers</span>.<span style="color:#a6e22e">create</span>({
+    <span style="color:#a6e22e">email</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;paying.user@example.com&#34;</span>,
+    <span style="color:#a6e22e">source</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;src_18eYalAHEMiOZZp1l9ZTjSU0&#34;</span>,
+}, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">customer</span>) { <span style="color:#75715e">// asynchronously called
+</span><span style="color:#75715e"></span>});
 
-<span style="color:#586e75">// 如果要扣款的話
-</span><span style="color:#586e75"></span>stripe.charges.create({
-        amount<span style="color:#719e07">:</span> <span style="color:#2aa198">1099</span>,
-        currency<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;eur&#34;</span>,
-        customer<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;cus_AFGbOSiITuJVDs&#34;</span>,
-        source<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;src_18eYalAHEMiOZZp1l9ZTjSU0&#34;</span>,
-        <span style="color:#586e75">// 可以不指定 source，會自動找 customer 預設的 source
-</span><span style="color:#586e75"></span>    },
-    <span style="color:#268bd2">function</span>(err, charge) {
-        <span style="color:#586e75">// asynchronously called
-</span><span style="color:#586e75"></span>    });
-</code></pre></div><h3 id="小結">小結!</h3>
+<span style="color:#75715e">// 如果要扣款的話
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">charges</span>.<span style="color:#a6e22e">create</span>({
+        <span style="color:#a6e22e">amount</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1099</span>,
+        <span style="color:#a6e22e">currency</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;eur&#34;</span>,
+        <span style="color:#a6e22e">customer</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;cus_AFGbOSiITuJVDs&#34;</span>,
+        <span style="color:#a6e22e">source</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;src_18eYalAHEMiOZZp1l9ZTjSU0&#34;</span>,
+        <span style="color:#75715e">// 可以不指定 source，會自動找 customer 預設的 source
+</span><span style="color:#75715e"></span>    },
+    <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">charge</span>) {
+        <span style="color:#75715e">// asynchronously called
+</span><span style="color:#75715e"></span>    });
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="小結">小結!</h3>
 <p>看到是不是有點暈頭轉向了呢，說好的 Stripe 很簡單呢？ <br>
 或許這也是種 <code>simplicity but not simple</code>，要提供多元的支付方式勢必帶來邏輯的複雜性，但是我覺得 Stripe 透過 OOP梳理整個金融支付的過程，帶來極棒的 Developer Experience與 User Experience，接過台灣的紅藍綠你就會知道Stripe 有多棒了</p>
 <p>廢話不多說，讓我來重新整理一翻</p>
@@ -180,60 +227,136 @@ Terminal(整合硬體Reader，限定持有該硬體才能交易)、Issuing(可�
 如果發票有誤需要作廢，則設為 <code>Void</code></li>
 </ol>
 <h3 id="一次性開立發票-one-offinvoiceshttpsstripecomdocsbillinginvoicesone-off">一次性開立發票 <a href="https://stripe.com/docs/billing/invoices/one-off">one-off invoices</a></h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> stripe <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#34;stripe&#34;</span>)(<span style="color:#2aa198">&#34;sk_test_AyGgRZ5ZZkIETGtHDI3f1GAE&#34;</span>);
-<span style="color:#586e75">// 先建立發票
-</span><span style="color:#586e75"></span>stripe.invoiceItems.create({
-    customer<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;cus_DqZrTNCO4puf2p&#34;</span>,
-    amount<span style="color:#719e07">:</span> <span style="color:#2aa198">2500</span>,
-    currency<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;usd&#34;</span>,
-    description<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;One-time setup fee&#34;</span>
-}, <span style="color:#268bd2">function</span>(err, invoiceItem) {
-    <span style="color:#586e75">// 針對某個用戶底下所有的InvoiceItems開立發票  
-</span><span style="color:#586e75"></span>    stripe.invoices.create({
-        customer<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;cus_4fdAW5ftNQow1a&#34;</span>,
-        auto_advance<span style="color:#719e07">:</span> <span style="color:#cb4b16">true</span>
-        <span style="color:#586e75">// auto-finalize this draft after ~1 hour  
-</span><span style="color:#586e75"></span>    }, <span style="color:#268bd2">function</span>(err, invoice) { <span style="color:#586e75">// asynchronously called  
-</span><span style="color:#586e75"></span>    });
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stripe</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;stripe&#34;</span>)(<span style="color:#e6db74">&#34;sk_test_AyGgRZ5ZZkIETGtHDI3f1GAE&#34;</span>);
+<span style="color:#75715e">// 先建立發票
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">invoiceItems</span>.<span style="color:#a6e22e">create</span>({
+    <span style="color:#a6e22e">customer</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;cus_DqZrTNCO4puf2p&#34;</span>,
+    <span style="color:#a6e22e">amount</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2500</span>,
+    <span style="color:#a6e22e">currency</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;usd&#34;</span>,
+    <span style="color:#a6e22e">description</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;One-time setup fee&#34;</span>
+}, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">invoiceItem</span>) {
+    <span style="color:#75715e">// 針對某個用戶底下所有的InvoiceItems開立發票  
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">invoices</span>.<span style="color:#a6e22e">create</span>({
+        <span style="color:#a6e22e">customer</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;cus_4fdAW5ftNQow1a&#34;</span>,
+        <span style="color:#a6e22e">auto_advance</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>
+        <span style="color:#75715e">// auto-finalize this draft after ~1 hour  
+</span><span style="color:#75715e"></span>    }, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">invoice</span>) { <span style="color:#75715e">// asynchronously called  
+</span><span style="color:#75715e"></span>    });
 });
-</code></pre></div><p>auto_advance 算是很重要的參數，Stripe 預設在 Invoice 創建之後會有自動化的動作，如一小時後自動轉成 open**，並會向用戶自動扣款 (預設 Source)接著轉成** <code>paid</code>，並Email 發送 Receipt 與 Invoice；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>auto_advance 算是很重要的參數，Stripe 預設在 Invoice 創建之後會有自動化的動作，如一小時後自動轉成 open**，並會向用戶自動扣款 (預設 Source)接著轉成** <code>paid</code>，並Email 發送 Receipt 與 Invoice；<br>
 如果不想要記得設為 false</p>
 <p>在開立發票上 Stripe 靈活性頗高，每一筆 InvoiceItem 可以設定費用/折扣/稅率，InvoiceItem 可以指定所屬的 Invoice，或是預設歸類到該用戶的下筆 open 的Invoice中</p>
 <h3 id="訂閱制扣款服務-subscription">訂閱制扣款服務 subscription</h3>
 <p>有些雲端服務都是以年或是月的訂閱收費制度，Stripe 中可以定義 Product 與 Plan，例如說有一個 Product 是 SaaS服務</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> product <span style="color:#719e07">=</span> stripe.products.create({
-    name<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;My SaaS Platform&#39;</span>,
-    type<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;service&#39;</span>,
-    metadata<span style="color:#719e07">:</span> {
-        <span style="color:#586e75">// store anything you want
-</span><span style="color:#586e75"></span>    }
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">product</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">products</span>.<span style="color:#a6e22e">create</span>({
+    <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;My SaaS Platform&#39;</span>,
+    <span style="color:#a6e22e">type</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;service&#39;</span>,
+    <span style="color:#a6e22e">metadata</span><span style="color:#f92672">:</span> {
+        <span style="color:#75715e">// store anything you want
+</span><span style="color:#75715e"></span>    }
 });
-</code></pre></div><p>針對這個 Product，可能會有許多的收費方式 Plan，可能是月繳/季繳/年繳或是有不同的適用期限、也可能有多種國家的不同定價等設定</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> plan <span style="color:#719e07">=</span> stripe.plans.create({
-    product<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;prod_CbvTFuXWh7BPJH&#39;</span>,
-    nickname<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;SaaS Platform USD&#39;</span>,
-    currency<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;usd&#39;</span>,
-    interval<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;month&#39;</span>,
-    amount<span style="color:#719e07">:</span> <span style="color:#2aa198">10000</span>,
+</code></pre></td></tr></table>
+</div>
+</div><p>針對這個 Product，可能會有許多的收費方式 Plan，可能是月繳/季繳/年繳或是有不同的適用期限、也可能有多種國家的不同定價等設定</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">plan</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">plans</span>.<span style="color:#a6e22e">create</span>({
+    <span style="color:#a6e22e">product</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;prod_CbvTFuXWh7BPJH&#39;</span>,
+    <span style="color:#a6e22e">nickname</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;SaaS Platform USD&#39;</span>,
+    <span style="color:#a6e22e">currency</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;usd&#39;</span>,
+    <span style="color:#a6e22e">interval</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;month&#39;</span>,
+    <span style="color:#a6e22e">amount</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">10000</span>,
 });
-</code></pre></div><p>Stripe 支援分層收費，可以指定多種模式，例如 當超過一個額度，每個商品變多少錢 / 又或是分多階層，超過部分算該價格的階梯形收費</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>Stripe 支援分層收費，可以指定多種模式，例如 當超過一個額度，每個商品變多少錢 / 又或是分多階層，超過部分算該價格的階梯形收費</p>
 <p>當先前的 Custome想要購買時，會創建一個訂閱 Subscription 的物件，並決定要訂閱的 Plan，如果要一個訂閱多個 Plan，這些 Plan必須幣別相同且收費區間一致；</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> subscription <span style="color:#719e07">=</span> stripe.subscriptions.create({  customer<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;cus_4fdAW5ftNQow1a&#39;</span>,    coupon<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;free-period&#39;</span>,  tax_percent<span style="color:#719e07">:</span> <span style="color:#2aa198">6.34</span>,  trial_end<span style="color:#719e07">:</span> <span style="color:#2aa198">1542721841</span>,  items<span style="color:#719e07">:</span> [{      plan<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;plan_CBXbz9i7AIOTzr&#39;</span>    }, {      plan<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;plan_IFuCu48Snc02bc&#39;</span>,      quantity<span style="color:#719e07">:</span> <span style="color:#2aa198">2</span>,    }],});
-</code></pre></div><p>此外，還有Coupon 可以設定，支援一次性 / 永久性 / 每次扣款用，還有 %跟數量的設定，相當有彈性</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> coupon <span style="color:#719e07">=</span> stripe.coupons.create({  duration<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;once&#39;</span>,  id<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;free-period&#39;</span>,  percent_off<span style="color:#719e07">:</span> <span style="color:#2aa198">100</span>,});
-</code></pre></div><p>建立 subscription 在沒有停止之前，Stripe 會自動依照時間定期扣款，並自動開立發票(可關閉)，相當的方便。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">subscriptions</span>.<span style="color:#a6e22e">create</span>({  <span style="color:#a6e22e">customer</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;cus_4fdAW5ftNQow1a&#39;</span>,    <span style="color:#a6e22e">coupon</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;free-period&#39;</span>,  <span style="color:#a6e22e">tax_percent</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">6.34</span>,  <span style="color:#a6e22e">trial_end</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1542721841</span>,  <span style="color:#a6e22e">items</span><span style="color:#f92672">:</span> [{      <span style="color:#a6e22e">plan</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;plan_CBXbz9i7AIOTzr&#39;</span>    }, {      <span style="color:#a6e22e">plan</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;plan_IFuCu48Snc02bc&#39;</span>,      <span style="color:#a6e22e">quantity</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>,    }],});
+</code></pre></td></tr></table>
+</div>
+</div><p>此外，還有Coupon 可以設定，支援一次性 / 永久性 / 每次扣款用，還有 %跟數量的設定，相當有彈性</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">coupon</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">coupons</span>.<span style="color:#a6e22e">create</span>({  <span style="color:#a6e22e">duration</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;once&#39;</span>,  <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;free-period&#39;</span>,  <span style="color:#a6e22e">percent_off</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">100</span>,});
+</code></pre></td></tr></table>
+</div>
+</div><p>建立 subscription 在沒有停止之前，Stripe 會自動依照時間定期扣款，並自動開立發票(可關閉)，相當的方便。</p>
 <h3 id="升級或降級">升級或降級</h3>
 <p>如果用戶訂閱了普通版，在月中時突然想升級到專業版，該怎麼處理呢？<br>
 可以選擇將該用戶的 subscription 物件修改，更新訂閱的 Plan</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">stripe.subscriptions.update(<span style="color:#2aa198">&#39;sub_49ty4767H20z6a&#39;</span>, {
-    cancel_at_period_end<span style="color:#719e07">:</span> <span style="color:#cb4b16">false</span>,
-    items<span style="color:#719e07">:</span> [{
-        id<span style="color:#719e07">:</span> subscription.items.data[<span style="color:#2aa198">0</span>].id,
-        plan<span style="color:#719e07">:</span> <span style="color:#2aa198">&#39;plan_CBb6IXqvTLXp3f&#39;</span>,
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">stripe</span>.<span style="color:#a6e22e">subscriptions</span>.<span style="color:#a6e22e">update</span>(<span style="color:#e6db74">&#39;sub_49ty4767H20z6a&#39;</span>, {
+    <span style="color:#a6e22e">cancel_at_period_end</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">false</span>,
+    <span style="color:#a6e22e">items</span><span style="color:#f92672">:</span> [{
+        <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">subscription</span>.<span style="color:#a6e22e">items</span>.<span style="color:#a6e22e">data</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">id</span>,
+        <span style="color:#a6e22e">plan</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;plan_CBb6IXqvTLXp3f&#39;</span>,
     }],
-    proration_date<span style="color:#719e07">:</span> proration_date <span style="color:#586e75">// Optional，詳看下方流程
-</span><span style="color:#586e75"></span>});
-</code></pre></div><p>更新容易，但是實際的扣款流程必須對應業務邏輯的處理，也就是收費的方式；</p>
+    <span style="color:#a6e22e">proration_date</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">proration_date</span> <span style="color:#75715e">// Optional，詳看下方流程
+</span><span style="color:#75715e"></span>});
+</code></pre></td></tr></table>
+</div>
+</div><p>更新容易，但是實際的扣款流程必須對應業務邏輯的處理，也就是收費的方式；</p>
 <p>例如幾種案例</p>
 <ol>
 <li>1/1開始訂閱 PlanA $30/mo，接著再 1/15 升級到 PlanB $45/mo<br>

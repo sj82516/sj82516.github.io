@@ -81,17 +81,36 @@
 <p><code>await X()</code> 跟 Promise 最大差別在於執行時會直接暫停 function 運作，直到 await 的 promise X結束後才繼續原本的 function；<br>
 至於 promise.then(X) 則是把 X 放上 callback chain上，原 function 就結束了。</p>
 <p>這點差異有著重大的改變，請看以下範例</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> a <span style="color:#719e07">=</span> () =&gt; {  
- b().then(() =&gt; c());  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> () =&gt; {  
+ <span style="color:#a6e22e">b</span>().<span style="color:#a6e22e">then</span>(() =&gt; <span style="color:#a6e22e">c</span>());  
 };
-</code></pre></div><p>function a 執行時，會直接呼叫 function b，而 b().then 則是將 <code>() =&gt; c()</code> 匿名 function 放上 callback chain，然後 a 就結束了，所以 function a 的 context 也跟著消失；</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>function a 執行時，會直接呼叫 function b，而 b().then 則是將 <code>() =&gt; c()</code> 匿名 function 放上 callback chain，然後 a 就結束了，所以 function a 的 context 也跟著消失；</p>
 <p>試想如果此時 b 或 c 拋出錯誤，理論上要除錯我們會希望看到完整的 call stack，但是 a 早就結束拋棄了 context，所以 V8 要額外將 a 的 context 傳給 promise b 跟 function c，這樣出錯才有辦法追本溯源，這些是額外的負擔。</p>
 <p>改成 async / await 就不一樣了</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> a <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> () =&gt; {  
- <span style="color:#268bd2">await</span> b();  
- c();  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> () =&gt; {  
+ <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">b</span>();  
+ <span style="color:#a6e22e">c</span>();  
 };
-</code></pre></div><p>當 b 或 c 出錯時，因為還在 function a 的 context所以可以很快速追蹤，不需要額外的成本。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>當 b 或 c 出錯時，因為還在 function a 的 context所以可以很快速追蹤，不需要額外的成本。</p>
 <h3 id="小結">小結</h3>
 <p>很多 ES6語法都是 syntax sugar，但是 async / await 帶了更不一樣的改變，作者給兩點建議</p>
 <ol>
@@ -109,14 +128,40 @@
 <p>開發時使用 ES 2015+ 語法開發，透過打包工具(webpack 、 gulp等)來呼叫 babel 產生兩份程式碼： main.mjs、 main.es5.js</p>
 <p><code>.mjs</code> 是指支援 ES Module 的 js file 副檔名；而另一個就是 transpile 給過時瀏覽器使用的 ES5 語法。</p>
 <p>babel config 可以參考作者在內文提供的，主要就是改 target 與 output 檔名</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">**targets**:{    
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">**targets**:{    
    **browsers**:[    
       &#39;&gt; 1%&#39;,  
       &#39;last 2 versions&#39;,  
       &#39;Firefox ESR&#39;,  
    ],  
 }
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">**targets**:{    
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">**targets**:{    
    **browsers**:[    
       &#39;Chrome &gt;= 60&#39;,  
       &#39;Safari &gt;= 10.1&#39;,  
@@ -125,14 +170,28 @@
       &#39;Edge &gt;= 15&#39;,  
    ],  
 },
-</code></pre></div><p>在 html page中，引用 js 改成</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html"><span style="color:#586e75">&lt;!-- Browsers with ES module support load this file. --&gt;</span>
-&lt;<span style="color:#268bd2">script</span> type<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;module&#34;</span> src<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;main.mjs&#34;</span>&gt;&lt;/<span style="color:#268bd2">script</span>&gt;  
+</code></pre></td></tr></table>
+</div>
+</div><p>在 html page中，引用 js 改成</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html"><span style="color:#75715e">&lt;!-- Browsers with ES module support load this file. --&gt;</span>
+&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;module&#34;</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;main.mjs&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;  
 
-<span style="color:#586e75">&lt;!-- Older browsers load this file (and module-supporting --&gt;</span>
-<span style="color:#586e75">&lt;!-- browsers know \*not\* to load this file). --&gt;</span>
-&lt;<span style="color:#268bd2">script</span> nomodule src<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;main.es5.js&#34;</span>&gt;&lt;/<span style="color:#268bd2">script</span>&gt;
-</code></pre></div><p>舊版瀏覽器看不懂 type=”module” 就會忽略，改成載入另一個 module；<br>
+<span style="color:#75715e">&lt;!-- Older browsers load this file (and module-supporting --&gt;</span>
+<span style="color:#75715e">&lt;!-- browsers know \*not\* to load this file). --&gt;</span>
+&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">nomodule</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;main.es5.js&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>舊版瀏覽器看不懂 type=”module” 就會忽略，改成載入另一個 module；<br>
 反之現代瀏覽器就載入 main.mjs。</p>
 <h4 id="限制與注意事項">限制與注意事項</h4>
 <p>需注意以下幾點事項</p>

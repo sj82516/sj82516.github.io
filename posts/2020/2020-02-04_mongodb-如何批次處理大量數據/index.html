@@ -84,72 +84,143 @@
 <h2 id="遞回查詢">遞回查詢</h2>
 <p>說穿了其實很簡單，透過有建立 index 的索引，按照遞增或遞減排序，每批次取出部分數據後，下次查詢的條件改為取出數據的最後一位，一路到 Collection 結束</p>
 <p>以下是程式碼部分</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> MongoClient <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;mongodb&#39;</span>).MongoClient;
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">MongoClient</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;mongodb&#39;</span>).<span style="color:#a6e22e">MongoClient</span>;
 
-<span style="color:#268bd2">const</span> dbUrl <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;mongodb://127.0.0.1:27017&#34;</span>;
-MongoClient.connect(dbUrl, <span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> (err, client) {
-    console.log(err)
-    <span style="color:#268bd2">const</span> testDB <span style="color:#719e07">=</span> client.db(<span style="color:#2aa198">&#34;test&#34;</span>);
-    <span style="color:#268bd2">const</span> userCollection <span style="color:#719e07">=</span> testDB.collection(<span style="color:#2aa198">&#34;users&#34;</span>);
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">dbUrl</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;mongodb://127.0.0.1:27017&#34;</span>;
+<span style="color:#a6e22e">MongoClient</span>.<span style="color:#a6e22e">connect</span>(<span style="color:#a6e22e">dbUrl</span>, <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">client</span>) {
+    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>)
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">testDB</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">db</span>(<span style="color:#e6db74">&#34;test&#34;</span>);
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">userCollection</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">testDB</span>.<span style="color:#a6e22e">collection</span>(<span style="color:#e6db74">&#34;users&#34;</span>);
 
-    <span style="color:#268bd2">const</span> result <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> iterateCollection({
-        sourceCollection<span style="color:#719e07">:</span> userCollection,
-        query<span style="color:#719e07">:</span> {
-            age<span style="color:#719e07">:</span> <span style="color:#2aa198">20</span>
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">iterateCollection</span>({
+        <span style="color:#a6e22e">sourceCollection</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">userCollection</span>,
+        <span style="color:#a6e22e">query</span><span style="color:#f92672">:</span> {
+            <span style="color:#a6e22e">age</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">20</span>
         },
-        batchSize<span style="color:#719e07">:</span> <span style="color:#2aa198">10</span>,
-        order<span style="color:#719e07">:</span> <span style="color:#2aa198">&#34;asc&#34;</span>
+        <span style="color:#a6e22e">batchSize</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">10</span>,
+        <span style="color:#a6e22e">order</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;asc&#34;</span>
     });
 
-    console.log(result);
+    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">result</span>);
 
-    client.close();
+    <span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">close</span>();
 });
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> iterateCollection({
-    sourceCollection,
-    query,
-    batchSize,
-    order
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">iterateCollection</span>({
+    <span style="color:#a6e22e">sourceCollection</span>,
+    <span style="color:#a6e22e">query</span>,
+    <span style="color:#a6e22e">batchSize</span>,
+    <span style="color:#a6e22e">order</span>
 }) {
-    <span style="color:#268bd2">let</span> result <span style="color:#719e07">=</span> [];
-    <span style="color:#268bd2">let</span> sort <span style="color:#719e07">=</span> {
-        _id<span style="color:#719e07">:</span> <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> [];
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">sort</span> <span style="color:#f92672">=</span> {
+        <span style="color:#a6e22e">_id</span><span style="color:#f92672">:</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
     }
-    <span style="color:#268bd2">let</span> _query <span style="color:#719e07">=</span> {
-        ...query
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">_query</span> <span style="color:#f92672">=</span> {
+        ...<span style="color:#a6e22e">query</span>
     };
 
-    <span style="color:#719e07">if</span> (order <span style="color:#719e07">===</span> <span style="color:#2aa198">&#34;asc&#34;</span>) {
-        sort <span style="color:#719e07">=</span> {
-            _id<span style="color:#719e07">:</span> <span style="color:#2aa198">1</span>
+    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">order</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;asc&#34;</span>) {
+        <span style="color:#a6e22e">sort</span> <span style="color:#f92672">=</span> {
+            <span style="color:#a6e22e">_id</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
         }
     }
 
 
-    <span style="color:#719e07">while</span> (<span style="color:#cb4b16">true</span>) {
-        <span style="color:#268bd2">const</span> queryResults <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> sourceCollection.find(_query).limit(batchSize).sort(sort).toArray();
+    <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
+        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">queryResults</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">sourceCollection</span>.<span style="color:#a6e22e">find</span>(<span style="color:#a6e22e">_query</span>).<span style="color:#a6e22e">limit</span>(<span style="color:#a6e22e">batchSize</span>).<span style="color:#a6e22e">sort</span>(<span style="color:#a6e22e">sort</span>).<span style="color:#a6e22e">toArray</span>();
 
-        <span style="color:#719e07">if</span>(queryResults.length <span style="color:#719e07">===</span> <span style="color:#2aa198">0</span>){
-            <span style="color:#719e07">break</span>;
+        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">queryResults</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span>){
+            <span style="color:#66d9ef">break</span>;
         }
 
-        _query._id <span style="color:#719e07">=</span> {
-            $lt<span style="color:#719e07">:</span> queryResults[queryResults.length <span style="color:#719e07">-</span> <span style="color:#2aa198">1</span>]._id
+        <span style="color:#a6e22e">_query</span>.<span style="color:#a6e22e">_id</span> <span style="color:#f92672">=</span> {
+            <span style="color:#a6e22e">$lt</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">queryResults</span>[<span style="color:#a6e22e">queryResults</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>].<span style="color:#a6e22e">_id</span>
         }
-        <span style="color:#719e07">if</span> (order <span style="color:#719e07">===</span> <span style="color:#2aa198">&#34;asc&#34;</span>) {
-            _query._id <span style="color:#719e07">=</span> {
-                $gt<span style="color:#719e07">:</span> queryResults[queryResults.length <span style="color:#719e07">-</span> <span style="color:#2aa198">1</span>]._id
+        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">order</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;asc&#34;</span>) {
+            <span style="color:#a6e22e">_query</span>.<span style="color:#a6e22e">_id</span> <span style="color:#f92672">=</span> {
+                <span style="color:#a6e22e">$gt</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">queryResults</span>[<span style="color:#a6e22e">queryResults</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>].<span style="color:#a6e22e">_id</span>
             }
         }
 
-        <span style="color:#586e75">// process data and push to result
-</span><span style="color:#586e75"></span>        <span style="color:#586e75">// result.push(queryResults.map(result =&gt; result._id));
-</span><span style="color:#586e75"></span>    }
+        <span style="color:#75715e">// process data and push to result
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// result.push(queryResults.map(result =&gt; result._id));
+</span><span style="color:#75715e"></span>    }
 
-    <span style="color:#719e07">return</span> result;
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>;
 }
-</code></pre></div>
+</code></pre></td></tr></table>
+</div>
+</div>
 	</div>
 	
 	

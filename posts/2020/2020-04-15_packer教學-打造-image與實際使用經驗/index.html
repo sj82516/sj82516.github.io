@@ -101,59 +101,121 @@ Image 要執行的設定，可以用 shell 執行 / file 上傳檔案，或是�
 產生 Image 的後處理，可以壓縮上傳到指定位置等，這邊先略過</li>
 </ul>
 <p>以下檔案是建立 API server image，基於 ubuntu 安裝 Nodejs 並將 Server 檔案上傳至指定路徑執行，所以的設定檔在github 上 <a href="https://github.com/sj82516/packer_get_started">packer_get_started</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-    <span style="color:#268bd2">&#34;variables&#34;</span>: {
-        <span style="color:#268bd2">&#34;aws_access_key&#34;</span>: <span style="color:#2aa198">&#34;{{env `AWS_ACCESS_KEY_ID`}}&#34;</span>,
-        <span style="color:#268bd2">&#34;aws_secret_key&#34;</span>: <span style="color:#2aa198">&#34;{{env `AWS_SECRET_ACCESS_KEY`}}&#34;</span>,
-        <span style="color:#268bd2">&#34;region&#34;</span>: <span style="color:#2aa198">&#34;us-east-1&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;variables&#34;</span>: {
+        <span style="color:#f92672">&#34;aws_access_key&#34;</span>: <span style="color:#e6db74">&#34;{{env `AWS_ACCESS_KEY_ID`}}&#34;</span>,
+        <span style="color:#f92672">&#34;aws_secret_key&#34;</span>: <span style="color:#e6db74">&#34;{{env `AWS_SECRET_ACCESS_KEY`}}&#34;</span>,
+        <span style="color:#f92672">&#34;region&#34;</span>: <span style="color:#e6db74">&#34;us-east-1&#34;</span>
     },
-    <span style="color:#268bd2">&#34;builders&#34;</span>: [{
-        <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;amazon-ebs&#34;</span>,
-        <span style="color:#268bd2">&#34;access_key&#34;</span>: <span style="color:#2aa198">&#34;{{user `aws_access_key`}}&#34;</span>,
-        <span style="color:#268bd2">&#34;secret_key&#34;</span>: <span style="color:#2aa198">&#34;{{user `aws_secret_key`}}&#34;</span>,
-        <span style="color:#268bd2">&#34;region&#34;</span>: <span style="color:#2aa198">&#34;us-east-1&#34;</span>,
-        <span style="color:#268bd2">&#34;source_ami&#34;</span>: <span style="color:#2aa198">&#34;ami-0d03e44a2333dea65&#34;</span>,
-        <span style="color:#268bd2">&#34;instance_type&#34;</span>: <span style="color:#2aa198">&#34;t2.micro&#34;</span>,
-        <span style="color:#268bd2">&#34;ssh_username&#34;</span>: <span style="color:#2aa198">&#34;ubuntu&#34;</span>,
-        <span style="color:#268bd2">&#34;ami_name&#34;</span>: <span style="color:#2aa198">&#34;packer-example {{timestamp}}&#34;</span>
+    <span style="color:#f92672">&#34;builders&#34;</span>: [{
+        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;amazon-ebs&#34;</span>,
+        <span style="color:#f92672">&#34;access_key&#34;</span>: <span style="color:#e6db74">&#34;{{user `aws_access_key`}}&#34;</span>,
+        <span style="color:#f92672">&#34;secret_key&#34;</span>: <span style="color:#e6db74">&#34;{{user `aws_secret_key`}}&#34;</span>,
+        <span style="color:#f92672">&#34;region&#34;</span>: <span style="color:#e6db74">&#34;us-east-1&#34;</span>,
+        <span style="color:#f92672">&#34;source_ami&#34;</span>: <span style="color:#e6db74">&#34;ami-0d03e44a2333dea65&#34;</span>,
+        <span style="color:#f92672">&#34;instance_type&#34;</span>: <span style="color:#e6db74">&#34;t2.micro&#34;</span>,
+        <span style="color:#f92672">&#34;ssh_username&#34;</span>: <span style="color:#e6db74">&#34;ubuntu&#34;</span>,
+        <span style="color:#f92672">&#34;ami_name&#34;</span>: <span style="color:#e6db74">&#34;packer-example {{timestamp}}&#34;</span>
     }],
-    <span style="color:#268bd2">&#34;provisioners&#34;</span>: [{
-        <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;shell&#34;</span>,
-        <span style="color:#268bd2">&#34;script&#34;</span>: <span style="color:#2aa198">&#34;init.sh&#34;</span>
+    <span style="color:#f92672">&#34;provisioners&#34;</span>: [{
+        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;shell&#34;</span>,
+        <span style="color:#f92672">&#34;script&#34;</span>: <span style="color:#e6db74">&#34;init.sh&#34;</span>
     }, {
-        <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;shell&#34;</span>,
-        <span style="color:#268bd2">&#34;inline&#34;</span>: [
-            <span style="color:#2aa198">&#34;ls&#34;</span>,
-            <span style="color:#2aa198">&#34;pwd&#34;</span>
+        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;shell&#34;</span>,
+        <span style="color:#f92672">&#34;inline&#34;</span>: [
+            <span style="color:#e6db74">&#34;ls&#34;</span>,
+            <span style="color:#e6db74">&#34;pwd&#34;</span>
         ]
     }, {
-        <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;file&#34;</span>,
-        <span style="color:#268bd2">&#34;source&#34;</span>: <span style="color:#2aa198">&#34;server&#34;</span>,
-        <span style="color:#268bd2">&#34;destination&#34;</span>: <span style="color:#2aa198">&#34;~/server&#34;</span>
+        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;file&#34;</span>,
+        <span style="color:#f92672">&#34;source&#34;</span>: <span style="color:#e6db74">&#34;server&#34;</span>,
+        <span style="color:#f92672">&#34;destination&#34;</span>: <span style="color:#e6db74">&#34;~/server&#34;</span>
     }, {
-        <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;shell&#34;</span>,
-        <span style="color:#268bd2">&#34;script&#34;</span>: <span style="color:#2aa198">&#34;start.sh&#34;</span>
+        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;shell&#34;</span>,
+        <span style="color:#f92672">&#34;script&#34;</span>: <span style="color:#e6db74">&#34;start.sh&#34;</span>
     }]
 }
-</code></pre></div><p>在 json 檔中，變數取用都是以 <code>{{}}</code> 雙括號括住，只有在 <code>variables</code> 中可以用 <code>env</code> 指定使用環境變數，也可以留空在 command line 執行時指定，如 <code>$ packer build -var 'aws_access_key=YOUR ACCESS KEY' ...</code>  <br>
+</code></pre></td></tr></table>
+</div>
+</div><p>在 json 檔中，變數取用都是以 <code>{{}}</code> 雙括號括住，只有在 <code>variables</code> 中可以用 <code>env</code> 指定使用環境變數，也可以留空在 command line 執行時指定，如 <code>$ packer build -var 'aws_access_key=YOUR ACCESS KEY' ...</code>  <br>
 來源還可以從 Consul / Vault 等地方，可以參考文件</p>
 <p>後續階段要讀取就要用</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{{user `aws_access_key/`}} 
-</code></pre></div><p>的形式讀取 variables 中的參數</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{{user `aws_access_key/`}} 
+</code></pre></td></tr></table>
+</div>
+</div><p>的形式讀取 variables 中的參數</p>
 <h4 id="builders">builders</h4>
 <p>可以看到 <code>builders</code> 是以陣列形式，這邊可以指定多個建立的目標，例如增加 vmware / virtualbox 等等，Packer 會併發建立 Image</p>
 <h4 id="provisioner">provisioner</h4>
 <p>常用搭配 <code>shell</code> / <code>file</code> 執行 shell script 或是上傳本地端資料到 server上，可以指定在某些目標下才複寫，如</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-    <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;shell&#34;</span>,
-    <span style="color:#268bd2">&#34;script&#34;</span>: <span style="color:#2aa198">&#34;script.sh&#34;</span>,
-    <span style="color:#268bd2">&#34;override&#34;</span>: {
-        <span style="color:#268bd2">&#34;vmware-iso&#34;</span>: {
-            <span style="color:#268bd2">&#34;execute_command&#34;</span>: <span style="color:#2aa198">&#34;echo &#39;password&#39; | sudo -S bash {{.Path}}&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;shell&#34;</span>,
+    <span style="color:#f92672">&#34;script&#34;</span>: <span style="color:#e6db74">&#34;script.sh&#34;</span>,
+    <span style="color:#f92672">&#34;override&#34;</span>: {
+        <span style="color:#f92672">&#34;vmware-iso&#34;</span>: {
+            <span style="color:#f92672">&#34;execute_command&#34;</span>: <span style="color:#e6db74">&#34;echo &#39;password&#39; | sudo -S bash {{.Path}}&#34;</span>
         }
     }
 }
-</code></pre></div><p>Packer 大概就是這麼簡單! Do one thing and do it well.  <br>
+</code></pre></td></tr></table>
+</div>
+</div><p>Packer 大概就是這麼簡單! Do one thing and do it well.  <br>
 執行的時候照樣 hashicorp 工具的操作方式，<code>$packer validate</code> 先檢查語法正確性，接著 <code>$packer build</code> 就完成囉</p>
 <p>最後看一下 Packer 每次 Build 所產生的 instance <br>
 <img src="/posts/img/20200415/packer-tm.png" alt=""></p>
@@ -163,13 +225,25 @@ Image 要執行的設定，可以用 shell 執行 / file 上傳檔案，或是�
 <p>症狀大概是 Packer 在執行 <code>$sudo apt-get install</code> 時偶發說 package not found，但偶爾可以，且進去機器安裝網路狀況都是沒問題的</p>
 <p>問題主要出自於開啟 AWS 機器時有可能網路還沒有好，所以才會是偶發性，解決辦法就是確認網路好才開始執行 shell script，詳細請參考 Packer Github Issue <a href="https://github.com/hashicorp/packer/issues/2639">Option for builder to wait on cloud-init to complete</a></p>
 <p>在 provisions 第一步加入以下 script (答案摘錄自上方 issue 回覆)</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">provisions:<span style="color:#719e07">[{</span>
-    <span style="color:#2aa198">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;shell&#34;</span>
-    <span style="color:#2aa198">&#34;inline&#34;</span>: <span style="color:#2aa198">&#34;/usr/bin/cloud-init status --wait&#34;</span>
-<span style="color:#719e07">}</span>, 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">provisions:<span style="color:#f92672">[{</span>
+    <span style="color:#e6db74">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;shell&#34;</span>
+    <span style="color:#e6db74">&#34;inline&#34;</span>: <span style="color:#e6db74">&#34;/usr/bin/cloud-init status --wait&#34;</span>
+<span style="color:#f92672">}</span>, 
 ....
-<span style="color:#719e07">]</span>
-</code></pre></div><h3 id="希望在-launch-機器時就啟動服務">希望在 launch 機器時就啟動服務</h3>
+<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="希望在-launch-機器時就啟動服務">希望在 launch 機器時就啟動服務</h3>
 <p>這比較偏原有的系統 service 設定，使用 ubuntu 的話可以設定 systemd service，並指定 target 就可以在 launch 機器時啟動，詳細參考
 <a href="https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units">How To Use Systemctl to Manage Systemd Services and Units</a> 與<br>
 <a href="https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files">Understanding Systemd Units and Unit Files</a> 兩篇來自 DigitalOcean 的好文，預計這篇會在產出一篇文章 (挖坑)</p>

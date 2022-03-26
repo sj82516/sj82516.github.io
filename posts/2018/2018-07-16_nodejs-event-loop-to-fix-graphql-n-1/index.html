@@ -76,8 +76,15 @@
 	</div>
 	<div class="markdown">
 		<p>Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// copy from nodejs 官網   ┌───────────────────────────┐┌─&gt;│           timers          ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │     pending callbacks     ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │       idle, prepare       │   (internal use)│  └─────────────┬─────────────┘      ┌───────────────┐│  ┌─────────────┴─────────────┐      │   incoming:   ││  │           poll            │&lt;─────┤  connections, ││  └─────────────┬─────────────┘      │   data, etc.  ││  ┌─────────────┴─────────────┐      └───────────────┘│  │           check           ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐└──┤      close callbacks      │   └───────────────────────────┘
-</code></pre></div><p>簡而言之，Event Loop有許多不同的階段(phase)，每個phase 是個陣列，當完成非同步操作後，會對應將 callback task push到 phase中；<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// copy from nodejs 官網   ┌───────────────────────────┐┌─&gt;│           timers          ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │     pending callbacks     ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │       idle, prepare       │   (internal use)│  └─────────────┬─────────────┘      ┌───────────────┐│  ┌─────────────┴─────────────┐      │   incoming:   ││  │           poll            │&lt;─────┤  connections, ││  └─────────────┬─────────────┘      │   data, etc.  ││  ┌─────────────┴─────────────┐      └───────────────┘│  │           check           ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐└──┤      close callbacks      │   └───────────────────────────┘
+</code></pre></td></tr></table>
+</div>
+</div><p>簡而言之，Event Loop有許多不同的階段(phase)，每個phase 是個陣列，當完成非同步操作後，會對應將 callback task push到 phase中；<br>
 Nodejs會不斷的輪詢 Event Loop並<code>同步執行callback task</code>，直到 Event Loop上都沒有 task且 Main thread也都執行完成，就會退出。</p>
 <p>Nodejs一些非同步操作對應的 phase如下<br>
 1.<code>setTimeout</code> 屬於 timers <br>
@@ -112,7 +119,21 @@ User 1 &lt;-&gt; n Comment m &lt;-&gt; 1 Post，User可以在Post下發布 Comme
 如果要省著用同一個API外加query來判斷，就變成資料層或邏輯層一樣要處理</p>
 <p>-&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-<br>
 而Graphql 則漂亮很多，前端定義好需要的資料格式，後端就會對照回傳(套件輔助)</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-graphql" data-lang="graphql">{    
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-graphql" data-lang="graphql">{    
    User {   
       name,  
       id,  
@@ -120,15 +141,32 @@ User 1 &lt;-&gt; n Comment m &lt;-&gt; 1 Post，User可以在Post下發布 Comme
          title,  
          Comment {  
              content,  
-             User <span style="color:#268bd2">......</span>.  
+             User <span style="color:#66d9ef">......</span><span style="color:#960050;background-color:#1e0010">.</span>  
 }
-</code></pre></div><p>不論是要取得 User，User -&gt; Post， User -&gt; Post -&gt; Comment無限遞迴，都是非常簡單的一件事</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>不論是要取得 User，User -&gt; Post， User -&gt; Post -&gt; Comment無限遞迴，都是非常簡單的一件事</p>
 <p>後端則是對應好資料擷取，Graphql在後端會過濾把前端需要的欄位回傳，大幅降低網路 payload，非常的簡潔有力。</p>
 <p>如果是有大量查詢的應用程式，或是有跨裝置應用，可以考慮導入 Graphql，現在來說方案都已經非常成熟了。</p>
 <h3 id="graphql-n1問題">Graphql N+1問題</h3>
 <p>但是在讀取巢狀資料的過程中，Graphql會發生N+1問題，例如取得所有用戶下的所有文章<code>{User{Post}}</code> ，這時候因為架構設計的關係，Graphql會先讀取所有的User，接著再針對個別User去讀取Post；<br>
 所以資料庫讀取會變成 1 次讀取全部 User + N次個別User讀取Post，例如</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SELECT \* FROM User; --&gt; 回傳了 [1,2,3,4]  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SELECT \* FROM User; --&gt; 回傳了 [1,2,3,4]  
 SELECT \* FROM Post WHERE user_id = 1;  
 SELECT \* FROM Post WHERE user_id = 2;  
 ....
@@ -139,80 +177,159 @@ SELECT \* FROM Post WHERE user_id in (1,2,3,4);
 
 \---&gt; 最理想  
 SELECT \* FROM User LEFT JOIN Post on Post.userId = User.id;
-</code></pre></div><p>而dataloader提供的解法相當美妙，在應用層稍作改變，不影響原本graphql / 不干涉資料庫操作，將 N+1進化成第二優化的查詢條件。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>而dataloader提供的解法相當美妙，在應用層稍作改變，不影響原本graphql / 不干涉資料庫操作，將 N+1進化成第二優化的查詢條件。</p>
 <h3 id="dataloader-介紹">dataloader 介紹</h3>
 <p>dataloader作者</p>
 <p><a href="https://github.com/facebook/dataloader">dataloader</a> 主要做兩件事 <code>batch</code> &amp; <code>cache</code> ，因為在處理 http request上，為了上資料不過期，大多不會用上 cache，所以這裡僅介紹 batch。<br>
 dataloader提供的解法是將異步操作合併，並在Event Loop的一個phase結束後用 process.nextTick 執行。</p>
 <p>先看dataloader說明範例</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> DataLoader <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;dataloader&#39;</span>)
-<span style="color:#268bd2">var</span> userLoader <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> DataLoader(keys =&gt; myBatchGetUsers(keys));
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">DataLoader</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;dataloader&#39;</span>)
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">userLoader</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">DataLoader</span>(<span style="color:#a6e22e">keys</span> =&gt; <span style="color:#a6e22e">myBatchGetUsers</span>(<span style="color:#a6e22e">keys</span>));
 
-<span style="color:#586e75">/*  
-</span><span style="color:#586e75">myBatchGetUsers是自訂的函式，接收被dataloader batch起來的keys，回傳等同keys長度的Promise  
-</span><span style="color:#586e75">*/</span>
+<span style="color:#75715e">/*  
+</span><span style="color:#75715e">myBatchGetUsers是自訂的函式，接收被dataloader batch起來的keys，回傳等同keys長度的Promise  
+</span><span style="color:#75715e">*/</span>
 
-userLoader.load(<span style="color:#2aa198">1</span>)
-    .then(user =&gt; userLoader.load(user.invitedByID))
-    .then(invitedBy =&gt; console.log(<span style="color:#586e75">`User 1 was invited by </span><span style="color:#2aa198">${</span>invitedBy<span style="color:#2aa198">}</span><span style="color:#586e75">`</span>));
+<span style="color:#a6e22e">userLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">1</span>)
+    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">user</span> =&gt; <span style="color:#a6e22e">userLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">invitedByID</span>))
+    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">invitedBy</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`User 1 was invited by </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">invitedBy</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>));
 
-<span style="color:#586e75">// Elsewhere in your application  
-</span><span style="color:#586e75"></span>
-userLoader.load(<span style="color:#2aa198">2</span>)
-    .then(user =&gt; userLoader.load(user.lastInvitedID))
-    .then(lastInvited =&gt; console.log(<span style="color:#586e75">`
-</span><span style="color:#586e75">            User 2 last invited $ {
-</span><span style="color:#586e75">                lastInvited
-</span><span style="color:#586e75">            }
-</span><span style="color:#586e75">            `</span>));
+<span style="color:#75715e">// Elsewhere in your application  
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">userLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">2</span>)
+    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">user</span> =&gt; <span style="color:#a6e22e">userLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">lastInvitedID</span>))
+    .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">lastInvited</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`
+</span><span style="color:#e6db74">            User 2 last invited $ {
+</span><span style="color:#e6db74">                lastInvited
+</span><span style="color:#e6db74">            }
+</span><span style="color:#e6db74">            `</span>));
 
-<span style="color:#586e75">/*
-</span><span style="color:#586e75">userLoader.load(1) 代表要載入，這會被 dataloader batch起來，最後再keys =&gt; myBatchGetUsers(keys)一併處理  
-</span><span style="color:#586e75">*/</span>
+<span style="color:#75715e">/*
+</span><span style="color:#75715e">userLoader.load(1) 代表要載入，這會被 dataloader batch起來，最後再keys =&gt; myBatchGetUsers(keys)一併處理  
+</span><span style="color:#75715e">*/</span>
 
 
-<span style="color:#586e75">// 接著來看程式碼，總共324行，大概有100行是註解… 非常精簡巧妙的設計
-</span><span style="color:#586e75"></span>
-load(key<span style="color:#719e07">:</span> K)<span style="color:#719e07">:</span> <span style="color:#b58900">Promise</span> <span style="color:#719e07">&lt;</span> V <span style="color:#719e07">&gt;</span> {
+<span style="color:#75715e">// 接著來看程式碼，總共324行，大概有100行是註解… 非常精簡巧妙的設計
+</span><span style="color:#75715e"></span>
+<span style="color:#a6e22e">load</span>(<span style="color:#a6e22e">key</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">K</span>)<span style="color:#f92672">:</span> Promise <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">V</span> <span style="color:#f92672">&gt;</span> {
 
-    <span style="color:#268bd2">var</span> promise <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>((resolve, reject) =&gt; {
-        <span style="color:#586e75">// Enqueue this Promise to be dispatched.  
-</span><span style="color:#586e75"></span>        <span style="color:#719e07">this</span>._queue.push({
-            key,
-            resolve,
-            reject
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">promise</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Promise((<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">reject</span>) =&gt; {
+        <span style="color:#75715e">// Enqueue this Promise to be dispatched.  
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">_queue</span>.<span style="color:#a6e22e">push</span>({
+            <span style="color:#a6e22e">key</span>,
+            <span style="color:#a6e22e">resolve</span>,
+            <span style="color:#a6e22e">reject</span>
         });
 
-        <span style="color:#586e75">// 在queue 重新填裝時觸發  
-</span><span style="color:#586e75"></span>        <span style="color:#719e07">if</span> (<span style="color:#719e07">this</span>._queue.length <span style="color:#719e07">===</span> <span style="color:#2aa198">1</span>) {
-            <span style="color:#719e07">if</span> (shouldBatch) {
-                <span style="color:#586e75">// If batching, schedule a task to dispatch the queue.  
-</span><span style="color:#586e75"></span>                enqueuePostPromiseJob(() =&gt; dispatchQueue(<span style="color:#719e07">this</span>));
-            } <span style="color:#719e07">else</span> {
-                <span style="color:#586e75">// Otherwise dispatch the (queue of one) immediately.  
-</span><span style="color:#586e75"></span>                dispatchQueue(<span style="color:#719e07">this</span>);
+        <span style="color:#75715e">// 在queue 重新填裝時觸發  
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">_queue</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">1</span>) {
+            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">shouldBatch</span>) {
+                <span style="color:#75715e">// If batching, schedule a task to dispatch the queue.  
+</span><span style="color:#75715e"></span>                <span style="color:#a6e22e">enqueuePostPromiseJob</span>(() =&gt; <span style="color:#a6e22e">dispatchQueue</span>(<span style="color:#66d9ef">this</span>));
+            } <span style="color:#66d9ef">else</span> {
+                <span style="color:#75715e">// Otherwise dispatch the (queue of one) immediately.  
+</span><span style="color:#75715e"></span>                <span style="color:#a6e22e">dispatchQueue</span>(<span style="color:#66d9ef">this</span>);
             }
         }
     });
 
-    <span style="color:#719e07">return</span> promise;
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">promise</span>;
 
 }
-</code></pre></div><p>load()執行後是回傳一個Promise，注意關鍵的一行 <code>this._queue.push({...})</code> ，這個回傳的Promise resolve方法是被push到 _queue上，而_queue是 dataloader一開始創建時建立的空陣列。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>load()執行後是回傳一個Promise，注意關鍵的一行 <code>this._queue.push({...})</code> ，這個回傳的Promise resolve方法是被push到 _queue上，而_queue是 dataloader一開始創建時建立的空陣列。</p>
 <h4 id="enqueuepostpromisejob">enqueuePostPromiseJob</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> enqueuePostPromiseJob <span style="color:#719e07">=</span>  
-    <span style="color:#719e07">typeof</span> process <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;object&#39;</span> <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">typeof</span> process.nextTick <span style="color:#719e07">===</span> <span style="color:#2aa198">&#39;function&#39;</span> <span style="color:#719e07">?</span>  
-    <span style="color:#268bd2">function</span>(fn) {  
-        <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>resolvedPromise) {  
-            resolvedPromise <span style="color:#719e07">=</span> <span style="color:#b58900">Promise</span>.resolve();  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">enqueuePostPromiseJob</span> <span style="color:#f92672">=</span>  
+    <span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">process</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;object&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">nextTick</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;function&#39;</span> <span style="color:#f92672">?</span>  
+    <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">fn</span>) {  
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">resolvedPromise</span>) {  
+            <span style="color:#a6e22e">resolvedPromise</span> <span style="color:#f92672">=</span> Promise.<span style="color:#a6e22e">resolve</span>();  
         }  
-        resolvedPromise.then(() =&gt; process.nextTick(fn));  
-    } <span style="color:#719e07">:</span>  
-    setImmediate <span style="color:#719e07">||</span> setTimeout;
+        <span style="color:#a6e22e">resolvedPromise</span>.<span style="color:#a6e22e">then</span>(() =&gt; <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">nextTick</span>(<span style="color:#a6e22e">fn</span>));  
+    } <span style="color:#f92672">:</span>  
+    <span style="color:#a6e22e">setImmediate</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">setTimeout</span>;
 
-<span style="color:#586e75">// Private: cached resolved Promise instance  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> resolvedPromise;
-</code></pre></div><p>resolvedPromise就是用來暫存的 Promise.resolve()，用來執行<code>resolvedPromise.then(() =&gt; process.nextTick(fn))</code> ，fn 是剛才的 <code>() =&gt; dispatchQueue(this)</code> ；<br>
+<span style="color:#75715e">// Private: cached resolved Promise instance  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">resolvedPromise</span>;
+</code></pre></td></tr></table>
+</div>
+</div><p>resolvedPromise就是用來暫存的 Promise.resolve()，用來執行<code>resolvedPromise.then(() =&gt; process.nextTick(fn))</code> ，fn 是剛才的 <code>() =&gt; dispatchQueue(this)</code> ；<br>
 如果環境有 process.nextTick則用，不然用 setImmediate / setTimeout 也可以!</p>
 <p>這裡作者打上了25行的註解，大意是說：<br>
 ECMAScript 運用 Job / Job Queue描述當下執行結束後的工作順序安排；<br>
@@ -221,35 +338,73 @@ ECMAScript 運用 Job / Job Queue描述當下執行結束後的工作順序安�
 這也是為什麼要用<code>resolvedPromise.then(() =&gt; process.nextTick(fn))</code> ，確保在所有的 PromiseJobs之後執行 (*備註一)；</p>
 <p>這一段主要是因應cache處理，如果有開啟cache，執行過後一次dataloader會以 Promise.resolve儲存結果，也就是後續不管調用幾次都是立刻回覆結果；<br>
 所以下列結果 1 / 5 /6 會被batch在同一個phase執行，而4會到下一個loop去</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">testLoader.load(<span style="color:#2aa198">1</span>).then(t =&gt; console.log(<span style="color:#2aa198">&#34;1 got &#34;</span>, t))
-<span style="color:#b58900">Promise</span>.resolve().then(() =&gt; {
-    testLoader.load(<span style="color:#2aa198">5</span>)
-}).then(() =&gt; {
-    testLoader.load(<span style="color:#2aa198">6</span>)
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">testLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">1</span>).<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">t</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;1 got &#34;</span>, <span style="color:#a6e22e">t</span>))
+Promise.<span style="color:#a6e22e">resolve</span>().<span style="color:#a6e22e">then</span>(() =&gt; {
+    <span style="color:#a6e22e">testLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">5</span>)
+}).<span style="color:#a6e22e">then</span>(() =&gt; {
+    <span style="color:#a6e22e">testLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">6</span>)
 })
 
-setTimeout(() =&gt; {
-    testLoader.load(<span style="color:#2aa198">4</span>)
+<span style="color:#a6e22e">setTimeout</span>(() =&gt; {
+    <span style="color:#a6e22e">testLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#ae81ff">4</span>)
 })
-</code></pre></div><p>而瀏覽器沒有向Nodejs中提供 microtask(process.nextTick)，只能用 macrotask(setImmediate / setTimeout)取代，但會有性能上的影響。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>而瀏覽器沒有向Nodejs中提供 microtask(process.nextTick)，只能用 macrotask(setImmediate / setTimeout)取代，但會有性能上的影響。</p>
 <h3 id="dispatchqueuebatch">dispatchQueueBatch</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> keys <span style="color:#719e07">=</span> queue.map(({ key }) =&gt; key);  
-<span style="color:#268bd2">var</span> batchPromise <span style="color:#719e07">=</span> batchLoadFn(keys);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">keys</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">queue</span>.<span style="color:#a6e22e">map</span>(({ <span style="color:#a6e22e">key</span> }) =&gt; <span style="color:#a6e22e">key</span>);  
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">batchPromise</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">batchLoadFn</span>(<span style="color:#a6e22e">keys</span>);
 
-batchPromise.then(values =&gt; {  
-    queue.forEach(({  
-        resolve,  
-        reject  
-    }, index) =&gt; {  
-        <span style="color:#268bd2">var</span> value <span style="color:#719e07">=</span> values[index];  
-        <span style="color:#719e07">if</span> (value <span style="color:#719e07">instanceof</span> <span style="color:#b58900">Error</span>) {  
-            reject(value);  
-        } <span style="color:#719e07">else</span> {  
-            resolve(value);  
+<span style="color:#a6e22e">batchPromise</span>.<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">values</span> =&gt; {  
+    <span style="color:#a6e22e">queue</span>.<span style="color:#a6e22e">forEach</span>(({  
+        <span style="color:#a6e22e">resolve</span>,  
+        <span style="color:#a6e22e">reject</span>  
+    }, <span style="color:#a6e22e">index</span>) =&gt; {  
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">values</span>[<span style="color:#a6e22e">index</span>];  
+        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">value</span> <span style="color:#66d9ef">instanceof</span> Error) {  
+            <span style="color:#a6e22e">reject</span>(<span style="color:#a6e22e">value</span>);  
+        } <span style="color:#66d9ef">else</span> {  
+            <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">value</span>);  
         }  
     });  
 })
-</code></pre></div><p><code>dispatchQueue</code> 多做一些判斷，最後呼叫dispatchQueueBatch；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>dispatchQueue</code> 多做一些判斷，最後呼叫dispatchQueueBatch；<br>
 在此處取出所有佔存在queue上的keys，並呼叫batchLoadFn，也就是在 new <code>Dataloader((keys)=&gt;{…})</code> 所定義的，執行後就對應queue上的 resolve，也就是把值回傳給 <code>userLoader.load(k).then(value =&gt; ….)</code> 做後續的處理。</p>
 <p>總結一下，要使用時先建立 dataloader，並決定對應的 batch loader該如何處理，通常就是放資料庫 batch處理 <code>new Dataloader((keys) =&gt; customBatchLoader(keys))</code> ；<br>
 接著定義操作， <code>loader.load(key).then(value =&gt; {})</code> ；<br>
@@ -257,31 +412,69 @@ dataloader內部透過 <code>enqueuePostPromiseJob</code> 機制，將一個執�
 最後內部呼叫 <code>dispatchQueueBatch</code> ，也就是實際調用 <code>customBatchLoader</code> 的地方，最後 resolve 當初宣告的 <code>loader.load()</code> 。</p>
 <h4 id="dataloader簡單範例">dataloader簡單範例</h4>
 <p>打印結果，注意 setTimeout會在下一個loop執行，而Promise.resolve()則在同一個 phase被處理掉。</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">batched by dataloader: [ 1, 2, 3, 5 ]  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">batched by dataloader: [ 1, 2, 3, 5 ]  
 content: [ 1, 2, 3, 5 ]  
 1 got 2  
 [2,3] got [ 3, 4 ]  
 batched by dataloader: [ 4 ]  
 content: [ 4 ]
-</code></pre></div><p>對應我們要解決的N+1問題，因為Graphql怎麼處理底層呼叫算是個黑盒子，以下是大概示意</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>對應我們要解決的N+1問題，因為Graphql怎麼處理底層呼叫算是個黑盒子，以下是大概示意</p>
 <p>1. 原本Graphql的 N + 1問題</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getUsers()  
-<span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostByUserId(userList[<span style="color:#2aa198">0</span>].id)  
-<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostByUserId(userList[<span style="color:#2aa198">1</span>].id) 
-</code></pre></div><p>&hellip;&hellip;</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">userList</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">getUsers</span>()  
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">post1</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">getPostByUserId</span>(<span style="color:#a6e22e">userList</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">id</span>)  
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">post2</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">getPostByUserId</span>(<span style="color:#a6e22e">userList</span>[<span style="color:#ae81ff">1</span>].<span style="color:#a6e22e">id</span>) 
+</code></pre></td></tr></table>
+</div>
+</div><p>&hellip;&hellip;</p>
 <p>2. 如果用dataloader轉換</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> userList <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getUsers() 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">userList</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">getUsers</span>() 
 
-<span style="color:#586e75">// post請求集中成  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> postLoader <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Dataloader((keys) =&gt; {  
-    <span style="color:#268bd2">let</span> res <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> db.getPostListByUserId(keys)   
-    <span style="color:#719e07">return</span> <span style="color:#b58900">Promise</span>.all(res.map(r =&gt; <span style="color:#b58900">Promise</span>.resolve(r)))  
+<span style="color:#75715e">// post請求集中成  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">postLoader</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Dataloader</span>((<span style="color:#a6e22e">keys</span>) =&gt; {  
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">res</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">getPostListByUserId</span>(<span style="color:#a6e22e">keys</span>)   
+    <span style="color:#66d9ef">return</span> Promise.<span style="color:#a6e22e">all</span>(<span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">map</span>(<span style="color:#a6e22e">r</span> =&gt; Promise.<span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">r</span>)))  
 }) 
 
-<span style="color:#586e75">// 照舊一個一個定義還是可以  
-</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> post1 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> postLoader.load(userList[<span style="color:#2aa198">0</span>].id)  
-<span style="color:#268bd2">let</span> post2 <span style="color:#719e07">=</span> <span style="color:#268bd2">await</span> postLoader.load(userList[<span style="color:#2aa198">1</span>].id)
-</code></pre></div><h2 id="結語">結語</h2>
+<span style="color:#75715e">// 照舊一個一個定義還是可以  
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">post1</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">postLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#a6e22e">userList</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">id</span>)  
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">post2</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">postLoader</span>.<span style="color:#a6e22e">load</span>(<span style="color:#a6e22e">userList</span>[<span style="color:#ae81ff">1</span>].<span style="color:#a6e22e">id</span>)
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="結語">結語</h2>
 <p>原本以為 N+1問題要解決必須深入到改寫資料庫的SQL，例如轉成 SELECT IN，但沒想到有個如此簡潔又漂亮的解法，而且不限定用什麼資料庫，真的是太棒了。</p>
 <p>深入底層理解原理，抽象又費時，但我想這樣的投資是值得的，不禁再次感嘆這個Library的精妙，I dont know JS OTZ。</p>
 <h3 id="備註">備註</h3>

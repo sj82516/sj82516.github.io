@@ -109,23 +109,45 @@
 模擬瀏覽網頁，加載完首頁後，後續操作都是利用網頁上的超連結探索網站；<br>
 套用同樣的邏輯至 REST Server，Response 包含針對此資源探索的連結與操作方式，如跟醫師預約後，回傳結果，同時包含查詢預約、查詢醫生資料、更改預約等操作都一併回傳</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#268bd2">&lt;appointment&gt;</span>  
-  <span style="color:#268bd2">&lt;slot</span> id = <span style="color:#2aa198">&#34;1234&#34;</span> doctor = <span style="color:#2aa198">&#34;mjones&#34;</span> start = <span style="color:#2aa198">&#34;1400&#34;</span> end = <span style="color:#2aa198">&#34;1450&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;patient</span> id = <span style="color:#2aa198">&#34;jsmith&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;/linkrels/appointment/cancel&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/slots/1234/appointment&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;/linkrels/appointment/addTest&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/slots/1234/appointment/tests&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;self&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/slots/1234/appointment&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;/linkrels/appointment/changeTime&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/doctors/mjones/slots?date=20100104&amp;status=open&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;/linkrels/appointment/updateContactInfo&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/patients/jsmith/contactInfo&#34;</span><span style="color:#268bd2">/&gt;</span>  
-  <span style="color:#268bd2">&lt;link</span> rel = <span style="color:#2aa198">&#34;/linkrels/help&#34;</span>  
-        uri = <span style="color:#2aa198">&#34;/help/appointment&#34;</span><span style="color:#268bd2">/&gt;</span>  
-<span style="color:#268bd2">&lt;/appointment&gt;</span>
-</code></pre></div><h4 id="layered-system">Layered System</h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;appointment&gt;</span>  
+  <span style="color:#f92672">&lt;slot</span> <span style="color:#a6e22e">id =</span> <span style="color:#e6db74">&#34;1234&#34;</span> <span style="color:#a6e22e">doctor =</span> <span style="color:#e6db74">&#34;mjones&#34;</span> <span style="color:#a6e22e">start =</span> <span style="color:#e6db74">&#34;1400&#34;</span> <span style="color:#a6e22e">end =</span> <span style="color:#e6db74">&#34;1450&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;patient</span> <span style="color:#a6e22e">id =</span> <span style="color:#e6db74">&#34;jsmith&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;/linkrels/appointment/cancel&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/slots/1234/appointment&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;/linkrels/appointment/addTest&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/slots/1234/appointment/tests&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;self&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/slots/1234/appointment&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;/linkrels/appointment/changeTime&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/doctors/mjones/slots?date=20100104&amp;status=open&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;/linkrels/appointment/updateContactInfo&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/patients/jsmith/contactInfo&#34;</span><span style="color:#f92672">/&gt;</span>  
+  <span style="color:#f92672">&lt;link</span> <span style="color:#a6e22e">rel =</span> <span style="color:#e6db74">&#34;/linkrels/help&#34;</span>  
+        <span style="color:#a6e22e">uri =</span> <span style="color:#e6db74">&#34;/help/appointment&#34;</span><span style="color:#f92672">/&gt;</span>  
+<span style="color:#f92672">&lt;/appointment&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="layered-system">Layered System</h4>
 <p>一個完整的系統可以由多個子元件疊加，例如 Cache Server / Api Server / Proxy / Agent 等，每個元件僅可意識到相鄰的元件</p>
 <h4 id="code-ondemand">Code On Demand</h4>
 <p>Client 可以依照需求加載新的 script 執行</p>
@@ -186,15 +208,29 @@ HTTP被廣泛應用，但也不是唯一的跨進程溝通的規範，如果是�
 <p>如果以 JSON 為資料交換格式，Patch 有兩種方法 JSON patch / JSON merge patch，在資料儲存中，<code>null</code> 的含義有些模糊地帶，如果 Request JSON 欄位夾帶 null，這是代表<code>移除該欄位</code>還是<code>更新欄位成為 null</code> 呢？</p>
 <p>如果 Header 中的 Content-Type 是 <code>application/merge-patch+json</code> 則代表 null 移除該欄位，此時需注意資料結構就不建議欄位儲存 null避免混淆，更多參考 <a href="https://tools.ietf.org/html/rfc7396">RFC: JSON Merge Patch</a>；</p>
 <p>如果希望針對欄位有更精確的操作描述，例如新增、刪除、取代、複製、搬移、驗證(test)等，可以參考 <a href="https://tools.ietf.org/html/rfc6902">JSON patch</a>，Content-Type 為 <code>application/json-patch+json</code> ，用陣列表述操作的集合，操作範例如下</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;test&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/c&#34;</span>, <span style="color:#268bd2">&#34;value&#34;</span>: <span style="color:#2aa198">&#34;foo&#34;</span> },  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;remove&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/c&#34;</span> },  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;add&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/c&#34;</span>, <span style="color:#268bd2">&#34;value&#34;</span>: [ <span style="color:#2aa198">&#34;foo&#34;</span>, <span style="color:#2aa198">&#34;bar&#34;</span> ] },  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;replace&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/c&#34;</span>, <span style="color:#268bd2">&#34;value&#34;</span>: <span style="color:#2aa198">42</span> },  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;move&#34;</span>, <span style="color:#268bd2">&#34;from&#34;</span>: <span style="color:#2aa198">&#34;/a/b/c&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/d&#34;</span> },  
-     { <span style="color:#268bd2">&#34;op&#34;</span>: <span style="color:#2aa198">&#34;copy&#34;</span>, <span style="color:#268bd2">&#34;from&#34;</span>: <span style="color:#2aa198">&#34;/a/b/d&#34;</span>, <span style="color:#268bd2">&#34;path&#34;</span>: <span style="color:#2aa198">&#34;/a/b/e&#34;</span> }  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;test&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/c&#34;</span>, <span style="color:#f92672">&#34;value&#34;</span>: <span style="color:#e6db74">&#34;foo&#34;</span> },  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;remove&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/c&#34;</span> },  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;add&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/c&#34;</span>, <span style="color:#f92672">&#34;value&#34;</span>: [ <span style="color:#e6db74">&#34;foo&#34;</span>, <span style="color:#e6db74">&#34;bar&#34;</span> ] },  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;replace&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/c&#34;</span>, <span style="color:#f92672">&#34;value&#34;</span>: <span style="color:#ae81ff">42</span> },  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;move&#34;</span>, <span style="color:#f92672">&#34;from&#34;</span>: <span style="color:#e6db74">&#34;/a/b/c&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/d&#34;</span> },  
+     { <span style="color:#f92672">&#34;op&#34;</span>: <span style="color:#e6db74">&#34;copy&#34;</span>, <span style="color:#f92672">&#34;from&#34;</span>: <span style="color:#e6db74">&#34;/a/b/d&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/a/b/e&#34;</span> }  
 ]
-</code></pre></div><h4 id="delete">DELETE</h4>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="delete">DELETE</h4>
 <ul>
 <li>必須使用 <code>DELETE</code></li>
 <li>不能有 Request Body</li>
@@ -245,22 +281,43 @@ HTTP被廣泛應用，但也不是唯一的跨進程溝通的規範，如果是�
 <p>在採用 versioning 時，要考量到 web cache 的機制，通常 cache 是針對 URL，所以前兩者比較推薦</p>
 <h3 id="error">Error</h3>
 <p>常見作法會回傳錯誤代碼、錯誤的簡述、錯誤的詳細內容，方便開發者做錯誤處理，例如以下格式</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{  
-  <span style="color:#268bd2">&#34;error&#34;</span>: {  
-    <span style="color:#268bd2">&#34;code&#34;</span>: <span style="color:#2aa198">&#34;BadArgument&#34;</span>,  
-    <span style="color:#268bd2">&#34;message&#34;</span>: <span style="color:#2aa198">&#34;Multiple errors in ContactInfo data&#34;</span>,  
-    <span style="color:#268bd2">&#34;target&#34;</span>: <span style="color:#2aa198">&#34;ContactInfo&#34;</span>,  
-    <span style="color:#268bd2">&#34;details&#34;</span>: [  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{  
+  <span style="color:#f92672">&#34;error&#34;</span>: {  
+    <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;BadArgument&#34;</span>,  
+    <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Multiple errors in ContactInfo data&#34;</span>,  
+    <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;ContactInfo&#34;</span>,  
+    <span style="color:#f92672">&#34;details&#34;</span>: [  
       {  
-        <span style="color:#268bd2">&#34;code&#34;</span>: <span style="color:#2aa198">&#34;NullValue&#34;</span>,  
-        <span style="color:#268bd2">&#34;target&#34;</span>: <span style="color:#2aa198">&#34;PhoneNumber&#34;</span>,  
-        <span style="color:#268bd2">&#34;message&#34;</span>: <span style="color:#2aa198">&#34;Phone number must not be null&#34;</span>  
+        <span style="color:#f92672">&#34;code&#34;</span>: <span style="color:#e6db74">&#34;NullValue&#34;</span>,  
+        <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;PhoneNumber&#34;</span>,  
+        <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Phone number must not be null&#34;</span>  
       },  
-      ....  
+      <span style="color:#960050;background-color:#1e0010">....</span>  
     ]  
   }  
 }
-</code></pre></div><p>Code 常見還可以用數字表示，方便開發者透過文件快速查詢，但也不要忘了回傳該次錯誤的內容描述</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>Code 常見還可以用數字表示，方便開發者透過文件快速查詢，但也不要忘了回傳該次錯誤的內容描述</p>
 <p>別忘了要搭配正確的 HTTP 錯誤碼使用<br>
 400(Bad Request)：Server無法理解，例如參數缺少或錯誤<br>
 401(Unauthorized)：授權錯誤，可能是 Token失效等<br>

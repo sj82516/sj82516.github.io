@@ -98,21 +98,49 @@ Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client �
 <p>再考量分散式設計之前，讓我們先思考單一台 Redis 如何實作 Lock 機制</p>
 <h3 id="取得-lock">取得 Lock</h3>
 <p>當要取得 Lock，可以用以下的指令</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SET resource_name my_random_value NX PX 30000
-</code></pre></div><p><code>NX</code> 表示只有當 <code>resource_name</code> 不存在才創建這個 Key，避免重複建立，符合第一點原則 <br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SET resource_name my_random_value NX PX 30000
+</code></pre></td></tr></table>
+</div>
+</div><p><code>NX</code> 表示只有當 <code>resource_name</code> 不存在才創建這個 Key，避免重複建立，符合第一點原則 <br>
 <code>Px 30000</code> 表示 Key 的 TTL 是 30秒，符合第二點原則</p>
 <h3 id="釋放-lock">釋放 Lock</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#268bd2">if</span> redis.call(<span style="color:#2aa198">&#34;get&#34;</span>,KEYS[<span style="color:#2aa198">1</span>]) <span style="color:#719e07">==</span> ARGV[<span style="color:#2aa198">1</span>] <span style="color:#268bd2">then</span>
-    <span style="color:#268bd2">return</span> redis.call(<span style="color:#2aa198">&#34;del&#34;</span>,KEYS[<span style="color:#2aa198">1</span>])
-<span style="color:#268bd2">else</span>
-    <span style="color:#268bd2">return</span> <span style="color:#2aa198">0</span>
-<span style="color:#268bd2">end</span>
-</code></pre></div><p>在釋放 Key 時，必須先檢查 Key 對應的 Value是不是我們一開始塞進去的值，也就是上個步驟的 <code>my_random_value</code>，這是要確保移除的 Lock 是當初我們取得的 Lock，試想一下情況</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. Client A 取得 Lock  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#66d9ef">if</span> redis.call(<span style="color:#e6db74">&#34;get&#34;</span>,KEYS[<span style="color:#ae81ff">1</span>]) <span style="color:#f92672">==</span> ARGV[<span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">then</span>
+    <span style="color:#66d9ef">return</span> redis.call(<span style="color:#e6db74">&#34;del&#34;</span>,KEYS[<span style="color:#ae81ff">1</span>])
+<span style="color:#66d9ef">else</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在釋放 Key 時，必須先檢查 Key 對應的 Value是不是我們一開始塞進去的值，也就是上個步驟的 <code>my_random_value</code>，這是要確保移除的 Lock 是當初我們取得的 Lock，試想一下情況</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. Client A 取得 Lock  
 2. Client A 時間超過 TTL，Redis 移除 Lock  
 3. Client B 取得相同 Lock，因為 Client A 超時所以 Client B 可以取得 Lock  
 4. Client A 此時要釋放 Lock  
-</code></pre></div><p>步驟四如果沒有檢查，Client A 不小心移除了 Client B 的 Lock，此時就會破壞第一點原則</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>步驟四如果沒有檢查，Client A 不小心移除了 Client B 的 Lock，此時就會破壞第一點原則</p>
 <h3 id="random-string">Random String</h3>
 <p>Random String 的產生機制，可以取 <code>/dev/urandom</code> 的 20 bytes，/dev/urandom 是*unix 系統產生偽亂數的方式，依據設定的不同可能是從環境噪音、網路數據封包等外在物理現象，這樣的做法可以保證較好的隨機性，也可以用其他簡單的方式，例如取系統時間加上 client_id 等等，取決於實作者的設計</p>
 <h2 id="套用至分散式系統">套用至分散式系統</h2>
@@ -150,32 +178,73 @@ Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client �
 <p>看完演算法，來看一下 Nodejs 版本的實作 <a href="https://github.com/mike-marcacci/node-redlock">mike-marcacci/node-redlock</a></p>
 <p>他在 <code>Redlock.prototype._lock</code> 部分實現 Lock 機制</p>
 <p>截幾個關鍵片段，輪詢所有的 server</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">return</span> self.servers.forEach(<span style="color:#268bd2">function</span>(server){
-    <span style="color:#719e07">return</span> request(server, loop);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">return</span> <span style="color:#a6e22e">self</span>.<span style="color:#a6e22e">servers</span>.<span style="color:#a6e22e">forEach</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">server</span>){
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">request</span>(<span style="color:#a6e22e">server</span>, <span style="color:#a6e22e">loop</span>);
 });
-</code></pre></div><p>request 主要封裝 lock 的 script，支援如果同時多個 resource 要鎖可以一起鎖</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">request <span style="color:#719e07">=</span> <span style="color:#268bd2">function</span>(server, loop){
-    <span style="color:#719e07">return</span> server.<span style="color:#b58900">eval</span>(
+</code></pre></td></tr></table>
+</div>
+</div><p>request 主要封裝 lock 的 script，支援如果同時多個 resource 要鎖可以一起鎖</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">request</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">server</span>, <span style="color:#a6e22e">loop</span>){
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">server</span>.eval(
         [
-            self.lockScript,
-            resource.length,
-            ...resource,
-            value,
-            ttl
+            <span style="color:#a6e22e">self</span>.<span style="color:#a6e22e">lockScript</span>,
+            <span style="color:#a6e22e">resource</span>.<span style="color:#a6e22e">length</span>,
+            ...<span style="color:#a6e22e">resource</span>,
+            <span style="color:#a6e22e">value</span>,
+            <span style="color:#a6e22e">ttl</span>
         ],
-        loop
+        <span style="color:#a6e22e">loop</span>
     );
 };
-</code></pre></div><p>這一段考量到 drift 問題，檢查 Lock 的有效時間，並且只有在取得多數 Redis Server 同意才往下繼續</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// Add 2 milliseconds to the drift to account for Redis expires precision, which is 1 ms,
-</span><span style="color:#586e75">// plus the configured allowable drift factor
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> drift <span style="color:#719e07">=</span> <span style="color:#b58900">Math</span>.round(self.driftFactor <span style="color:#719e07">*</span> ttl) <span style="color:#719e07">+</span> <span style="color:#2aa198">2</span>;
-<span style="color:#268bd2">const</span> lock <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Lock(self, resource, value, start <span style="color:#719e07">+</span> ttl <span style="color:#719e07">-</span> drift, attempts);
+</code></pre></td></tr></table>
+</div>
+</div><p>這一段考量到 drift 問題，檢查 Lock 的有效時間，並且只有在取得多數 Redis Server 同意才往下繼續</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// Add 2 milliseconds to the drift to account for Redis expires precision, which is 1 ms,
+</span><span style="color:#75715e">// plus the configured allowable drift factor
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">drift</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">round</span>(<span style="color:#a6e22e">self</span>.<span style="color:#a6e22e">driftFactor</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">ttl</span>) <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>;
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">lock</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Lock</span>(<span style="color:#a6e22e">self</span>, <span style="color:#a6e22e">resource</span>, <span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">start</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">ttl</span> <span style="color:#f92672">-</span> <span style="color:#a6e22e">drift</span>, <span style="color:#a6e22e">attempts</span>);
 
-<span style="color:#586e75">// SUCCESS: there is concensus and the lock is not expired
-</span><span style="color:#586e75"></span><span style="color:#719e07">if</span>(votes <span style="color:#719e07">&gt;=</span> quorum <span style="color:#719e07">&amp;&amp;</span> lock.expiration <span style="color:#719e07">&gt;</span> <span style="color:#b58900">Date</span>.now())
-    <span style="color:#719e07">return</span> resolve(lock);
-</code></pre></div><p>主要關鍵是這幾個部分，其餘的就是封裝</p>
+<span style="color:#75715e">// SUCCESS: there is concensus and the lock is not expired
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">votes</span> <span style="color:#f92672">&gt;=</span> <span style="color:#a6e22e">quorum</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">lock</span>.<span style="color:#a6e22e">expiration</span> <span style="color:#f92672">&gt;</span> Date.<span style="color:#a6e22e">now</span>())
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">resolve</span>(<span style="color:#a6e22e">lock</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>主要關鍵是這幾個部分，其餘的就是封裝</p>
 <h2 id="martin-kleppmann-的質疑">Martin Kleppmann 的質疑</h2>
 <h4 id="中斷導致-lock-有效判斷錯誤">中斷導致 Lock 有效判斷錯誤</h4>
 <p>在分散式系統設計中，時間是一個非常難以掌握的因素，程序可能因為各種狀況而導致時間序錯亂，例如說系統時間不準、網路延遲、程式運作遇到垃圾回收、作業系統切換 Process 導致中斷等，所以各種檢查機制都有可能因而出現錯誤，例如以下的例子

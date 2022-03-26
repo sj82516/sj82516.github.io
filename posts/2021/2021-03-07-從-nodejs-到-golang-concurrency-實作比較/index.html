@@ -116,15 +116,29 @@
 <li>除了 local runq，還有一個 global runq 放被中斷的長時間佔用 goroutine，kernel thread 會用比較低的頻率去執行，還有像垃圾回收等任務</li>
 </ol>
 <blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang">runtime.<span style="color:#268bd2">schedule</span>() {
-   <span style="color:#586e75">// only 1/61 of the time, check the global runnable queue for a G.
-</span><span style="color:#586e75"></span>   <span style="color:#586e75">// if not found, check the local queue.
-</span><span style="color:#586e75"></span>   <span style="color:#586e75">// if not found,
-</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     try to steal from other Ps.
-</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     if not, check the global runnable queue.
-</span><span style="color:#586e75"></span>   <span style="color:#586e75">//     if not found, poll network.
-</span><span style="color:#586e75"></span>} 
-</code></pre></div></blockquote>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">schedule</span>() {
+   <span style="color:#75715e">// only 1/61 of the time, check the global runnable queue for a G.
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">// if not found, check the local queue.
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">// if not found,
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">//     try to steal from other Ps.
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">//     if not, check the global runnable queue.
+</span><span style="color:#75715e"></span>   <span style="color:#75715e">//     if not found, poll network.
+</span><span style="color:#75715e"></span>} 
+</code></pre></td></tr></table>
+</div>
+</div></blockquote>
 <ol start="7">
 <li>遇到 system call，會有兩種反應
 <ul>

@@ -80,11 +80,21 @@
 <p>主要在量測 Linux 極限可以處理多少 packet per second / 以及如何持續優化</p>
 <h3 id="linux-單機處理-1m-udp-packet-per-second">Linux 單機處理 1M udp packet per second</h3>
 <p>文章出自：<a href="https://blog.cloudflare.com/how-to-receive-a-million-packets/">How to receive a million packets per second</a>，在硬體規格</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. six core 2GHz Xeon processors.   
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. six core 2GHz Xeon processors.   
 2. With hyperthreading (HT) enabled that counts to 24 processors on each box
 3. multi-queue 10G network card by Solarflare
 4. with 11 receive queues configured.
-</code></pre></div><p>可以撐到每秒接收一百萬個 udp 小封包(32 bytes)，發送跟接收端在同個區網的不同機器上</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以撐到每秒接收一百萬個 udp 小封包(32 bytes)，發送跟接收端在同個區網的不同機器上</p>
 <p>中間的嘗試迭代過程很有趣</p>
 <h4 id="1-裸測">1. 裸測</h4>
 <p>僅能到 0.19~0.35 M，發現 kernel 可能隨機分配 process 到不同 CPU 上，透過 <code>taskset</code> 指定 CPU 運行，穩定在 0.35 M 上不去，發現只有單一 CPU 忙碌到 100%</p>
@@ -147,8 +157,15 @@ OS 可以透過排程讓一個硬體於多個應用程式間切換使用，而�
 <h4 id="3-將-rx-queue-綁定到指定-cpu">3. 將 RX queue 綁定到指定 CPU</h4>
 <p>為了避免上面問題，可以透過 Indirection Table 調整 RX queue 如何分配到 CPU 讀取，作者限定只有在同一個 NUMA node 的 CPU 才能讀取 RX queue</p>
 <p>同樣的做法也可以用 Flow steering 實作，指定特定的 flow 到特定的 RX queue 上面，額外用途是確保在高流量情況下指定的封包還能被特定的 CPU 處理，如 SSH/BGP，也可以用來防堵 DDoS 攻擊</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">client$ sudo ethtool -N eth2 flow-type udp4 dst-ip 192.168.254.1 dst-port 65500 action 1
-</code></pre></div><p>在傳送端也可以指定類似的事情，調整 TX queue 透過哪個 CPU 發送的機制</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">client$ sudo ethtool -N eth2 flow-type udp4 dst-ip 192.168.254.1 dst-port 65500 action 1
+</code></pre></td></tr></table>
+</div>
+</div><p>在傳送端也可以指定類似的事情，調整 TX queue 透過哪個 CPU 發送的機制</p>
 <h4 id="小結-1">小結</h4>
 <p>再通過一些優化，從原本 47 us 降到 26 us；如果是透過 bypass kernel 則近一步下降到 <code>17 us</code></p>
 

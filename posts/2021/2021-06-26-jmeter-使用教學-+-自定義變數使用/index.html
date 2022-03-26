@@ -121,27 +121,63 @@
 <h3 id="sample2-從-csv-讀取參數">Sample2: 從 csv 讀取參數</h3>
 <p>選擇 Config Element &gt; CSV Data Set Config，選擇 csv 檔案後，在 Http Request 可以用 <code>${變數名}</code> 的方式，就可以讀取到對應的 csv 欄位喔
 例如我的 csv 長這樣</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">account,password
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">account,password
 user1,test1
 user2,test2
 user3,test3
-</code></pre></div><p>我希望打出 POST /login 中的 body 帶參數，變成</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{&#34;user&#34;: &#34;${account}&#34;, &#34;password&#34;: &#34;${password}&#34;}
-</code></pre></div><p>JMeter 會依序從上至下不斷輪迴發送喔</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>我希望打出 POST /login 中的 body 帶參數，變成</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{&#34;user&#34;: &#34;${account}&#34;, &#34;password&#34;: &#34;${password}&#34;}
+</code></pre></td></tr></table>
+</div>
+</div><p>JMeter 會依序從上至下不斷輪迴發送喔</p>
 <h3 id="sample3-pre-processor">Sample3: Pre Processor</h3>
 <p>如果我們希望在每次 Request 前做一些預處理，例如產生亂數、字串組合等，就可以用 Pre Processor，有分成很多種，可以用 BeanShell (java-like script language) 或是 JSR223 (javascript / groovy 等更多的 script language)，這邊就用 javascript</p>
 <p>延伸自 Sample2，先將 csv 讀進來的 account / password 當作參數，在 account 前面加一個 &ldquo;prefix_&rdquo; 字串，做法上新增一個 JSR223 Preprocessor，選擇 javascript，並輸入</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> account <span style="color:#719e07">=</span> vars.get(<span style="color:#2aa198">&#34;account&#34;</span>)
-account <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;prefix_&#34;</span> <span style="color:#719e07">+</span> account
-vars.put(<span style="color:#2aa198">&#34;account&#34;</span>, account)
-log.info(vars)
-</code></pre></div><p>有一些環境變數可以使用，例如 <code>vars</code> 可以取得/設定當前的變數，其餘還有 <code>sample</code> 可以改變 sample 結果 / <code>log</code> 打出 log， console.log 是不能用的 / <code>props</code> 取得當前 JMeter 設定等，這些比較進階，可以參考 <a href="https://www.blazemeter.com/blog/how-use-beanshell-jmeters-favorite-built-component">How to Use BeanShell: JMeter&rsquo;s Favorite Built-in Component</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">account</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">vars</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;account&#34;</span>)
+<span style="color:#a6e22e">account</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;prefix_&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">account</span>
+<span style="color:#a6e22e">vars</span>.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;account&#34;</span>, <span style="color:#a6e22e">account</span>)
+<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">info</span>(<span style="color:#a6e22e">vars</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>有一些環境變數可以使用，例如 <code>vars</code> 可以取得/設定當前的變數，其餘還有 <code>sample</code> 可以改變 sample 結果 / <code>log</code> 打出 log， console.log 是不能用的 / <code>props</code> 取得當前 JMeter 設定等，這些比較進階，可以參考 <a href="https://www.blazemeter.com/blog/how-use-beanshell-jmeters-favorite-built-component">How to Use BeanShell: JMeter&rsquo;s Favorite Built-in Component</a></p>
 <h3 id="post-processor">Post Processor</h3>
 <p>有些時候，我們會希望做一些後處理，例如 parse response 做 assertion 等，可以增加 post-processor，例如我們可以接登入取得的 token，當作下一個 request 的參數，新增一個 JSR223 PostProcessor</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> responseBody <span style="color:#719e07">=</span> sampler.sample().getResponseDataAsString();
-responseBody <span style="color:#719e07">=</span> JSON.parse(responseBody)
-vars.put(<span style="color:#2aa198">&#34;user_id&#34;</span>, <span style="color:#b58900">String</span>(responseBody.id))
-</code></pre></div><p>這樣下一個 request 就可以拿 ${user_id} 了</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">responseBody</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">sampler</span>.<span style="color:#a6e22e">sample</span>().<span style="color:#a6e22e">getResponseDataAsString</span>();
+<span style="color:#a6e22e">responseBody</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">parse</span>(<span style="color:#a6e22e">responseBody</span>)
+<span style="color:#a6e22e">vars</span>.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;user_id&#34;</span>, String(<span style="color:#a6e22e">responseBody</span>.<span style="color:#a6e22e">id</span>))
+</code></pre></td></tr></table>
+</div>
+</div><p>這樣下一個 request 就可以拿 ${user_id} 了</p>
 <h2 id="結語">結語</h2>
 <p>JMeter 有非常多方便且強大的組件，可以組合出各種客製化的壓測環境</p>
 

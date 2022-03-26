@@ -139,12 +139,23 @@
 <li>找出裝置上目前的 network interface：<br>
 Network Interface Card(網路卡) 一端是連接通訊介質(乙太網、Wifi等)，另一端則是提供主機的網路操作介面(network interface)</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">// 在 mac os 上  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">// 在 mac os 上  
 $ networksetup -listallhardwareports
 
 // 在 ubuntu 上  
 $ ip link show
-</code></pre></div><p>2. 觀察某 network interface 流量<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>2. 觀察某 network interface 流量<br>
 參考此篇文章 <a href="https://www.binarytides.com/linux-commands-monitor-network/">18 commands to monitor network bandwidth on Linux server</a>，挑選了兩個不錯的工具 <code>speedometer</code> 用長條圖即時表現封包流量、<code>tcptrack</code> 觀察 tcp 連線狀態，方便後續實驗量測</p>
 <p>3. 找出 domain name 對應的 ip<br>
 因為 tc 是網路層工具，所以要篩選封包需要透過 ip ，透過 <code>$host {domain}</code> 找出 ip。</p>
@@ -203,18 +214,34 @@ non-working-conserving 則是會在某些條件下延遲，可用於消遲抖動
 </ul>
 <p>以下指令參考</p>
 <h3 id="1-列出目前所有的-network-interface-的設定">1. 列出目前所有的 network interface 的設定</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tc qdisc ls  
-qdisc noqueue 0: dev lo root refcnt <span style="color:#2aa198">2</span>   
-qdisc pfifo_fast 0: dev enp0s5 root refcnt <span style="color:#2aa198">2</span> bands <span style="color:#2aa198">3</span> priomap  <span style="color:#2aa198">1</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span> <span style="color:#2aa198">1</span>
-</code></pre></div><p><a href="https://linux.die.net/man/8/tc-prio">tc-prio</a> 是預設的隊列規則，如果有綁定新的隊列規則會直接覆蓋過去。<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ tc qdisc ls  
+qdisc noqueue 0: dev lo root refcnt <span style="color:#ae81ff">2</span>   
+qdisc pfifo_fast 0: dev enp0s5 root refcnt <span style="color:#ae81ff">2</span> bands <span style="color:#ae81ff">3</span> priomap  <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><a href="https://linux.die.net/man/8/tc-prio">tc-prio</a> 是預設的隊列規則，如果有綁定新的隊列規則會直接覆蓋過去。<br>
 預設 prio 會有三個 band，而 priomap 則表示對應 IP 封包中的 4bits TOS 欄位，將封包透過該 band 發送。</p>
 <p>需注意 <code>enp0s5</code> 是我自己的 network interface，記得替換成自己裝置上的 network interface</p>
 <p><img src="/posts/img/1__d566EGgUEX52WNdIpSf__AQ.png" alt=""></p>
 <p><a href="http://linux-ip.net/articles/Traffic-Control-HOWTO/classless-qdiscs.html">http://linux-ip.net/articles/Traffic-Control-HOWTO/classless-qdiscs.html</a></p>
 <h3 id="2-預設將所有的流量導向-band2">2. 預設將所有的流量導向 band 2</h3>
 <p>為了避免其他封包被影響，先將所有的封包都走 band 2(指令計數從0開始)</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc add dev enp0s5 root handle 1: prio bands <span style="color:#2aa198">10</span> priomap <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span> <span style="color:#2aa198">2</span>
-</code></pre></div><p>handle 1: 指的是綁定到 qdisc 的 root<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc add dev enp0s5 root handle 1: prio bands <span style="color:#ae81ff">10</span> priomap <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>handle 1: 指的是綁定到 qdisc 的 root<br>
 bands 10: 可以創建 10組 band</p>
 <h3 id="3-設定封包延遲">3. 設定封包延遲</h3>
 <p>$ sudo tc qdisc add dev enp0s5 parent 1:1 handle 10: netem delay 100ms 10ms</p>
@@ -224,8 +251,15 @@ bands 10: 可以創建 10組 band</p>
 <li>handle 10: 表示創建一個 class id 為 10 的節點</li>
 </ol>
 <p>雖然目前有增加了 band0 的延遲，但因為所有封包都是走 band2，還不會受到延遲的影響，先用工具量測目前的網路延遲，這邊我是用 curl</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -o/dev/null -w <span style="color:#2aa198">&#34;\\n%{time_connect}:%{time_starttransfer}:%{time_total}\\n&#34;</span> -s <span style="color:#719e07">[</span>https://stackoverflow.com/<span style="color:#719e07">](</span>https://stackoverflow.com/<span style="color:#719e07">)</span>
-</code></pre></div><p>在設定前不專業量測約為 1.5 s。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ curl -o/dev/null -w <span style="color:#e6db74">&#34;\\n%{time_connect}:%{time_starttransfer}:%{time_total}\\n&#34;</span> -s <span style="color:#f92672">[</span>https://stackoverflow.com/<span style="color:#f92672">](</span>https://stackoverflow.com/<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在設定前不專業量測約為 1.5 s。</p>
 <h3 id="4-加入過濾器將符合條件的封包轉送到-band0">4. 加入過濾器，將符合條件的封包轉送到 band 0</h3>
 <p>$ sudo tc filter add dev enp0s5 protocol ip parent 1:0 prio 1 u32 match ip dst 151.101.0.0/16 match ip dport 443 0xffff flowid 1:1</p>
 <ol>
@@ -247,12 +281,33 @@ bands 10: 可以創建 10組 band</p>
 <p><img src="/posts/img/1__yxleicti2yy9F2K0UrpmHA.png" alt=""></p>
 <p>測試限制 aws s3 上傳的帶寬</p>
 <h3 id="1-刪除舊的-qdisc設定">1. 刪除舊的 qdisc 設定</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc del dev enp0s5 root
-</code></pre></div><h3 id="2-建立htb">2. 建立 htb</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc add dev enp0s5 root handle 1:0 htb
-</code></pre></div><h3 id="3-加入-bandwidth-限制">3. 加入 bandwidth 限制</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc class add dev enp0s5 parent 1: classid 1:1 htb rate 100kbps ceil 100kbps
-</code></pre></div><p>比對 s3 上傳的前後，發現上傳速度確實被限制在 100kbps</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc del dev enp0s5 root
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="2-建立htb">2. 建立 htb</h3>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc qdisc add dev enp0s5 root handle 1:0 htb
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="3-加入-bandwidth-限制">3. 加入 bandwidth 限制</h3>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo tc class add dev enp0s5 parent 1: classid 1:1 htb rate 100kbps ceil 100kbps
+</code></pre></td></tr></table>
+</div>
+</div><p>比對 s3 上傳的前後，發現上傳速度確實被限制在 100kbps</p>
 <p><img src="/posts/img/1__GZhxO8aeHFv0x3qS6lgaBg.jpeg" alt=""></p>
 <p>如果單純想要限制上傳速度，也可以用 tc-tbf，但 htb 優點是用層狀架構限速，leaf 會受到 root 的限制，例如分配一條帶寬 10 Mbps，可以在之下分配 4 Mbps 給某網域 6 Mbps 給其他網域等等。</p>
 <p>筆記會用到的其他指令</p>

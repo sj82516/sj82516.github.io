@@ -86,14 +86,27 @@
 <p>在 <strong>http 1.1</strong> 默認開啟，如果關閉 persistent connection 則必須主動在 http request 夾帶 <code>Connection: close</code> 。</p>
 <p>在 reverse proxy 中或是 application server 都可以設置 keep-alive timeout，決定 server 在閒置多少秒數後沒有收到新的 http request 就主動斷開連線，以下透過 wireshark 實際觀察 persistent connection。</p>
 <p>server.js 的程式碼很簡單</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> http <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;http&#39;</span>);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">http</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;http&#39;</span>);
 
-<span style="color:#268bd2">const</span> server <span style="color:#719e07">=</span> http.createServer((req, res) =&gt; {  
-   res.end();  
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">server</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">createServer</span>((<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {  
+   <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">end</span>();  
 });
 
-server.listen(<span style="color:#2aa198">3000</span>);
-</code></pre></div><h3 id="http-10--client--server">http 1.0 ： client ← → server</h3>
+<span style="color:#a6e22e">server</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">3000</span>);
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="http-10--client--server">http 1.0 ： client ← → server</h3>
 <p>如果直接使用 nodejs http module或是其他二次開發的模組，預設是採用 http 1.1 且不能修改，此時必須使用更底層的 net 模組發送 http 1.0 request</p>
 <p><img src="/posts/img/1____VxpaLipngwfWOh74Ye__CA.jpeg" alt=""></p>
 <p>Server 很明確知道此次 connection 沒有要復用所以就可以直接斷開連結。</p>

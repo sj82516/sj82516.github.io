@@ -77,8 +77,15 @@
 	<div class="markdown">
 		<p>從應用程式的角度，執行任務可以分成 I/O bound 與 CPU bound，而 I/O 處理相比於 CPU 運算速度慢好幾個層級，所以當 I/O 還沒準備好時會「主動讓」給其他任務，盡可能地讓 CPU 保持忙碌，等到 「I/O 準備好再重新回到 CPU 執行」</p>
 <p>在之前理解 Nodejs non-blocking I/O 時，官方文件 <a href="https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/">Overview of Blocking vs Non-Blocking</a> 寫到</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Any code that is expected to run in a concurrent manner must allow the event loop to continue running as non-JavaScript operations, like I/O, are occurring.
-</code></pre></div><p>Nodejs sdk 有提供 non-blocking I/O 機制，底層 libuv 會處理 event loop 與其餘 I/O 的執行，「當 I/O 執行時可以讓其他的 JavaScript code 繼續運行不被 block」</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Any code that is expected to run in a concurrent manner must allow the event loop to continue running as non-JavaScript operations, like I/O, are occurring.
+</code></pre></td></tr></table>
+</div>
+</div><p>Nodejs sdk 有提供 non-blocking I/O 機制，底層 libuv 會處理 event loop 與其餘 I/O 的執行，「當 I/O 執行時可以讓其他的 JavaScript code 繼續運行不被 block」</p>
 <p>所有用「」括起來的地方都是我所想不透的，為什麼 I/O 運行時其他 JavaScript Code 可以繼續運行？是因為 Nodejs 有某種特殊的方法知道目前的程式在等待 I/O 所以主動切換不同的任務執行？如果不是 Nodejs runtime 切換，那會是作業系統切換的嗎？該怎麼切換？<br>
 又為什麼 I/O 的處理不需要 CPU 的介入嗎？ CPU 怎麼知道 IO 處理完了該繼續往下執行？是不是我的 IO 全部改成 asynchronous 效能就突飛猛進？那為什麼 async io 並不是每個程式語言執行時的預設支援？</p>
 <p>同樣最近在看 Golang goroutine <a href="https://medium.com/a-journey-with-go/go-goroutine-os-thread-and-cpu-management-2f5a5eaf518a">Go: Goroutine, OS Thread and CPU Management</a>時又遇到相同的問題，當讀到 goroutine 等待 I/O 回應時 M 會解除 P 並進入等待，讓其他的 M 執行；如果是遇到 network 相關的 I/O 則推至 network poll 等待 network 完成</p>
@@ -114,27 +121,53 @@
 <p>參考資料 <a href="https://sysprog21.github.io/lkmpg/#hello-and-goodbye">lkmpg - 4.2 Hello and Goodbye</a><br>
 讓我們先從最簡單的 hello world 開始，先了解最基本的 kernel module 安裝、卸載與執行過程</p>
 <h4 id="1-hello-world">1. hello world</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#586e75">/* 
-</span><span style="color:#586e75"> * hello-1.c - The simplest kernel module. 
-</span><span style="color:#586e75"> */</span> 
-<span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;linux/kernel.h&gt; /* Needed for pr_info() */ </span><span style="color:#719e07">
-</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;linux/module.h&gt; /* Needed by all modules */ </span><span style="color:#719e07">
-</span><span style="color:#719e07"></span> 
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">init_module</span>(<span style="color:#dc322f">void</span>) 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">/* 
+</span><span style="color:#75715e"> * hello-1.c - The simplest kernel module. 
+</span><span style="color:#75715e"> */</span> 
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/kernel.h&gt; /* Needed for pr_info() */ </span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/module.h&gt; /* Needed by all modules */ </span><span style="color:#75715e">
+</span><span style="color:#75715e"></span> 
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">init_module</span>(<span style="color:#66d9ef">void</span>) 
 { 
-    pr_info(<span style="color:#2aa198">&#34;Hello world 1.</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>); 
+    pr_info(<span style="color:#e6db74">&#34;Hello world 1.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>); 
  
-    <span style="color:#586e75">/* A non 0 return means init_module failed; module can&#39;t be loaded. */</span> 
-    <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>; 
+    <span style="color:#75715e">/* A non 0 return means init_module failed; module can&#39;t be loaded. */</span> 
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>; 
 } 
  
-<span style="color:#dc322f">void</span> <span style="color:#268bd2">cleanup_module</span>(<span style="color:#dc322f">void</span>) 
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">cleanup_module</span>(<span style="color:#66d9ef">void</span>) 
 { 
-    pr_info(<span style="color:#2aa198">&#34;Goodbye world 1.</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>); 
+    pr_info(<span style="color:#e6db74">&#34;Goodbye world 1.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>); 
 } 
  
-MODULE_LICENSE(<span style="color:#2aa198">&#34;GPL&#34;</span>);
-</code></pre></div><p>編寫 kernel module 時，有以下三點必備</p>
+MODULE_LICENSE(<span style="color:#e6db74">&#34;GPL&#34;</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>編寫 kernel module 時，有以下三點必備</p>
 <ol>
 <li>當 module 安裝時要做什麼：init_module</li>
 <li>當 module 移除時要做什麼：cleanup_module</li>
@@ -144,13 +177,25 @@ MODULE_LICENSE(<span style="color:#2aa198">&#34;GPL&#34;</span>);
 但是 kernel module 的第四階段不同，他只能解析 kernel 所註冊的 symbol，也就是 kernel 本身提供的 system call，可以在 <code>/proc/kallsyms</code> 查看</p>
 <h4 id="2-條列--安裝--移除-kernel-module">2. 條列 / 安裝 / 移除 kernel module</h4>
 <p>編譯用的 MakeFile 參考上附連結，產出 module object code 後，可以透過以下指令操作 kernel module</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// 條列
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// 條列
 $ sudo lsmod
 // 安裝
 $ sudo insmod {module.ko}
 // 移除
 $ sudo rmmode {module}
-</code></pre></div><p>可以透過 <code>$ sudo journalctl --since &quot;1 hour ago&quot; | grep kernel</code> 查看近一小時 kernel module 打印結果</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以透過 <code>$ sudo journalctl --since &quot;1 hour ago&quot; | grep kernel</code> 查看近一小時 kernel module 打印結果</p>
 <h3 id="device-driver">device driver</h3>
 <p><code>所有的裝置在 linux 中都是 file</code>，資料結構可以參考 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h">include/linux/fs.h</a>，首先要先釐清這邊的 File <code>只存在於 kernel</code>，雖然中文可能都被翻成文件或檔案，但實際上與檔案系統中的檔案概念是不同的! 後者通常是叫做 <strong>inode</strong></p>
 <p>所以每一個裝置在 linux 中都是以一個 file 存在，通常儲存於 <code>/dev/</code> 底下，而 device driver 則是 user space 應用程式與 device 溝通的管道，流程大致是</p>
@@ -161,116 +206,240 @@ $ sudo rmmode {module}
 <h4 id="1-註冊裝置">1. 註冊裝置</h4>
 <p>參考資料 <a href="https://sysprog21.github.io/lkmpg/#device-drivers">lkmpg - 5.6 Device Drivers</a>
 先觀察系統中既有的裝置</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ ls -l /dev/
-</code></pre></div><p>可以看到類似的輸出</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">brw-rw----  1 root  disk  3, 1 Jul  5  2000 /dev/hda1
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ ls -l /dev/
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到類似的輸出</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">brw-rw----  1 root  disk  3, 1 Jul  5  2000 /dev/hda1
 brw-rw----  1 root  disk  3, 2 Jul  5  2000 /dev/hda2
 brw-rw----  1 root  disk  3, 3 Jul  5  2000 /dev/hda3
-</code></pre></div><p>注意到 &ldquo;3, 1&rdquo; 這類型的字串，前面是 major number 後面是 minor number，分別代表 <code>指定 driver, 裝置 id</code>，每個 device driver 都會被分配一個 id，而可能有多個裝置都是由同一個 driver 所驅動，所以有第二個 minor id 讓 driver 區分不同的硬體</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>注意到 &ldquo;3, 1&rdquo; 這類型的字串，前面是 major number 後面是 minor number，分別代表 <code>指定 driver, 裝置 id</code>，每個 device driver 都會被分配一個 id，而可能有多個裝置都是由同一個 driver 所驅動，所以有第二個 minor id 讓 driver 區分不同的硬體</p>
 <p>接著注意到最前的字元，可能會看到 <code>d / b / c</code> 三種，d 代表 directory 目錄，b 代表 block、c 代表 char；<br>
 block device 是指說操作會以 block 為單位，所以有時操作會被 buffer 後才執行，例如硬碟儲存裝置，可以最佳化讀寫的效率；<br>
 char device 則沒有 buffer，可以任意讀寫不同的大小，幾乎大多數的裝置都是 char device</p>
 <h4 id="2-註冊檔案操作">2. 註冊檔案操作</h4>
 <p>當我們想指定 device driver 如何操作檔案時，會定義 file_operations，指定當檔案被讀取 / 寫入時要對應觸發的 handler function，可以看到以下 struct 中幾乎都是定義 <a href="https://chenhh.gitbooks.io/parallel_processing/content/cython/function_pointer.html">function pointer</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#719e07">struct</span> file_operations { 
-    <span style="color:#719e07">struct</span> module <span style="color:#719e07">*</span>owner; 
-    loff_t (<span style="color:#719e07">*</span>llseek) (<span style="color:#719e07">struct</span> file <span style="color:#719e07">*</span>, loff_t, <span style="color:#dc322f">int</span>); 
-    ssize_t (<span style="color:#719e07">*</span>read) (<span style="color:#719e07">struct</span> file <span style="color:#719e07">*</span>, <span style="color:#dc322f">char</span> __user <span style="color:#719e07">*</span>, size_t, loff_t <span style="color:#719e07">*</span>); 
-    ssize_t (<span style="color:#719e07">*</span>write) (<span style="color:#719e07">struct</span> file <span style="color:#719e07">*</span>, <span style="color:#719e07">const</span> <span style="color:#dc322f">char</span> __user <span style="color:#719e07">*</span>, size_t, loff_t <span style="color:#719e07">*</span>); 
-    ssize_t (<span style="color:#719e07">*</span>read_iter) (<span style="color:#719e07">struct</span> kiocb <span style="color:#719e07">*</span>, <span style="color:#719e07">struct</span> iov_iter <span style="color:#719e07">*</span>); 
-    ssize_t (<span style="color:#719e07">*</span>write_iter) (<span style="color:#719e07">struct</span> kiocb <span style="color:#719e07">*</span>, <span style="color:#719e07">struct</span> iov_iter <span style="color:#719e07">*</span>); 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">struct</span> file_operations { 
+    <span style="color:#66d9ef">struct</span> module <span style="color:#f92672">*</span>owner; 
+    loff_t (<span style="color:#f92672">*</span>llseek) (<span style="color:#66d9ef">struct</span> file <span style="color:#f92672">*</span>, loff_t, <span style="color:#66d9ef">int</span>); 
+    ssize_t (<span style="color:#f92672">*</span>read) (<span style="color:#66d9ef">struct</span> file <span style="color:#f92672">*</span>, <span style="color:#66d9ef">char</span> __user <span style="color:#f92672">*</span>, size_t, loff_t <span style="color:#f92672">*</span>); 
+    ssize_t (<span style="color:#f92672">*</span>write) (<span style="color:#66d9ef">struct</span> file <span style="color:#f92672">*</span>, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> __user <span style="color:#f92672">*</span>, size_t, loff_t <span style="color:#f92672">*</span>); 
+    ssize_t (<span style="color:#f92672">*</span>read_iter) (<span style="color:#66d9ef">struct</span> kiocb <span style="color:#f92672">*</span>, <span style="color:#66d9ef">struct</span> iov_iter <span style="color:#f92672">*</span>); 
+    ssize_t (<span style="color:#f92672">*</span>write_iter) (<span style="color:#66d9ef">struct</span> kiocb <span style="color:#f92672">*</span>, <span style="color:#66d9ef">struct</span> iov_iter <span style="color:#f92672">*</span>); 
     .....
-</code></pre></div><p>補充 file 相關資料 <a href="https://blog.jaycetyle.com/2018/12/linux-fd-open-close/">Linux 系統程式設計 - fd 及 open()、close() 系統呼叫</a>，file 在 Linux 中必須先被 open() 才能執行後續的讀寫操作，open() 時會把檔案稱作 <code>open file</code>，此時會回傳 <code>file descriptor</code>，資料結構就是上面的 file_operations 紀錄每種動作對應的處理方法</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>補充 file 相關資料 <a href="https://blog.jaycetyle.com/2018/12/linux-fd-open-close/">Linux 系統程式設計 - fd 及 open()、close() 系統呼叫</a>，file 在 Linux 中必須先被 open() 才能執行後續的讀寫操作，open() 時會把檔案稱作 <code>open file</code>，此時會回傳 <code>file descriptor</code>，資料結構就是上面的 file_operations 紀錄每種動作對應的處理方法</p>
 <h4 id="3-範例程式碼">3. 範例程式碼</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#719e07">static</span> <span style="color:#719e07">struct</span> file_operations chardev_fops <span style="color:#719e07">=</span> { 
-    .read <span style="color:#719e07">=</span> device_read, 
-    .write <span style="color:#719e07">=</span> device_write, 
-    .open <span style="color:#719e07">=</span> device_open, 
-    .release <span style="color:#719e07">=</span> device_release, 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">84
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">85
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">86
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">87
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">88
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">struct</span> file_operations chardev_fops <span style="color:#f92672">=</span> { 
+    .read <span style="color:#f92672">=</span> device_read, 
+    .write <span style="color:#f92672">=</span> device_write, 
+    .open <span style="color:#f92672">=</span> device_open, 
+    .release <span style="color:#f92672">=</span> device_release, 
 }; 
 
-<span style="color:#719e07">static</span> <span style="color:#dc322f">int</span> __init <span style="color:#268bd2">chardev_init</span>(<span style="color:#dc322f">void</span>) 
+<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> __init <span style="color:#a6e22e">chardev_init</span>(<span style="color:#66d9ef">void</span>) 
 { 
-    major <span style="color:#719e07">=</span> register_chrdev(<span style="color:#2aa198">0</span>, DEVICE_NAME, <span style="color:#719e07">&amp;</span>chardev_fops); 
+    major <span style="color:#f92672">=</span> register_chrdev(<span style="color:#ae81ff">0</span>, DEVICE_NAME, <span style="color:#f92672">&amp;</span>chardev_fops); 
 
-    <span style="color:#719e07">if</span> (major <span style="color:#719e07">&lt;</span> <span style="color:#2aa198">0</span>) { 
-        pr_alert(<span style="color:#2aa198">&#34;Registering char device failed with %d</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>, major); 
-        <span style="color:#719e07">return</span> major; 
+    <span style="color:#66d9ef">if</span> (major <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) { 
+        pr_alert(<span style="color:#e6db74">&#34;Registering char device failed with %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, major); 
+        <span style="color:#66d9ef">return</span> major; 
     } 
 
-    pr_info(<span style="color:#2aa198">&#34;I was assigned major number %d.</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>, major); 
-    cls <span style="color:#719e07">=</span> class_create(THIS_MODULE, DEVICE_NAME); 
-    device_create(cls, <span style="color:#b58900">NULL</span>, MKDEV(major, <span style="color:#2aa198">0</span>), <span style="color:#b58900">NULL</span>, DEVICE_NAME); 
+    pr_info(<span style="color:#e6db74">&#34;I was assigned major number %d.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, major); 
+    cls <span style="color:#f92672">=</span> class_create(THIS_MODULE, DEVICE_NAME); 
+    device_create(cls, NULL, MKDEV(major, <span style="color:#ae81ff">0</span>), NULL, DEVICE_NAME); 
 
-    pr_info(<span style="color:#2aa198">&#34;Device created on /dev/%s</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>, DEVICE_NAME); 
+    pr_info(<span style="color:#e6db74">&#34;Device created on /dev/%s</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, DEVICE_NAME); 
 
-    <span style="color:#719e07">return</span> SUCCESS; 
+    <span style="color:#66d9ef">return</span> SUCCESS; 
 
 } 
 
-<span style="color:#586e75">/* Methods */</span> 
-<span style="color:#586e75">/* Called when a process tries to open the device file, like 
-</span><span style="color:#586e75"> * &#34;sudo cat /dev/chardev&#34; 
-</span><span style="color:#586e75"> */</span> 
+<span style="color:#75715e">/* Methods */</span> 
+<span style="color:#75715e">/* Called when a process tries to open the device file, like 
+</span><span style="color:#75715e"> * &#34;sudo cat /dev/chardev&#34; 
+</span><span style="color:#75715e"> */</span> 
 
-<span style="color:#719e07">static</span> <span style="color:#dc322f">int</span> <span style="color:#268bd2">device_open</span>(<span style="color:#719e07">struct</span> inode <span style="color:#719e07">*</span>inode, <span style="color:#719e07">struct</span> file <span style="color:#719e07">*</span>file) 
+<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">device_open</span>(<span style="color:#66d9ef">struct</span> inode <span style="color:#f92672">*</span>inode, <span style="color:#66d9ef">struct</span> file <span style="color:#f92672">*</span>file) 
 { 
-    <span style="color:#719e07">static</span> <span style="color:#dc322f">int</span> counter <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; 
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; 
 
-    <span style="color:#719e07">if</span> (atomic_cmpxchg(<span style="color:#719e07">&amp;</span>already_open, CDEV_NOT_USED, CDEV_EXCLUSIVE_OPEN)) 
-        <span style="color:#719e07">return</span> <span style="color:#719e07">-</span>EBUSY; 
+    <span style="color:#66d9ef">if</span> (atomic_cmpxchg(<span style="color:#f92672">&amp;</span>already_open, CDEV_NOT_USED, CDEV_EXCLUSIVE_OPEN)) 
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>EBUSY; 
 
-    sprintf(msg, <span style="color:#2aa198">&#34;I already told you %d times Hello world!</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>, counter<span style="color:#719e07">++</span>); 
+    sprintf(msg, <span style="color:#e6db74">&#34;I already told you %d times Hello world!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, counter<span style="color:#f92672">++</span>); 
     try_module_get(THIS_MODULE); 
 
-    <span style="color:#719e07">return</span> SUCCESS; 
+    <span style="color:#66d9ef">return</span> SUCCESS; 
 } 
 
-<span style="color:#586e75">/* This function is called whenever a process which has already opened the 
-</span><span style="color:#586e75"> * device file attempts to read from it. 
-</span><span style="color:#586e75"> */</span> 
-<span style="color:#719e07">static</span> ssize_t <span style="color:#268bd2">device_read</span>(<span style="color:#719e07">struct</span> file <span style="color:#719e07">*</span>file, <span style="color:#586e75">/* see include/linux/fs.h   */</span> 
-                           <span style="color:#dc322f">char</span> __user <span style="color:#719e07">*</span>buffer, <span style="color:#586e75">/* buffer to be filled  */</span> 
-                           size_t length, <span style="color:#586e75">/* length of the buffer     */</span>
-                           loff_t <span style="color:#719e07">*</span>offset) 
+<span style="color:#75715e">/* This function is called whenever a process which has already opened the 
+</span><span style="color:#75715e"> * device file attempts to read from it. 
+</span><span style="color:#75715e"> */</span> 
+<span style="color:#66d9ef">static</span> ssize_t <span style="color:#a6e22e">device_read</span>(<span style="color:#66d9ef">struct</span> file <span style="color:#f92672">*</span>file, <span style="color:#75715e">/* see include/linux/fs.h   */</span> 
+                           <span style="color:#66d9ef">char</span> __user <span style="color:#f92672">*</span>buffer, <span style="color:#75715e">/* buffer to be filled  */</span> 
+                           size_t length, <span style="color:#75715e">/* length of the buffer     */</span>
+                           loff_t <span style="color:#f92672">*</span>offset) 
 { 
 
-    <span style="color:#586e75">/* Number of bytes actually written to the buffer */</span> 
-    <span style="color:#dc322f">int</span> bytes_read <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; 
-    <span style="color:#586e75">/* How far did the process reading the message get? Useful if the message 
-</span><span style="color:#586e75">     * is larger than the size of the buffer we get to fill in device_read. 
-</span><span style="color:#586e75">     */</span> 
-    <span style="color:#719e07">const</span> <span style="color:#dc322f">char</span> <span style="color:#719e07">*</span>message_ptr <span style="color:#719e07">=</span> message; 
+    <span style="color:#75715e">/* Number of bytes actually written to the buffer */</span> 
+    <span style="color:#66d9ef">int</span> bytes_read <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; 
+    <span style="color:#75715e">/* How far did the process reading the message get? Useful if the message 
+</span><span style="color:#75715e">     * is larger than the size of the buffer we get to fill in device_read. 
+</span><span style="color:#75715e">     */</span> 
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>message_ptr <span style="color:#f92672">=</span> message; 
 
-    <span style="color:#719e07">if</span> (<span style="color:#719e07">!*</span>(message_ptr <span style="color:#719e07">+</span> <span style="color:#719e07">*</span>offset)) { <span style="color:#586e75">/* we are at the end of message */</span> 
-        <span style="color:#719e07">*</span>offset <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; <span style="color:#586e75">/* reset the offset */</span> 
-        <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>; <span style="color:#586e75">/* signify end of file */</span> 
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!*</span>(message_ptr <span style="color:#f92672">+</span> <span style="color:#f92672">*</span>offset)) { <span style="color:#75715e">/* we are at the end of message */</span> 
+        <span style="color:#f92672">*</span>offset <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">/* reset the offset */</span> 
+        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">/* signify end of file */</span> 
     } 
 
-    message_ptr <span style="color:#719e07">+=</span> <span style="color:#719e07">*</span>offset; 
+    message_ptr <span style="color:#f92672">+=</span> <span style="color:#f92672">*</span>offset; 
 
-    <span style="color:#586e75">/* Actually put the data into the buffer */</span> 
-    <span style="color:#719e07">while</span> (length <span style="color:#719e07">&amp;&amp;</span> <span style="color:#719e07">*</span>message_ptr) { 
-        <span style="color:#586e75">/* Because the buffer is in the user data segment, not the kernel 
-</span><span style="color:#586e75">         * data segment, assignment would not work. Instead, we have to 
-</span><span style="color:#586e75">         * use put_user which copies data from the kernel data segment to 
-</span><span style="color:#586e75">         * the user data segment. 
-</span><span style="color:#586e75">         */</span> 
-        put_user(<span style="color:#719e07">*</span>(message_ptr<span style="color:#719e07">++</span>), buffer<span style="color:#719e07">++</span>); 
-        length<span style="color:#719e07">--</span>; 
-        bytes_read<span style="color:#719e07">++</span>; 
+    <span style="color:#75715e">/* Actually put the data into the buffer */</span> 
+    <span style="color:#66d9ef">while</span> (length <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">*</span>message_ptr) { 
+        <span style="color:#75715e">/* Because the buffer is in the user data segment, not the kernel 
+</span><span style="color:#75715e">         * data segment, assignment would not work. Instead, we have to 
+</span><span style="color:#75715e">         * use put_user which copies data from the kernel data segment to 
+</span><span style="color:#75715e">         * the user data segment. 
+</span><span style="color:#75715e">         */</span> 
+        put_user(<span style="color:#f92672">*</span>(message_ptr<span style="color:#f92672">++</span>), buffer<span style="color:#f92672">++</span>); 
+        length<span style="color:#f92672">--</span>; 
+        bytes_read<span style="color:#f92672">++</span>; 
     } 
 
-    pr_info(<span style="color:#2aa198">&#34;Read %d bytes, %ld left</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>, bytes_read, length); 
+    pr_info(<span style="color:#e6db74">&#34;Read %d bytes, %ld left</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, bytes_read, length); 
 
-    <span style="color:#719e07">*</span>offset <span style="color:#719e07">+=</span> bytes_read; 
+    <span style="color:#f92672">*</span>offset <span style="color:#f92672">+=</span> bytes_read; 
 
-    <span style="color:#586e75">/* Read functions are supposed to return the number of bytes actually 
-</span><span style="color:#586e75">     * inserted into the buffer. 
-</span><span style="color:#586e75">     */</span> 
-    <span style="color:#719e07">return</span> bytes_read; 
+    <span style="color:#75715e">/* Read functions are supposed to return the number of bytes actually 
+</span><span style="color:#75715e">     * inserted into the buffer. 
+</span><span style="color:#75715e">     */</span> 
+    <span style="color:#66d9ef">return</span> bytes_read; 
 } 
-</code></pre></div><p>結論關鍵的程式碼</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>結論關鍵的程式碼</p>
 <ol>
 <li>透過 register_chrdev 註冊裝置與指定的 file，系統會返回 major number</li>
 <li>註冊 file_operators，可以挑選需要的 handler 註冊</li>
@@ -292,20 +461,49 @@ char device 則沒有 buffer，可以任意讀寫不同的大小，幾乎大多�
 <h4 id="1-從-printf-觀察-system-call">1. 從 printf 觀察 system call</h4>
 <p>參考 <a href="https://sysprog21.github.io/lkmpg/#functions-available-to-modules">lkmpg 5.2 Functions available to modules</a>
 透過最簡單的 c program printf 來看 system call 的執行</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;stdio.h&gt; </span><span style="color:#719e07">
-</span><span style="color:#719e07"></span> 
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">void</span>) 
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt; </span><span style="color:#75715e">
+</span><span style="color:#75715e"></span> 
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>) 
 { 
-    printf(<span style="color:#2aa198">&#34;hello&#34;</span>); 
-    <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>; 
+    printf(<span style="color:#e6db74">&#34;hello&#34;</span>); 
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>; 
 }
-</code></pre></div><p>打包後透過 <a href="https://strace.io/">strace</a> 查看 system call 狀況</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ gcc -Wall -o hello hello.c
+</code></pre></td></tr></table>
+</div>
+</div><p>打包後透過 <a href="https://strace.io/">strace</a> 查看 system call 狀況</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ gcc -Wall -o hello hello.c
 $ strace ./hello.o
-</code></pre></div><p>打印出蠻多東西，包含一些 memory allocate 的指令等，最終可以看到 <code>write</code> 的 system call 呼叫</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">write(1, &#34;hello world&#34;, 11hello world)
+</code></pre></td></tr></table>
+</div>
+</div><p>打印出蠻多東西，包含一些 memory allocate 的指令等，最終可以看到 <code>write</code> 的 system call 呼叫</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">write(1, &#34;hello world&#34;, 11hello world)
 exit_group(0)
-</code></pre></div><h4 id="2-修改-system-call">2. 修改 system call</h4>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="2-修改-system-call">2. 修改 system call</h4>
 <p>如果我們希望修改 system call，理論上可以直接改 sys_call_table 的 mapping，但基於安全性考量這是無法直接在 runtime 操作的，原因是避免 hacker 直接修改 system call</p>
 <p>第二個嘗試可以透過 <code>$sudo grep sys_call_table /proc/kallsyms</code> 找出 sys_call_table 所儲存的實際記憶體位置並替換，但這目前也不行，同樣是因為安全性考量， Linux kernel 在每次 boot 時會動態擾亂 kernel code 跟 data (稱為 KASLR)，增加 hacker 嘗試攻擊的難度</p>
 <p>一個可行的做法是透過 <a href="https://ztex.medium.com/kprobe-%E7%AD%86%E8%A8%98-59d4bdb1e1fe">kprobe</a>，這是一個 kernel debug 的工具，當 CPU 執行到中斷點時會保存暫存器狀態，並執行 kprobe 指定的指令，可以透過這種方式去動態調整 system call 執行</p>
@@ -321,10 +519,19 @@ exit_group(0)
 <li>Interrupt handler 中有分成 top half / bottom half，top half 是不會被其他 Interrupt 中斷，所以一定會當下完成；而 bottom half 則會被排入 softiqr 重新排成，<code>soft</code> 在 OS 中有時是代表不確定何時會被完成</li>
 </ol>
 <p>實作面的部分參考 <a href="https://sysprog21.github.io/lkmpg/#detecting-button-presses">lkmpg 15.2 Detecting button presses</a>，透過 <code>request_irq</code> 註冊 interrupt request，當指定的 I/O 發生 interrupt 時就會呼叫註冊的 funtion</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">ret <span style="color:#719e07">=</span> request_irq(button_irqs[<span style="color:#2aa198">0</span>], button_isr, 
-                    IRQF_TRIGGER_RISING <span style="color:#719e07">|</span> IRQF_TRIGGER_FALLING, 
-                    <span style="color:#2aa198">&#34;gpiomod#button1&#34;</span>, <span style="color:#b58900">NULL</span>); 
-</code></pre></div><p>更多的討論可以參考文件，不同的 CPU 與作業系統有不同的考量，考慮到排程 realtime OS 的設計又會有不同</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">ret <span style="color:#f92672">=</span> request_irq(button_irqs[<span style="color:#ae81ff">0</span>], button_isr, 
+                    IRQF_TRIGGER_RISING <span style="color:#f92672">|</span> IRQF_TRIGGER_FALLING, 
+                    <span style="color:#e6db74">&#34;gpiomod#button1&#34;</span>, NULL); 
+</code></pre></td></tr></table>
+</div>
+</div><p>更多的討論可以參考文件，不同的 CPU 與作業系統有不同的考量，考慮到排程 realtime OS 的設計又會有不同</p>
 <h2 id="延伸linux-的-asynchronous-io">延伸：Linux 的 Asynchronous I/O</h2>
 <p>現在流行的 network I/O 處理方式是透過 I/O multiplexing，如 Linux 的 epoll，而 asynchrous I/O 看起來十分的迷人，應用程式發出請求後就直接等到作業系統通知，中間完全不用等待，但為什麼目前沒有被大規模採納呢？</p>
 <p><img src="/posts/2022/img/0206/io2.png" alt=""><br>

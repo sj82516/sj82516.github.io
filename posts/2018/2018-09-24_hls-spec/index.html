@@ -98,7 +98,20 @@
 Master Playlist 主要是為了提供多種解析度、翻譯字幕的播放清單 (Media Playlist)，當 Client (如播放器)依據網路條件與用戶選擇等，則選擇支援的播放清單下載影片檔</p>
 <h4 id="master-playlist"><code>Master Playlist</code></h4>
 <p>主要針對相同內容提供不同的 Streaming，例如不同的解析度、不同的國家有不同的字幕等</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
 #EXT-X-STREAM-INF:BANDWIDTH=1280000,AVERAGE-BANDWIDTH=1000000  
 http://example.com/low.m3u8  
 #EXT-X-STREAM-INF:BANDWIDTH=2560000,AVERAGE-BANDWIDTH=2000000  
@@ -107,10 +120,25 @@ http://example.com/mid.m3u8
 http://example.com/hi.m3u8  
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=&#34;mp4a.40.5&#34;  
 http://example.com/audio-only.m3u8
-</code></pre></div><p>大意是在平均流量6000000時播放 hi.m3u8，在比較低點的1000000播放 low.m3u8，如果是針對音檔而已則播 audio-only.m3u8。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>大意是在平均流量6000000時播放 hi.m3u8，在比較低點的1000000播放 low.m3u8，如果是針對音檔而已則播 audio-only.m3u8。</p>
 <h4 id="media-playlist"><code>Media Playlist</code></h4>
 <p>就是 Master Playlist中 Streaming指定的串流播放清單，主要說明要播放的片段URI、播放時長、如何解碼影片或是解密內容等等</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
 #EXT-X-TARGETDURATION:10  
   
 #EXTINF:9.009,  
@@ -119,7 +147,9 @@ http://media.example.com/first.ts
 http://media.example.com/second.ts  
 #EXTINF:3.003,  
 http://media.example.com/third.ts
-</code></pre></div><p>這個 Media Playlist 說明了大約最大個Media Segments播放時長為10秒；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>這個 Media Playlist 說明了大約最大個Media Segments播放時長為10秒；<br>
 第一個片段 URI 是 http:…/first.ts 長度為 9秒；<br>
 第一個片段播完換第二個片段，以此類推。</p>
 <h3 id="media-segments">Media Segments</h3>
@@ -252,7 +282,20 @@ TIME-OFFSET值不可超過影片的長度，如果超過則正值從尾部算而
 <p><a href="https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming"><strong>Example Playlists for HTTP Live Streaming | Apple Developer Documentation</strong></a></p>
 <p>Spec 中也有範例，但這邊我擷取Apple Developer 的範例</p>
 <h4 id="安插廣告">安插廣告</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U
 #EXT-X-TARGETDURATION:10
 #EXT-X-VERSION:4
 #EXT-X-MEDIA-SEQUENCE:0
@@ -261,9 +304,33 @@ TIME-OFFSET值不可超過影片的長度，如果超過則正值從尾部算而
 #EXT-X-DISCONTINUITY
 #EXTINF:10.0,movieA.ts
 #EXTINF:10.0,movieB.ts
-</code></pre></div><p>注意在 ad1.ts 與 movieA.ts 中有個 <code>#EXT-X-DISCONTINUITY</code> ，因為 Ad 跟 Movie 勢必是兩個不同的片段，所以必須加入才不會因為 timestamp 銜接不上而導致播放錯誤！</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>注意在 ad1.ts 與 movieA.ts 中有個 <code>#EXT-X-DISCONTINUITY</code> ，因為 Ad 跟 Movie 勢必是兩個不同的片段，所以必須加入才不會因為 timestamp 銜接不上而導致播放錯誤！</p>
 <h4 id="master-playlist-with-alternative-audio">Master Playlist with Alternative Audio</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#EXTM3U  
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=&#34;aac&#34;,NAME=&#34;English&#34;, \\  
     DEFAULT=YES,AUTOSELECT=YES,LANGUAGE=&#34;en&#34;, \\  
     URI=&#34;main/english-audio.m3u8&#34;  
@@ -281,7 +348,9 @@ mid/video-only.m3u8
 hi/video-only.m3u8  
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=&#34;mp4a.40.5&#34;,AUDIO=&#34;aac&#34;  
 main/english-audio.m3u8
-</code></pre></div><p>如果希望可以讓Video 依據不同的頻寬切換，而音檔根據不同的語言選擇切換，就可以參考這個範例</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果希望可以讓Video 依據不同的頻寬切換，而音檔根據不同的語言選擇切換，就可以參考這個範例</p>
 <p><code>#EXT-X-MEDIA</code> 定義了Rendition，透過LANGUAGE指定語言，接著TYPE表明為AUDIO聲音檔，GROUP-ID自取為 aac；</p>
 <p>而<code>#EXT-X-STREAM-INF</code> 定義的是 Variant Stream，AUDIO指定為 aac，也就是對應 <code>#EXT-X-MEDIA</code> 的GROUP-ID，其URI則指定播放 video。</p>
 <p>可以看出常用的標籤就那幾個，有些標籤我來回看了幾次還是看不懂，像是 EXT-X-DATERANGE就很難懂，範例也都沒用上，如果有人知道實際上的應用與原理再麻煩留言了OTZ</p>

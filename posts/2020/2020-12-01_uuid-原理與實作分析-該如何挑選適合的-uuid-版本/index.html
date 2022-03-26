@@ -123,14 +123,27 @@ System Clock Resolution：如果產生頻次不高，則直接將系統時間放
 <li><code>每次要回寫系統資料很沒效率</code><br>
 只需要定時更新儲存資料即可，將 timestamp 設定在比至今產生的 UUID 使用的 timestamp 大一點，但又不要大到超過 reboot 時的所需要的啟動時間，目的在於降低 clock sequence 重置的機會，在下方的建議實作中是每 10 秒寫入一次</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">   <span style="color:#719e07">if</span> (timestamp <span style="color:#719e07">&gt;=</span> next_save) {
-      fp <span style="color:#719e07">=</span> fopen(<span style="color:#2aa198">&#34;state&#34;</span>, <span style="color:#2aa198">&#34;wb&#34;</span>);
-      fwrite(<span style="color:#719e07">&amp;</span>st, <span style="color:#719e07">sizeof</span> st, <span style="color:#2aa198">1</span>, fp);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">   <span style="color:#66d9ef">if</span> (timestamp <span style="color:#f92672">&gt;=</span> next_save) {
+      fp <span style="color:#f92672">=</span> fopen(<span style="color:#e6db74">&#34;state&#34;</span>, <span style="color:#e6db74">&#34;wb&#34;</span>);
+      fwrite(<span style="color:#f92672">&amp;</span>st, <span style="color:#66d9ef">sizeof</span> st, <span style="color:#ae81ff">1</span>, fp);
       fclose(fp);
-      <span style="color:#586e75">/* schedule next save for 10 seconds from now */</span>
-      next_save <span style="color:#719e07">=</span> timestamp <span style="color:#719e07">+</span> (<span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">10</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1000</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1000</span>);
+      <span style="color:#75715e">/* schedule next save for 10 seconds from now */</span>
+      next_save <span style="color:#f92672">=</span> timestamp <span style="color:#f92672">+</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">1000</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">1000</span>);
   }
-</code></pre></div><ol start="4">
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
 <li><code>跨進程分享狀態很沒效率</code><br>
 如果跨進程共享狀態很耗資源，可以每個進程切割一塊時間區段個別產生 uuid ，直到時間區段用完才去要新的</li>
 </ol>
@@ -161,72 +174,164 @@ System Clock Resolution：如果產生頻次不高，則直接將系統時間放
 <p>以上大概挑個重點帶過</p>
 <h2 id="uuidjs-實作拆解">uuid.js 實作拆解</h2>
 <p>以下將閱讀<a href="https://github.com/uuidjs/uuid">uuid.js github repo</a>的原始碼，在開始看 v1~v5 的實作前，先看一個用於產生隨機數的重要函式  <a href="https://github.com/uuidjs/uuid/blob/master/src/rng.js">rng.js</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">import</span> crypto from <span style="color:#2aa198">&#39;crypto&#39;</span>;
-<span style="color:#268bd2">const</span> rnds8Pool <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Uint8Array(<span style="color:#2aa198">256</span>); <span style="color:#586e75">// # of random values to pre-allocate
-</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> poolPtr <span style="color:#719e07">=</span> rnds8Pool.length;
-<span style="color:#268bd2">export</span> <span style="color:#719e07">default</span> <span style="color:#268bd2">function</span> rng() {
-  <span style="color:#719e07">if</span> (poolPtr <span style="color:#719e07">&gt;</span> rnds8Pool.length <span style="color:#719e07">-</span> <span style="color:#2aa198">16</span>) {
-    crypto.randomFillSync(rnds8Pool);
-    poolPtr <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">crypto</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;crypto&#39;</span>;
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">rnds8Pool</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Uint8Array</span>(<span style="color:#ae81ff">256</span>); <span style="color:#75715e">// # of random values to pre-allocate
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">poolPtr</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">rnds8Pool</span>.<span style="color:#a6e22e">length</span>;
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">rng</span>() {
+  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">poolPtr</span> <span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">rnds8Pool</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">16</span>) {
+    <span style="color:#a6e22e">crypto</span>.<span style="color:#a6e22e">randomFillSync</span>(<span style="color:#a6e22e">rnds8Pool</span>);
+    <span style="color:#a6e22e">poolPtr</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
   }
-  <span style="color:#719e07">return</span> rnds8Pool.slice(poolPtr, (poolPtr <span style="color:#719e07">+=</span> <span style="color:#2aa198">16</span>));
+  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">rnds8Pool</span>.<span style="color:#a6e22e">slice</span>(<span style="color:#a6e22e">poolPtr</span>, (<span style="color:#a6e22e">poolPtr</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">16</span>));
 }
-</code></pre></div><p>程式碼很短，主要就是產生一個 rnds8Pool 陣列，隨機塞入數值，最後每次回傳 16 bit，如果這一段 rnds8Pool 都回傳了，就在一次產生新的隨機亂數</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>程式碼很短，主要就是產生一個 rnds8Pool 陣列，隨機塞入數值，最後每次回傳 16 bit，如果這一段 rnds8Pool 都回傳了，就在一次產生新的隨機亂數</p>
 <p>這可以保證產生 <code>Generates cryptographically strong pseudo-random data.</code>，來自 Nodejs 官方文件的保證，也是 uuid 不會有高碰撞機率的保證，切記 Math.random 不足夠隨機，拿來使用問題會很多</p>
 <h3 id="uuid-v1-實作">UUID v1 實作</h3>
 <p>以下挑重點說，不得不說作者的程式碼以及註解寫得很乾淨，直接標明實作對應的 RFC 段落</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> seedBytes <span style="color:#719e07">=</span> options.random <span style="color:#719e07">||</span> (options.rng <span style="color:#719e07">||</span> rng)();
-</code></pre></div><p>先產生隨機數備用，在前面文件介紹中，有用到隨機產生的都會從 seedBytes 中提取</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">if</span> (node <span style="color:#719e07">==</span> <span style="color:#cb4b16">null</span>) {
-  <span style="color:#586e75">// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-</span><span style="color:#586e75"></span>  node <span style="color:#719e07">=</span> _nodeId <span style="color:#719e07">=</span> [
-    seedBytes[<span style="color:#2aa198">0</span>] <span style="color:#719e07">|</span> <span style="color:#2aa198">0x01</span>,
-    seedBytes[<span style="color:#2aa198">1</span>],
-    seedBytes[<span style="color:#2aa198">2</span>],
-    seedBytes[<span style="color:#2aa198">3</span>],
-    seedBytes[<span style="color:#2aa198">4</span>],
-    seedBytes[<span style="color:#2aa198">5</span>],
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">seedBytes</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">options</span>.<span style="color:#a6e22e">random</span> <span style="color:#f92672">||</span> (<span style="color:#a6e22e">options</span>.<span style="color:#a6e22e">rng</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">rng</span>)();
+</code></pre></td></tr></table>
+</div>
+</div><p>先產生隨機數備用，在前面文件介紹中，有用到隨機產生的都會從 seedBytes 中提取</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">node</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+  <span style="color:#75715e">// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">node</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_nodeId</span> <span style="color:#f92672">=</span> [
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">|</span> <span style="color:#ae81ff">0x01</span>,
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">1</span>],
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">2</span>],
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">3</span>],
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">4</span>],
+    <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">5</span>],
   ];
 }
-</code></pre></div><p>這裡可以看到，實作中的 <code>node_id是每次啟動時隨機產生</code>，這符合文件 4.1.6，沒有採用 MAC Address 自己亂數產生也可以；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>這裡可以看到，實作中的 <code>node_id是每次啟動時隨機產生</code>，這符合文件 4.1.6，沒有採用 MAC Address 自己亂數產生也可以；<br>
 同時這一段我有特別留一個 Issue 詢問作者，為什麼不照文件規範去拿機器的 MAC Address，他回答到<code>基於隱私問題</code>，而且如果 Node ID 跟 Clock Seq 每次都隨機產生也是符合文件規範的</p>
 <blockquote>
 <p>I believe that this comes close to the idea of the spec while avoiding the privacy problems that come with trying to derive a stable node ID from hardware.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#719e07">if</span> (clockseq <span style="color:#719e07">==</span> <span style="color:#cb4b16">null</span>) {
-  <span style="color:#586e75">// Per 4.2.2, randomize (14 bit) clockseq
-</span><span style="color:#586e75"></span>  clockseq <span style="color:#719e07">=</span> _clockseq <span style="color:#719e07">=</span> ((seedBytes[<span style="color:#2aa198">6</span>] <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">8</span>) <span style="color:#719e07">|</span> seedBytes[<span style="color:#2aa198">7</span>]) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0x3fff</span>;
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">clockseq</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+  <span style="color:#75715e">// Per 4.2.2, randomize (14 bit) clockseq
+</span><span style="color:#75715e"></span>  <span style="color:#a6e22e">clockseq</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_clockseq</span> <span style="color:#f92672">=</span> ((<span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">6</span>] <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">|</span> <span style="color:#a6e22e">seedBytes</span>[<span style="color:#ae81ff">7</span>]) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0x3fff</span>;
 }
-</code></pre></div><p>沒有 clockseq 就亂數產生</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// Per 4.2.1.2 Throw error if too many uuids are requested
-</span><span style="color:#586e75"></span><span style="color:#719e07">if</span> (nsecs <span style="color:#719e07">&gt;=</span> <span style="color:#2aa198">10000</span>) {
-  <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;uuid.v1(): Can&#39;t create more than 10M uuids/sec&#34;</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>沒有 clockseq 就亂數產生</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// Per 4.2.1.2 Throw error if too many uuids are requested
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">nsecs</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">10000</span>) {
+  <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#34;uuid.v1(): Can&#39;t create more than 10M uuids/sec&#34;</span>);
 }
-</code></pre></div><p>如果實作者發現短時間內有太大量的 uuid 產生，需要拋出錯誤或是暫停 uuid 生成避免碰撞</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// `time_low`
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> tl <span style="color:#719e07">=</span> ((msecs <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xfffffff</span>) <span style="color:#719e07">*</span> <span style="color:#2aa198">10000</span> <span style="color:#719e07">+</span> nsecs) <span style="color:#719e07">%</span> <span style="color:#2aa198">0x100000000</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> (tl <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">24</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> (tl <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">16</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> (tl <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">8</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> tl <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-<span style="color:#586e75">// `time_mid`
-</span><span style="color:#586e75"></span><span style="color:#268bd2">const</span> tmh <span style="color:#719e07">=</span> ((msecs <span style="color:#719e07">/</span> <span style="color:#2aa198">0x100000000</span>) <span style="color:#719e07">*</span> <span style="color:#2aa198">10000</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xfffffff</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> (tmh <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">8</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> tmh <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-<span style="color:#586e75">// `time_high_and_version`
-</span><span style="color:#586e75"></span>b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> ((tmh <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">24</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xf</span>) <span style="color:#719e07">|</span> <span style="color:#2aa198">0x10</span>; <span style="color:#586e75">// include version
-</span><span style="color:#586e75"></span>b[i<span style="color:#719e07">++</span>] <span style="color:#719e07">=</span> (tmh <span style="color:#719e07">&gt;&gt;&gt;</span> <span style="color:#2aa198">16</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">0xff</span>;
-</code></pre></div><p>產生 time 相關欄位</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果實作者發現短時間內有太大量的 uuid 產生，需要拋出錯誤或是暫停 uuid 生成避免碰撞</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// `time_low`
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">tl</span> <span style="color:#f92672">=</span> ((<span style="color:#a6e22e">msecs</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xfffffff</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">10000</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">nsecs</span>) <span style="color:#f92672">%</span> <span style="color:#ae81ff">0x100000000</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> (<span style="color:#a6e22e">tl</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">24</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> (<span style="color:#a6e22e">tl</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">16</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> (<span style="color:#a6e22e">tl</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">tl</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#75715e">// `time_mid`
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">tmh</span> <span style="color:#f92672">=</span> ((<span style="color:#a6e22e">msecs</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">0x100000000</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">10000</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xfffffff</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> (<span style="color:#a6e22e">tmh</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">tmh</span> <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+<span style="color:#75715e">// `time_high_and_version`
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> ((<span style="color:#a6e22e">tmh</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">24</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xf</span>) <span style="color:#f92672">|</span> <span style="color:#ae81ff">0x10</span>; <span style="color:#75715e">// include version
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>] <span style="color:#f92672">=</span> (<span style="color:#a6e22e">tmh</span> <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#ae81ff">16</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</code></pre></td></tr></table>
+</div>
+</div><p>產生 time 相關欄位</p>
 <p>v4 實作相當簡單，就是保留 version，其餘塞隨機數；
 v3,v5 大同小異，所以作者寫了一個 v35.js ，重點大概就這麼幾行</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#586e75">// Compute hash of namespace and value, Per 4.3
-</span><span style="color:#586e75">// Future: Use spread syntax when supported on all platforms, e.g. `bytes =
-</span><span style="color:#586e75">// hashfunc([...namespace, ... value])`
-</span><span style="color:#586e75"></span><span style="color:#268bd2">let</span> bytes <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Uint8Array(<span style="color:#2aa198">16</span> <span style="color:#719e07">+</span> value.length);
-bytes.set(namespace);
-bytes.set(value, namespace.length);
-bytes <span style="color:#719e07">=</span> hashfunc(bytes);
-</code></pre></div><p>把 namespace 跟 value 合起來然後 hash 過，接著就按照文件塞到對應的位置</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#75715e">// Compute hash of namespace and value, Per 4.3
+</span><span style="color:#75715e">// Future: Use spread syntax when supported on all platforms, e.g. `bytes =
+</span><span style="color:#75715e">// hashfunc([...namespace, ... value])`
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">bytes</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Uint8Array</span>(<span style="color:#ae81ff">16</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">value</span>.<span style="color:#a6e22e">length</span>);
+<span style="color:#a6e22e">bytes</span>.<span style="color:#a6e22e">set</span>(<span style="color:#a6e22e">namespace</span>);
+<span style="color:#a6e22e">bytes</span>.<span style="color:#a6e22e">set</span>(<span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">namespace</span>.<span style="color:#a6e22e">length</span>);
+<span style="color:#a6e22e">bytes</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">hashfunc</span>(<span style="color:#a6e22e">bytes</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>把 namespace 跟 value 合起來然後 hash 過，接著就按照文件塞到對應的位置</p>
 <h2 id="後記作者提交-proposal-給-tc39">後記：作者提交 proposal 給 tc39</h2>
 <p>作者在 PR 中有說到他提了一個 proposal 給 tc39 <a href="https://github.com/tc39/proposal-uuid#arent-v1-uuids-better-because-they-are-guaranteed-to-be-unique">proposal-uuid</a>，目前還在 stage 0，希望把 uuid 產生變成 js 的規範，主要是有太多錯誤且粗心的實作，例如使用 Math.random 等，這邊引用一篇非常棒的文章指出為什麼 Math.random 不好 <a href="https://medium.com/@betable/tifu-by-using-math-random-f1c308c4fd9d">TIFU by using Math.random()</a>，以下將摘錄重點</p>
 <h3 id="tifu-by-using-mathrandom-文章重點摘要">TIFU by using Math.random() 文章重點摘要</h3>
@@ -241,16 +346,31 @@ bytes <span style="color:#719e07">=</span> hashfunc(bytes);
 </ol>
 <p>作者決定用長度 22 的 base 64，也就是 space 有 64^22 這麼大，generation 則是用 decent pseudo-random number generator (PRNG) 常見的演算法，V8 即是採用這一套，如果足夠隨機，那這樣的空間足以<code>預計每秒產生一百萬次也要三百年才會碰撞</code>，多麼的美好</p>
 <p>最後作者兜出來的程式碼如下</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">var</span> ALPHABET <span style="color:#719e07">=</span> <span style="color:#2aa198">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&#39;</span>;
-random_base64 <span style="color:#719e07">=</span> <span style="color:#268bd2">function</span> random_base64(length) {
-    <span style="color:#268bd2">var</span> str <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;&#34;</span>;
-    <span style="color:#719e07">for</span> (<span style="color:#268bd2">var</span> i<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>; i <span style="color:#719e07">&lt;</span> length; <span style="color:#719e07">++</span>i) {
-        <span style="color:#268bd2">var</span> rand <span style="color:#719e07">=</span> <span style="color:#b58900">Math</span>.floor(<span style="color:#b58900">Math</span>.random() <span style="color:#719e07">*</span> ALPHABET.length);
-        str <span style="color:#719e07">+=</span> ALPHABET.substring(rand, rand<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>);
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">ALPHABET</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&#39;</span>;
+<span style="color:#a6e22e">random_base64</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">random_base64</span>(<span style="color:#a6e22e">length</span>) {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">str</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">length</span>; <span style="color:#f92672">++</span><span style="color:#a6e22e">i</span>) {
+        <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">rand</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">floor</span>(Math.<span style="color:#a6e22e">random</span>() <span style="color:#f92672">*</span> <span style="color:#a6e22e">ALPHABET</span>.<span style="color:#a6e22e">length</span>);
+        <span style="color:#a6e22e">str</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">ALPHABET</span>.<span style="color:#a6e22e">substring</span>(<span style="color:#a6e22e">rand</span>, <span style="color:#a6e22e">rand</span><span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>);
     }
-    <span style="color:#719e07">return</span> str;
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">str</span>;
 }
-</code></pre></div><p>看起來一點問題都沒有，也是大家常見的隨機生成做法</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>看起來一點問題都沒有，也是大家常見的隨機生成做法</p>
 <p>但是在不久後同事發現 ID 碰撞了 💥</p>
 <blockquote>
 <p>“Anyone who considers arithmetical methods of producing random digits is, of course, in a state of sin.” From John von Neumann

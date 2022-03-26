@@ -110,24 +110,47 @@ Node 之間是走 TCP 並透過 16739 port，Node 會與其他 Cluster 內的所
 <h3 id="分散式模型">分散式模型</h3>
 <p>redis 將 key space 切割成 16384 等分 <code>HASH_SLOT = CRC16(key) mod 16384</code>，分配後會固定，該 slot 就會由同一個 Node 負責，直到有 reconfig 的指令；</p>
 <p>hash tag 是一個分散的例外，主要是為了支援 <code>multi-key</code> 可以分配到同一個 hash slot 上，如果 key 包含 {} ，則 hash key 產生是key 裡面第一組 {…} 中間的值 (沒有包含 {})</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> <span style="color:#268bd2">HASH_SLOT</span>(<span style="color:#dc322f">char</span> <span style="color:#719e07">*</span>key, <span style="color:#dc322f">int</span> keylen) {
-    <span style="color:#dc322f">int</span> s, e;
-    <span style="color:#719e07">for</span> (s <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; s <span style="color:#719e07">&lt;</span> keylen; s<span style="color:#719e07">++</span>)
-        <span style="color:#719e07">if</span> (key[s] <span style="color:#719e07">==</span> <span style="color:#2aa198">&#39;{&#39;</span>) <span style="color:#719e07">break</span>;
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">HASH_SLOT</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>key, <span style="color:#66d9ef">int</span> keylen) {
+    <span style="color:#66d9ef">int</span> s, e;
+    <span style="color:#66d9ef">for</span> (s <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; s <span style="color:#f92672">&lt;</span> keylen; s<span style="color:#f92672">++</span>)
+        <span style="color:#66d9ef">if</span> (key[s] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;{&#39;</span>) <span style="color:#66d9ef">break</span>;
     
-    <span style="color:#586e75">/* 沒有找到 {，則 hash 整個字串 */</span>
-    <span style="color:#719e07">if</span> (s <span style="color:#719e07">==</span> keylen) <span style="color:#719e07">return</span> crc16(key,keylen) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">16383</span>;
+    <span style="color:#75715e">/* 沒有找到 {，則 hash 整個字串 */</span>
+    <span style="color:#66d9ef">if</span> (s <span style="color:#f92672">==</span> keylen) <span style="color:#66d9ef">return</span> crc16(key,keylen) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">16383</span>;
     
-    <span style="color:#586e75">/* 找到 { */</span>
-    <span style="color:#719e07">for</span> (e <span style="color:#719e07">=</span> s<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>; e <span style="color:#719e07">&lt;</span> keylen; e<span style="color:#719e07">++</span>)
-        <span style="color:#719e07">if</span> (key[e] <span style="color:#719e07">==</span> <span style="color:#2aa198">&#39;}&#39;</span>) <span style="color:#719e07">break</span>;
-    <span style="color:#586e75">/* 沒有找到 }，hash 整個字串 */</span>
-    <span style="color:#719e07">if</span> (e <span style="color:#719e07">==</span> keylen <span style="color:#719e07">||</span> e <span style="color:#719e07">==</span> s<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>) <span style="color:#719e07">return</span> crc16(key,keylen) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">16383</span>;
+    <span style="color:#75715e">/* 找到 { */</span>
+    <span style="color:#66d9ef">for</span> (e <span style="color:#f92672">=</span> s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>; e <span style="color:#f92672">&lt;</span> keylen; e<span style="color:#f92672">++</span>)
+        <span style="color:#66d9ef">if</span> (key[e] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;}&#39;</span>) <span style="color:#66d9ef">break</span>;
+    <span style="color:#75715e">/* 沒有找到 }，hash 整個字串 */</span>
+    <span style="color:#66d9ef">if</span> (e <span style="color:#f92672">==</span> keylen <span style="color:#f92672">||</span> e <span style="color:#f92672">==</span> s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">return</span> crc16(key,keylen) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">16383</span>;
     
-    <span style="color:#586e75">/* 如果有 {} 配對，則 key 取 {...} 之間的字串 */</span>
-    <span style="color:#719e07">return</span> crc16(key<span style="color:#719e07">+</span>s<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>,e<span style="color:#719e07">-</span>s<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>) <span style="color:#719e07">&amp;</span> <span style="color:#2aa198">16383</span>;
+    <span style="color:#75715e">/* 如果有 {} 配對，則 key 取 {...} 之間的字串 */</span>
+    <span style="color:#66d9ef">return</span> crc16(key<span style="color:#f92672">+</span>s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,e<span style="color:#f92672">-</span>s<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">16383</span>;
 }
-</code></pre></div><h2 id="resharding">Resharding</h2>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="resharding">Resharding</h2>
 <p>Redis Cluster 在管理上以及使用上都有相當大的彈性，Cluster 可以任意增減 Node 數量以及調整 Slot 對應的 Node；而 Redis Client 可以與任意的 Node 連線</p>
 <p>如果 Node 收到 Client request 後</p>
 <ol>
@@ -220,28 +243,61 @@ MOVED 代表的是往後的永久性所有針對 slot 8 的請求都去 Node B�
 <ol>
 <li>Cluster 初始化，此時 Slot 都沒有對應的 Master，需要 <code>CLUSTER ADDSLOTS</code> 分配</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
 1 -&gt; NULL
 2 -&gt; NULL
 ...
 16383 -&gt; NULL
-</code></pre></div><ol start="2">
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>假設分配部分給 A，A 會順便標記 epoch，假設此時值為 3</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
 1 -&gt; A [3]
 2 -&gt; A [3]
 ...
 16383 -&gt; NULL
-</code></pre></div><ol start="3">
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li>產生 Failover，B 上來頂替 A，此時會把 <code>epoch + 1</code></li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
 1 -&gt; B [4]
 2 -&gt; B [4]
 ...
 16383 -&gt; NULL
-</code></pre></div><p>這也就是 <code>last failover wins</code> 策略，假使 A 此時網路連線回來要宣稱自己是 Master 也會被擋下來，因為 A 的 epoch 比較小</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這也就是 <code>last failover wins</code> 策略，假使 A 此時網路連線回來要宣稱自己是 Master 也會被擋下來，因為 A 的 epoch 比較小</p>
 <h4 id="實際案例">實際案例</h4>
 <p>假設 Master 已經掛了，此時有 A,B,C 三個 Slave</p>
 <ol>

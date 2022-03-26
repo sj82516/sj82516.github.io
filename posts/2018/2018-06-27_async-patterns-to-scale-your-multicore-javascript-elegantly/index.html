@@ -99,8 +99,15 @@ await task3();…</p>
 <p><img src="/posts/img/1__v7aRZMMz__1__hTYVEGc4quQ.jpeg" alt=""></p>
 <p>原本就有的寫法是描述Task橫向的並行，所以我們會用 Promise.all([])將 TaskB/TaskC並行處理，但是這種寫法可讀性差，而且架構的方向也是不好的，<code>因為 Task相依應該是垂直</code>  ，像是 TaskD明明就只要等 TaskC完成就可以開始執行，但因為寫法所以要等到 TaskB也執行完成後，TaskD與TaskE才並行處理。</p>
 <p>所以使用 async iife 最大好處即是每個Task的相依性都被封裝的很直觀，主要是利用 Promise一宣告就執行的特性，像是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> taskA <span style="color:#719e07">=</span> (<span style="color:#268bd2">async</span> ()=&gt; { <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">1000</span>); console.log(“TaskA done”)})()
-</code></pre></div><p>此時taskA已經開始執行了，但是後續的code因為 <code>await taskA</code>還是要等taskA結束才能繼續，所以一樣可以做到流程的控制；<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">taskA</span> <span style="color:#f92672">=</span> (<span style="color:#66d9ef">async</span> ()=&gt; { <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">timePromise</span>(<span style="color:#ae81ff">1000</span>); <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">TaskA</span> <span style="color:#a6e22e">done</span><span style="color:#960050;background-color:#1e0010">”</span>)})()
+</code></pre></td></tr></table>
+</div>
+</div><p>此時taskA已經開始執行了，但是後續的code因為 <code>await taskA</code>還是要等taskA結束才能繼續，所以一樣可以做到流程的控制；<br>
 這也是為什麼 taskB/taskC這樣寫可以並行處理，接著taskD因為只相依taskC所以在範例中會比taskB更早結束，非常漂亮的寫法。</p>
 <p>另外分享一個當初疑惑的點：taskC在 taskD / taskE被呼叫兩次，會不會就執行兩次?! <br>
 答案是不會，因為taskC本身是Promise，執行完一次後就會轉成 Promise.fufilled(or rejected) ，如果後續要用 await taskC取值就會立即回傳結果。</p>
@@ -110,25 +117,53 @@ await task3();…</p>
 <p><a href="https://github.com/nybblr/semaphorejs"><strong>nybblr/semaphorejs</strong></a></p>
 <p>程式碼只有40行左右但蠻精妙的，使用上
 ：</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">s <span style="color:#719e07">=</span> Semaphore(<span style="color:#2aa198">3</span>)  
-s(<span style="color:#268bd2">async</span> _ =&gt; {console.log(“start”); <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
-s(<span style="color:#268bd2">async</span> _ =&gt; {console.log(“start”); <span style="color:#268bd2">await</span> timePromise(<span style="color:#2aa198">3000</span>); console.log(“done”)})  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">s</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Semaphore</span>(<span style="color:#ae81ff">3</span>)  
+<span style="color:#a6e22e">s</span>(<span style="color:#66d9ef">async</span> <span style="color:#a6e22e">_</span> =&gt; {<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">start</span><span style="color:#960050;background-color:#1e0010">”</span>); <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">timePromise</span>(<span style="color:#ae81ff">3000</span>); <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">done</span><span style="color:#960050;background-color:#1e0010">”</span>)})  
+<span style="color:#a6e22e">s</span>(<span style="color:#66d9ef">async</span> <span style="color:#a6e22e">_</span> =&gt; {<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">start</span><span style="color:#960050;background-color:#1e0010">”</span>); <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">timePromise</span>(<span style="color:#ae81ff">3000</span>); <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#960050;background-color:#1e0010">“</span><span style="color:#a6e22e">done</span><span style="color:#960050;background-color:#1e0010">”</span>)})  
 .....
-</code></pre></div><p>對應程式碼，Semaphore(3) 將 task上限設為 3，接著回傳一個高階函式。<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>對應程式碼，Semaphore(3) 將 task上限設為 3，接著回傳一個高階函式。<br>
 仔細看這個高階函式的第一行<code>await acquire();</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> dispatch <span style="color:#719e07">=</span> () =&gt; {      
-      <span style="color:#719e07">if</span> (counter <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span> <span style="color:#719e07">&amp;&amp;</span> tasks.length <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span>) {        
-             counter<span style="color:#719e07">--</span>;        
-             tasks.shift()();      
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">dispatch</span> <span style="color:#f92672">=</span> () =&gt; {      
+      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">counter</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">tasks</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) {        
+             <span style="color:#a6e22e">counter</span><span style="color:#f92672">--</span>;        
+             <span style="color:#a6e22e">tasks</span>.<span style="color:#a6e22e">shift</span>()();      
       }    
 };
 
-<span style="color:#268bd2">let</span> acquire <span style="color:#719e07">=</span> () =&gt;   
-     <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>(resolve =&gt; {   
-          tasks.push(resolve);   
-          setImmediate(dispatch);   
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">acquire</span> <span style="color:#f92672">=</span> () =&gt;   
+     <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; {   
+          <span style="color:#a6e22e">tasks</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">resolve</span>);   
+          <span style="color:#a6e22e">setImmediate</span>(<span style="color:#a6e22e">dispatch</span>);   
      });
-</code></pre></div><p>最有趣的地方莫過於作者用 acquire / dispatch 達到數量上的控制，acquire 將 Promise.resolve() 推上了 task陣列，接著觸發 dispatch，而dispatch只有在未達上限前可以執行 task.shift()的 function，這裡也就是Promise.resolve()，透過這個機制就可以去卡 <code>await acquire()</code> 。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>最有趣的地方莫過於作者用 acquire / dispatch 達到數量上的控制，acquire 將 Promise.resolve() 推上了 task陣列，接著觸發 dispatch，而dispatch只有在未達上限前可以執行 task.shift()的 function，這裡也就是Promise.resolve()，透過這個機制就可以去卡 <code>await acquire()</code> 。</p>
 <h2 id="web-worker-and-multithread">Web Worker and Multi Thread</h2>
 <p>JS本身執行於 Main Thread上，其餘非同步API是由底層瀏覽器的Web API或 Nodejs Libuv等支援，最後透過 event loop 將 callback 返回 Main Thread 執行；</p>
 <p>但如果需要用JS執行費時的操作而沒有底層函式的支援(如自己編寫 Addon)，現在可以透過 Web Worker分開 Thread，避免阻擋 Main Thread。</p>

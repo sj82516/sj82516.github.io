@@ -79,20 +79,44 @@
 <p>以下內容與圖片摘錄於該文件。</p>
 <h3 id="緣由">緣由</h3>
 <p>參考下列程式碼</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> foo(x) {  
-  <span style="color:#268bd2">await</span> bar(x);  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>(<span style="color:#a6e22e">x</span>) {  
+  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">bar</span>(<span style="color:#a6e22e">x</span>);  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> bar(x) {  
-  <span style="color:#268bd2">await</span> x;  
-  <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;Let&#39;s have a look...&#34;</span>);  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">bar</span>(<span style="color:#a6e22e">x</span>) {  
+  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">x</span>;  
+  <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#34;Let&#39;s have a look...&#34;</span>);  
 }
 
-foo(<span style="color:#2aa198">1</span>).<span style="color:#719e07">catch</span>(e =&gt; console.log(e.stack));
-</code></pre></div><p>如果運行在 V8 7.1 版本，會發現 error.stack 僅會印出部分錯誤資訊</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: Let&#39;s have a look...
+<span style="color:#a6e22e">foo</span>(<span style="color:#ae81ff">1</span>).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">e</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">stack</span>));
+</code></pre></td></tr></table>
+</div>
+</div><p>如果運行在 V8 7.1 版本，會發現 error.stack 僅會印出部分錯誤資訊</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: Let&#39;s have a look...
 at bar (&lt;anonymous&gt;:7:9)
-</code></pre></div><p>而調用者 foo 則消失無蹤，這是因為從 JSVM角度，當 bar 因為 await x 而暫停執行，接著從 microtask queue 恢復執行後，在 stack 上已經沒有其他 function 了</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>而調用者 foo 則消失無蹤，這是因為從 JSVM角度，當 bar 因為 await x 而暫停執行，接著從 microtask queue 恢復執行後，在 stack 上已經沒有其他 function 了</p>
 <p>目前可以開 Chrome Dev Inspector ( <code>&gt; node --inspect</code>)，執行同樣的程式，可以看到完整的 error stack，但這會有很大的性能影響，所以只建議在開發中使用。</p>
 <p><img src="/posts/img/0__zUDoBxW4TG__IFqDF.jpg" alt=""></p>
 <h3 id="解法">解法</h3>
@@ -103,15 +127,29 @@ at bar (&lt;anonymous&gt;:7:9)
 <p>我們必須運用 promise chain，才能有足夠的條件找出完整 stack trace；<br>
 但如果 promise 是被另一個 promise resolved (在 fulfill 方法中 return 另一個promise)，這樣 promise chain 間就沒有直接的依據，必須等到下一個 tick <code>[PromiseResolveThenableJob](https://tc39.github.io/ecma262/#sec-promiseresolvethenablejob)</code> 執行時才知道這兩個 promise 是有相依的。</p>
 <p>這是目前 ES2017 的規範所帶來 await 麻煩之處</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> _.promise_ <span style="color:#719e07">=</span> @createPromise();  
-@resolvePromise(.promise, x);  
-<span style="color:#268bd2">const</span> _.throwaway_ <span style="color:#719e07">=</span> @createPromise();  
-@performPromiseThen(_.promise_,  
-  res =&gt; @resume(_.generator_object_, res),  
-  err =&gt; @<span style="color:#719e07">throw</span>(_.generator_object_, err),  
-  _.throwaway_);  
-@<span style="color:#719e07">yield</span>(_.generator_object_, _.outer_promise_);
-</code></pre></div><p>目前 await 都必須用另一個 promise <code>.promise</code> 重新包裝，即使 x 本身已經是promise，問題在於 <code>.generator_object</code> 與 <code>x</code> 沒有直接的關連；<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">promise_</span> <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">createPromise</span>();  
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">resolvePromise</span>(.<span style="color:#a6e22e">promise</span>, <span style="color:#a6e22e">x</span>);  
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">throwaway_</span> <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">createPromise</span>();  
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">performPromiseThen</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">promise_</span>,  
+  <span style="color:#a6e22e">res</span> =&gt; <span style="color:#960050;background-color:#1e0010">@</span><span style="color:#a6e22e">resume</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">generator_object_</span>, <span style="color:#a6e22e">res</span>),  
+  <span style="color:#a6e22e">err</span> =&gt; <span style="color:#960050;background-color:#1e0010">@</span><span style="color:#66d9ef">throw</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">generator_object_</span>, <span style="color:#a6e22e">err</span>),  
+  <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">throwaway_</span>);  
+<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#66d9ef">yield</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">generator_object_</span>, <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">outer_promise_</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>目前 await 都必須用另一個 promise <code>.promise</code> 重新包裝，即使 x 本身已經是promise，問題在於 <code>.generator_object</code> 與 <code>x</code> 沒有直接的關連；<br>
 而是必須等到下個 tick <a href="https://tc39.github.io/ecma262/#sec-promiseresolvethenablejob">PromiseResolveThenableJob</a> 將 <code>.promise ← → x</code> 與 <code>.promise ← → .generator_object</code> 才能關聯。</p>
 <p>所以目前需要額外建立 <code>x ← → .promise 的關聯</code> 或是 查詢 microtask queue，兩者都需要開銷。</p>
 <p>好在最近有提案要修改此部分，將多餘 .promise 刪除</p>
@@ -126,17 +164,33 @@ err =&gt; @throw(<em>.generator_object</em>, err),<br>
 <h4 id="概覽">概覽</h4>
 <p>接下來是 V8 內部的 await Promise實踐，透過上述的 Spec 修改後，達到 async stack trace 目標。</p>
 <p>針對以下的程式碼，畫出實際 V8 的 Call Stack</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> foo(x) {  
-  <span style="color:#268bd2">await</span> bar(x);  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">foo</span>(<span style="color:#a6e22e">x</span>) {  
+  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">bar</span>(<span style="color:#a6e22e">x</span>);  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> bar(x) {  
-  <span style="color:#268bd2">await</span> x;  
-  <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;Let&#39;s have a look...&#34;</span>);  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">bar</span>(<span style="color:#a6e22e">x</span>) {  
+  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">x</span>;  
+  <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#34;Let&#39;s have a look...&#34;</span>);  
 }
 
-foo(<span style="color:#2aa198">1</span>).<span style="color:#719e07">catch</span>(e =&gt; console.log(e.stack));
-</code></pre></div><p><img src="/posts/img/0__FZBjeD6zupannymv.jpg" alt=""></p>
+<span style="color:#a6e22e">foo</span>(<span style="color:#ae81ff">1</span>).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">e</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">stack</span>));
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="/posts/img/0__FZBjeD6zupannymv.jpg" alt=""></p>
 <p>因為 bar(x) 中 await (1)，而 1 不是 promise 所以需要透過 Promise().resolve(1) 多包一層，所以在 Call stack 上 <code>bar</code> 被 <code>await fulfilled</code> 呼叫；<br>
 「如果 async stack 功能開啟」，此時會去搜尋 “current microtask”找到 <code>包裝x的PromiseReactionJob</code> ，找到的話就會順勢找到 <code>generator object</code> ，這個 object 也就是 async function 所轉化而來的，同時包含 async function 的 promise reference。</p>
 <h4 id="另一種做法">另一種做法</h4>
@@ -148,49 +202,110 @@ foo(<span style="color:#2aa198">1</span>).<span style="color:#719e07">catch</spa
 <p><a href="https://github.com/tc39/proposal-error-stacks"><strong>tc39/proposal-error-stacks</strong></a></p>
 <p>這部影片是文件的附屬 reference，主要分享 Nodejs 中如何使用async stack trace。</p>
 <p>以下為測試程式碼</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">function</span> p(){  
-        <span style="color:#719e07">return</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Promise</span>((res, rej) =&gt; setTimeout(()=&gt; res(<span style="color:#2aa198">1</span>), <span style="color:#2aa198">1000</span>))  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">p</span>(){  
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise((<span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">rej</span>) =&gt; <span style="color:#a6e22e">setTimeout</span>(()=&gt; <span style="color:#a6e22e">res</span>(<span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1000</span>))  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> one(){  
-        <span style="color:#268bd2">await</span> p();  
-        <span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;err&#34;</span>);  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">one</span>(){  
+        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">p</span>();  
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#34;err&#34;</span>);  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> two(){  
-        <span style="color:#268bd2">await</span> one();  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">two</span>(){  
+        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">one</span>();  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> three(){  
-        <span style="color:#268bd2">await</span> two();  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">three</span>(){  
+        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">two</span>();  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> four(){  
-        <span style="color:#268bd2">await</span> three();  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">four</span>(){  
+        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">three</span>();  
 }
 
-four().<span style="color:#719e07">catch</span>(error =&gt; console.log(error.stack));
-</code></pre></div><p>使用目前的 Nodejs v11.5.0 執行，打印的結果是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: err  
+<span style="color:#a6e22e">four</span>().<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">error</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">error</span>.<span style="color:#a6e22e">stack</span>));
+</code></pre></td></tr></table>
+</div>
+</div><p>使用目前的 Nodejs v11.5.0 執行，打印的結果是</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: err  
     at one (/Users/.../Desktop/test.js:7:8)
-</code></pre></div><p>整個 call stack 只剩 function one 而已，這樣要 debug 相當困難。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>整個 call stack 只剩 function one 而已，這樣要 debug 相當困難。</p>
 <p>此時可以開啟 inspector， <code>&gt; node —inspect-brk=0.0.0.0:9229 test.js</code></p>
 <p>接著打開 chrome dev tool，記得打開 Discover network targets，點擊進去會跳出下方的 debug視窗，接著要打開 Pause on caught rejection 不然出錯就會結束了</p>
 <p><img src="/posts/img/1__Z2ZYMsG__OSWF9QF1UWBn3Q.jpeg" alt=""></p>
 <p>如同上面所說，這種方法只適用於開發。</p>
 <h4 id="新的-zero-cost-async-stacktrace">新的 zero-cost async stack trace</h4>
 <p>目前需要 V8 v7.2 並透過 flag 才能開啟此功能，所以現在要先下載 v8-canary版的 Nodejs，平常都是用 nvm 管理多個 Nodejs 版本，可以用以下方式下載</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$  NVM_NODEJS_ORG_MIRROR=[https://nodejs.org/download/v8-canary](https://nodejs.org/download/v8-canary) nvm install node
-</code></pre></div><p>可以透過 node的 REPL 環境執行 &gt; process.versions 看 V8的版號。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$  NVM_NODEJS_ORG_MIRROR=[https://nodejs.org/download/v8-canary](https://nodejs.org/download/v8-canary) nvm install node
+</code></pre></td></tr></table>
+</div>
+</div><p>可以透過 node的 REPL 環境執行 &gt; process.versions 看 V8的版號。</p>
 <p>接著執行</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ node --async-stack-traces test.js
-</code></pre></div><p>打印結果就會是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#b58900">Error</span><span style="color:#719e07">:</span> err  
-    at one (/Users/zhengyuanjie/Desktop/test.js:7:8)  
-    at <span style="color:#268bd2">async</span> two (/Users/zhengyuanjie/Desktop/test.js:11:2)  
-    at <span style="color:#268bd2">async</span> three (/Users/zhengyuanjie/Desktop/test.js:15:9)  
-    at <span style="color:#268bd2">async</span> four (/Users/zhengyuanjie/Desktop/test.js:19:9)
-</code></pre></div><h3 id="結語">結語</h3>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ node --async-stack-traces test.js
+</code></pre></td></tr></table>
+</div>
+</div><p>打印結果就會是</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">Error<span style="color:#f92672">:</span> <span style="color:#a6e22e">err</span>  
+    <span style="color:#a6e22e">at</span> <span style="color:#a6e22e">one</span> (<span style="color:#960050;background-color:#1e0010">/Users/zhengyuanjie/Desktop/test.js:7:8)  </span>
+    <span style="color:#a6e22e">at</span> <span style="color:#66d9ef">async</span> <span style="color:#a6e22e">two</span> (<span style="color:#960050;background-color:#1e0010">/Users/zhengyuanjie/Desktop/test.js:11:2)  </span>
+    <span style="color:#a6e22e">at</span> <span style="color:#66d9ef">async</span> <span style="color:#a6e22e">three</span> (<span style="color:#960050;background-color:#1e0010">/Users/zhengyuanjie/Desktop/test.js:15:9)  </span>
+    <span style="color:#a6e22e">at</span> <span style="color:#66d9ef">async</span> <span style="color:#a6e22e">four</span> (<span style="color:#960050;background-color:#1e0010">/Users/zhengyuanjie/Desktop/test.js:19:9)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="結語">結語</h3>
 <p>之後看來要花時間重新學 C/C++，這樣才能看懂 V8 與 JS Binding 等底層的 Nodejs 實作。</p>
 
 	</div>

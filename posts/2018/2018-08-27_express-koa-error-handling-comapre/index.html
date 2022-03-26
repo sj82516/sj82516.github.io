@@ -80,28 +80,57 @@
 <h3 id="原本的寫法">原本的寫法</h3>
 <p>在最一開始使用Promise時，都習慣個別Promise.catch 處理錯誤；<br>
 之後用上了 async / await ，也都習慣用 try{}catch(){} 個別處理；</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">function</span> handle(req, res) {   
-   Promise1().then(data =&gt; ....).<span style="color:#719e07">catch</span>(err =&gt; handleError(err))  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">handle</span>(<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) {   
+   <span style="color:#a6e22e">Promise1</span>().<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">data</span> =&gt; ....).<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">handleError</span>(<span style="color:#a6e22e">err</span>))  
 }
 
-<span style="color:#268bd2">async</span> <span style="color:#268bd2">function</span> handle(ctx){  
-   <span style="color:#719e07">try</span>{  
-       <span style="color:#268bd2">await</span> Promise1()  
-   }<span style="color:#719e07">catch</span>(err){  
-       hanleError(err)  
+<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">handle</span>(<span style="color:#a6e22e">ctx</span>){  
+   <span style="color:#66d9ef">try</span>{  
+       <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">Promise1</span>()  
+   }<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">err</span>){  
+       <span style="color:#a6e22e">hanleError</span>(<span style="color:#a6e22e">err</span>)  
    }  
 }
-</code></pre></div><p>這樣的寫法缺點在於每個函式都必須重複一樣的事情(不斷 try catch)，此外回傳 http status code / error message 很多都會重複，也是此次想要改變的問題，希望改以<code>統一拋出錯誤並註冊一個Middleware專門處理錯誤</code>。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這樣的寫法缺點在於每個函式都必須重複一樣的事情(不斷 try catch)，此外回傳 http status code / error message 很多都會重複，也是此次想要改變的問題，希望改以<code>統一拋出錯誤並註冊一個Middleware專門處理錯誤</code>。</p>
 <h3 id="改善寫法">改善寫法</h3>
 <h4 id="koa">Koa</h4>
 <p>先來看Koa如何實作，以下是一般使用方式</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">const</span> Koa <span style="color:#719e07">=</span> require(<span style="color:#2aa198">&#39;koa&#39;</span>);  
-<span style="color:#268bd2">const</span> app <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Koa();
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">Koa</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;koa&#39;</span>);  
+<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Koa</span>();
 
-app.use(<span style="color:#268bd2">async</span> (ctx, next){...});
+<span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">next</span>){...});
 
-app.listen(<span style="color:#2aa198">3000</span>);
-</code></pre></div><p>當我們創建一個 Koa 的 instance app後，接著就會用 <code>app.use</code> 註冊所有的 Middleware，最後就是 <code>app.listen</code> 啟動</p>
+<span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">3000</span>);
+</code></pre></td></tr></table>
+</div>
+</div><p>當我們創建一個 Koa 的 instance app後，接著就會用 <code>app.use</code> 註冊所有的 Middleware，最後就是 <code>app.listen</code> 啟動</p>
 <p>在 Koa 原始碼當中， new Koa()中重要的一段原始碼是</p>
 <p><code>return fnMiddleware(ctx).then(handleResponse).catch(onerror);</code></p>
 <p>Koa 處理的順序是 <code>fnMiddleware將 app.use()註冊的全部Middleware轉成 Promise chain</code> -&gt; <code>hanldeResponse(呼叫 res.end送出 http respond)</code> / <code>onerror (處理錯誤)</code></p>
@@ -130,18 +159,35 @@ app.listen(<span style="color:#2aa198">3000</span>);
 <p>在Express 實例化之後有一個 Router Instance，接著每個路由會對映一個 Route，一個路由中可能有多個Middleware 稱為 Layer，資料結構就是陣列儲存。</p>
 <p>當一個 Request 近來會流過依照 Route 中的註冊順序流過 Layer ，每個Layer 判斷是否 Match URL，如果 Match 則處理，發生錯誤則走錯誤處理</p>
 <p>特別注意 正常處理與錯誤處理路徑是分開</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">app.use((err, req, res, next)=&gt;{}) 對應是 Layer.handle_error  
-app.use((req, res, next)=&gt;{}) 對應是 Layer.handle_request
-</code></pre></div><p>當發現有 Middleware 呼叫了 next(err)後，就開始走錯誤處理，也就是後面的 Layer 都是呼叫 Layer.handle_error !</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>((<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>)=&gt;{}) <span style="color:#a6e22e">對應是</span> <span style="color:#a6e22e">Layer</span>.<span style="color:#a6e22e">handle_error</span>  
+<span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>((<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>)=&gt;{}) <span style="color:#a6e22e">對應是</span> <span style="color:#a6e22e">Layer</span>.<span style="color:#a6e22e">handle_request</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>當發現有 Middleware 呼叫了 next(err)後，就開始走錯誤處理，也就是後面的 Layer 都是呼叫 Layer.handle_error !</p>
 <p>在錯誤處理Express 採用 <code>next(err)</code> 在Middleware 間傳遞錯誤，所以當 Middleware 或是 Routing 中有錯誤不能直接拋出或不處理，必須要用 <code>try{..}catch(error){next(error)}</code> 處理；<br>
 但這樣就會很麻煩，因為都必須用 try catch 包起來，同理像是原生的 Nodejs module 如 fs 都沒有 Promise版，所以都要自己再 Promisify 後呼叫一樣的道理(麻煩)。<br>
 (<a href="https://medium.com/@Abazhenov/using-async-await-in-express-with-node-8-b8af872c0016">Using Async Await in Express with Node 9</a> 有提及)</p>
 <p>後來看到一個蠻 Hacking 的方式，<a href="https://github.com/davidbanham/express-async-errors">express-async-errors</a>，他會複寫Express/Layer.handle 方法，把每個 Routing Function 的錯誤統一用 <code>next(error)</code> 傳遞</p>
 <p>他處理的方式也是很妙，簡化後可以這樣示意</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#268bd2">let</span> pE <span style="color:#719e07">=</span> <span style="color:#268bd2">async</span> () =&gt; {<span style="color:#719e07">throw</span> <span style="color:#719e07">new</span> <span style="color:#b58900">Error</span>(<span style="color:#2aa198">&#34;error&#34;</span>)}  
-<span style="color:#268bd2">let</span> fn <span style="color:#719e07">=</span> pE.call()  
-<span style="color:#719e07">if</span>(fn <span style="color:#719e07">&amp;&amp;</span> fn.<span style="color:#719e07">catch</span>) fn.<span style="color:#719e07">catch</span>(err =&gt; console.log(err))
-</code></pre></div><p>也就是如果發現註冊在Layer中的Function 是 Async Function，Async Function 執行後會回傳 Promise，接著就是用 <code>fn &amp;&amp; fn.catch</code> 判斷是否為 Promise，如果是則幫忙補上 <code>.catch((err) =&gt; next(err))</code> ，蠻聰明的作法。</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">pE</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> () =&gt; {<span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#34;error&#34;</span>)}  
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">fn</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">pE</span>.<span style="color:#a6e22e">call</span>()  
+<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">fn</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">fn</span>.<span style="color:#66d9ef">catch</span>) <span style="color:#a6e22e">fn</span>.<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">err</span>))
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是如果發現註冊在Layer中的Function 是 Async Function，Async Function 執行後會回傳 Promise，接著就是用 <code>fn &amp;&amp; fn.catch</code> 判斷是否為 Promise，如果是則幫忙補上 <code>.catch((err) =&gt; next(err))</code> ，蠻聰明的作法。</p>
 <p>根據 Express Routing 機制，ErrorHandling 在 Express 必須宣告在最後面</p>
 <h3 id="結語">結語</h3>
 <p>就個人觀點，Koa 相比 Express 確實是個更進步的框架，最主要是在 Middleware 構建與執行上，Koa 是先轉成類似 Promise Chain，並預設有做 Error Handling；<br>

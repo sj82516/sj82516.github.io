@@ -109,114 +109,239 @@ Developer Experience 還不賴，官方的文件、教學，以及整體的設�
 <li>建立 Lambda function aws_lambda_function，綁定 lambda-layer_fetch 與執行角色 iam_for_lambda</li>
 </ol>
 <p>寫完介紹，剛好一步對照一塊程式碼，如果對 AWS 有點熟悉的人應該可以很快理解語法，尤其是變數命名跟後台設定很雷同，所以上手相當輕鬆</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#586e75"># 指定後續資源的提供者是哪個平台的哪個區域
-</span><span style="color:#586e75"># provider 沒有指定 alias 代表為預設 provider
-</span><span style="color:#586e75"></span><span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
-  profile <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;default&#34;</span>
-  region  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;us-east-1&#34;</span>
-}<span style="color:#586e75">
-</span><span style="color:#586e75">
-</span><span style="color:#586e75"># 建立 IAM role，取名為 iam_for_lambda
-</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_iam_role&#34; &#34;iam_for_lambda&#34;</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;iam_for_lambda&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">84
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#75715e"># 指定後續資源的提供者是哪個平台的哪個區域
+</span><span style="color:#75715e"># provider 沒有指定 alias 代表為預設 provider
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">provider</span> <span style="color:#e6db74">&#34;aws&#34;</span> {
+  profile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;default&#34;</span>
+  region  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;us-east-1&#34;</span>
+}<span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"># 建立 IAM role，取名為 iam_for_lambda
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_iam_role&#34; &#34;iam_for_lambda&#34;</span> {
+  name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;iam_for_lambda&#34;</span>
 
-  assume_role_policy <span style="color:#719e07">=</span> &lt;&lt;<span style="color:#719e07">EOF</span>
+  assume_role_policy <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">&lt;&lt;</span><span style="color:#66d9ef">EOF</span>
 {
-  <span style="color:#2aa198">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
-  <span style="color:#2aa198">&#34;Statement&#34;</span>: [
+  <span style="color:#e6db74">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
+  <span style="color:#e6db74">&#34;Statement&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
     {
-      <span style="color:#2aa198">&#34;Action&#34;: &#34;sts:AssumeRole&#34;</span>,
-      <span style="color:#2aa198">&#34;Principal&#34;</span>: {
-        <span style="color:#2aa198">&#34;Service&#34;: &#34;lambda.amazonaws.com&#34;</span>
+      <span style="color:#e6db74">&#34;Action&#34;: &#34;sts:AssumeRole&#34;</span>,
+      <span style="color:#e6db74">&#34;Principal&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
+        <span style="color:#e6db74">&#34;Service&#34;: &#34;lambda.amazonaws.com&#34;</span>
       },
-      <span style="color:#2aa198">&#34;Effect&#34;: &#34;Allow&#34;</span>,
-      <span style="color:#2aa198">&#34;Sid&#34;: &#34;&#34;</span>
+      <span style="color:#e6db74">&#34;Effect&#34;: &#34;Allow&#34;</span>,
+      <span style="color:#e6db74">&#34;Sid&#34;: &#34;&#34;</span>
     }
   ]
 }
-<span style="color:#719e07">EOF</span>
-}<span style="color:#586e75">
-</span><span style="color:#586e75">
-</span><span style="color:#586e75"># 建立 IAM Policy，主要給 Cloudwatch Log 權限
-</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_iam_policy&#34; &#34;lambda_logging&#34;</span> {
-  name        <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;lambda_logging&#34;</span>
-  path        <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;/&#34;</span>
-  description <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;IAM policy for logging from a lambda&#34;</span>
+<span style="color:#66d9ef">EOF</span>
+}<span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"># 建立 IAM Policy，主要給 Cloudwatch Log 權限
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_iam_policy&#34; &#34;lambda_logging&#34;</span> {
+  name        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;lambda_logging&#34;</span>
+  path        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/&#34;</span>
+  description <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;IAM policy for logging from a lambda&#34;</span>
 
-  policy <span style="color:#719e07">=</span> &lt;&lt;<span style="color:#719e07">EOF</span>
+  policy <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">&lt;&lt;</span><span style="color:#66d9ef">EOF</span>
 {
-  <span style="color:#2aa198">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
-  <span style="color:#2aa198">&#34;Statement&#34;</span>: [
+  <span style="color:#e6db74">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
+  <span style="color:#e6db74">&#34;Statement&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
     {
-      <span style="color:#2aa198">&#34;Action&#34;</span>: [
-        <span style="color:#2aa198">&#34;logs:CreateLogGroup&#34;</span>,
-        <span style="color:#2aa198">&#34;logs:CreateLogStream&#34;</span>,
-        <span style="color:#2aa198">&#34;logs:PutLogEvents&#34;</span>
+      <span style="color:#e6db74">&#34;Action&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
+        <span style="color:#e6db74">&#34;logs:CreateLogGroup&#34;</span>,
+        <span style="color:#e6db74">&#34;logs:CreateLogStream&#34;</span>,
+        <span style="color:#e6db74">&#34;logs:PutLogEvents&#34;</span>
       ],
-      <span style="color:#2aa198">&#34;Resource&#34;: &#34;arn:aws:logs:*:*:*&#34;</span>,
-      <span style="color:#2aa198">&#34;Effect&#34;: &#34;Allow&#34;</span>
+      <span style="color:#e6db74">&#34;Resource&#34;: &#34;arn:aws:logs:*:*:*&#34;</span>,
+      <span style="color:#e6db74">&#34;Effect&#34;: &#34;Allow&#34;</span>
     }
   ]
 }
-<span style="color:#719e07">EOF</span>
+<span style="color:#66d9ef">EOF</span>
 }
 
-<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_iam_role_policy_attachment&#34; &#34;lambda_logs&#34;</span> {
-  role       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_iam_role.iam_for_lambda.name}&#34;</span>
-  policy_arn <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_iam_policy.lambda_logging.arn}&#34;</span>
+<span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_iam_role_policy_attachment&#34; &#34;lambda_logs&#34;</span> {
+  role       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_iam_role.iam_for_lambda.name}&#34;</span>
+  policy_arn <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_iam_policy.lambda_logging.arn}&#34;</span>
 }
 
-<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_lambda_layer_version&#34; &#34;lambda-layer_fetch&#34;</span> {
-  filename   <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;./lambda_layer_payload.zip&#34;</span>
-  layer_name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;lambda_layer_name&#34;</span>
+<span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_lambda_layer_version&#34; &#34;lambda-layer_fetch&#34;</span> {
+  filename   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;./lambda_layer_payload.zip&#34;</span>
+  layer_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;lambda_layer_name&#34;</span>
 
-  source_code_hash    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${filebase64sha256(&#34;lambda_layer_payload.zip&#34;)}&#34;</span>
-  compatible_runtimes <span style="color:#719e07">=</span> [<span style="color:#2aa198">&#34;nodejs10.x&#34;</span>]
+  source_code_hash    <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${filebase64sha256(&#34;lambda_layer_payload.zip&#34;)}&#34;</span>
+  compatible_runtimes <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;nodejs10.x&#34;</span>]
 }
 
-<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
-  function_name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;global-api-lantency-test&#34;</span>
-  filename      <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;./lambda_payload.zip&#34;</span>
-  handler       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;index.handler&#34;</span>
-  runtime       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;nodejs10.x&#34;</span>
-  role          <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_iam_role.iam_for_lambda.arn}&#34;</span>
+<span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
+  function_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;global-api-lantency-test&#34;</span>
+  filename      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;./lambda_payload.zip&#34;</span>
+  handler       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;index.handler&#34;</span>
+  runtime       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nodejs10.x&#34;</span>
+  role          <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_iam_role.iam_for_lambda.arn}&#34;</span>
 
-  source_code_hash <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${filebase64sha256(&#34;lambda_payload.zip&#34;)}&#34;</span>
-  layers <span style="color:#719e07">=</span> [
-    <span style="color:#2aa198">&#34;${aws_lambda_layer_version.lambda-layer_fetch.arn}&#34;</span>
+  source_code_hash <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${filebase64sha256(&#34;lambda_payload.zip&#34;)}&#34;</span>
+  layers <span style="color:#f92672">=</span> [
+    <span style="color:#e6db74">&#34;${aws_lambda_layer_version.lambda-layer_fetch.arn}&#34;</span>
   ]
-  publish <span style="color:#719e07">=</span> <span style="color:#dc322f">true</span>
-  <span style="color:#719e07">environment</span> {
-    variables <span style="color:#719e07">=</span> {
-      REGION    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;us-east-1&#34;</span>
-      SLACK_URL <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;https://hooks.slack.com/services/.....&#34;</span>
+  publish <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+  <span style="color:#66d9ef">environment</span> {
+    variables <span style="color:#f92672">=</span> {
+      REGION    <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;us-east-1&#34;</span>
+      SLACK_URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://hooks.slack.com/services/.....&#34;</span>
     }
   }
 }
-</code></pre></div><h3 id="provider">Provider</h3>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="provider">Provider</h3>
 <p>指定資源是套用在哪個平台，目前是指定在 us-east-1 AWS 上，如果沒有指定 <code>alias</code> 則代表是預設的 provider</p>
 <h3 id="resource">Resource</h3>
 <p>命名的方式是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">resource</span> <span style="color:#719e07">資源類型</span> <span style="color:#719e07">資源名稱</span> {
-    <span style="color:#719e07">資源參數</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">resource</span> <span style="color:#66d9ef">資源類型</span> <span style="color:#66d9ef">資源名稱</span> {
+    <span style="color:#66d9ef">資源參數</span>
 }
-</code></pre></div><p>資源參數對應資源類型，可以從文件中找範例與定義的方式，資源的定義依賴於 Provider 平台的不同，可以指定 <code>provider</code>，不指定則用預設</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>資源參數對應資源類型，可以從文件中找範例與定義的方式，資源的定義依賴於 Provider 平台的不同，可以指定 <code>provider</code>，不指定則用預設</p>
 <p>除了個別的資源定義外，像有些資源會相依，例如 Lambda 要綁定特定的 IAM Role，注意到這邊的寫法是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
-  role          <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_iam_role.iam_for_lambda.arn}&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
+  role          <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_iam_role.iam_for_lambda.arn}&#34;</span>
   ....
 }
-</code></pre></div><p>要引用其他資源的參數，需要用<code>&quot;${資源類型.資源名稱.arn}&quot;</code>，arn 是 AWS 用來識別資源的全域 ID，透過這樣的方式就能夠綁定資源，這邊我指定要用 Lambda 的 Execution Role 是 iam_for_lambda 這個 Role。<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>要引用其他資源的參數，需要用<code>&quot;${資源類型.資源名稱.arn}&quot;</code>，arn 是 AWS 用來識別資源的全域 ID，透過這樣的方式就能夠綁定資源，這邊我指定要用 Lambda 的 Execution Role 是 iam_for_lambda 這個 Role。<br>
 另外為了效率，定義的資源會並行建立，但有些資源有相依性，Terraform 會自動處理相依性，所以上述的資源理論上要 Policy &gt; Role &gt; Lambda Layer &gt; Lambda，但我們不用宣告 Terraform 會自行處理；
 但有時候相依性不明顯或是有特殊需求，可以顯示宣告 <code>depends_on</code>。</p>
 <p>Lambda Function 建立完成後，如果只是要單純更改 Lambda 內容而不調整架構，可以宣告</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
-  source_code_hash <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${filebase64sha256(&#34;lambda_payload.zip&#34;)}&#34;</span>
-</code></pre></div><p><code>source_code_hash</code> 是指說如果 hash 值改變就更新 Lambda 內容，而 <code>filebase64sha256()</code> 是 Terraform 的內建函示，自動用 sha 256 算出檔案 hash 值並用 base64 編碼</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_lambda_function&#34; &#34;lambda_main&#34;</span> {
+  source_code_hash <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${filebase64sha256(&#34;lambda_payload.zip&#34;)}&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>source_code_hash</code> 是指說如果 hash 值改變就更新 Lambda 內容，而 <code>filebase64sha256()</code> 是 Terraform 的內建函示，自動用 sha 256 算出檔案 hash 值並用 base64 編碼</p>
 <p>題外話，Lambda 的 zip file 記得解壓縮後不要有額外的資料夾，不然會失敗，正確應該要是</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">--- lambda.zip
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">--- lambda.zip
   |--- index.js
-</code></pre></div><h1 id="部署架構">部署架構</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="部署架構">部署架構</h1>
 <p>編寫好架構，此時要調用 Terraform CLI 來部署架構
 首先初始化環境與載入需要的執行資源</p>
 <blockquote>
@@ -232,29 +357,57 @@ Developer Experience 還不賴，官方的文件、教學，以及整體的設�
 <p>這樣就完成了，後續有什麼調整就重複 <code>$ terraform apply</code> 步驟，可以到 AWS 後台確認資源的建立狀況</p>
 <h1 id="加上-cloudwatch">加上 Cloudwatch</h1>
 <p>這一段雷同，補上 cloudwatch event rule / cloudwatch event targe，最後別忘了要加綁定 lambda permission 不然觸發 Lambda 會失敗</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#586e75"># add cloudwatch event
-</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_cloudwatch_event_rule&#34; &#34;every_five_minutes&#34;</span> {
-  name        <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;routine-api-request&#34;</span>
-  description <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Routinely call global api lantency test&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#75715e"># add cloudwatch event
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_cloudwatch_event_rule&#34; &#34;every_five_minutes&#34;</span> {
+  name        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;routine-api-request&#34;</span>
+  description <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Routinely call global api lantency test&#34;</span>
 
-  schedule_expression <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;rate(5 minutes)&#34;</span>
+  schedule_expression <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;rate(5 minutes)&#34;</span>
 }
 
-<span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_cloudwatch_event_target&#34; &#34;api_request&#34;</span> {
-  rule      <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_cloudwatch_event_rule.every_five_minutes.name}&#34;</span>
-  target_id <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;CallApiRequest&#34;</span>
-  arn       <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_lambda_function.lambda_main.arn}&#34;</span>
-}<span style="color:#586e75">
-</span><span style="color:#586e75">
-</span><span style="color:#586e75"># 
-</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_lambda_permission&#34; &#34;allow_cloudwatch_to_call_check_api&#34;</span> {
-  statement_id  <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;AllowExecutionFromCloudWatch&#34;</span>
-  action        <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;lambda:InvokeFunction&#34;</span>
-  function_name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_lambda_function.lambda_main.function_name}&#34;</span>
-  principal     <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;events.amazonaws.com&#34;</span>
-  source_arn    <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;${aws_cloudwatch_event_rule.every_five_minutes.arn}&#34;</span>
+<span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_cloudwatch_event_target&#34; &#34;api_request&#34;</span> {
+  rule      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_cloudwatch_event_rule.every_five_minutes.name}&#34;</span>
+  target_id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;CallApiRequest&#34;</span>
+  arn       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_lambda_function.lambda_main.arn}&#34;</span>
+}<span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"># 
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_lambda_permission&#34; &#34;allow_cloudwatch_to_call_check_api&#34;</span> {
+  statement_id  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AllowExecutionFromCloudWatch&#34;</span>
+  action        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;lambda:InvokeFunction&#34;</span>
+  function_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_lambda_function.lambda_main.function_name}&#34;</span>
+  principal     <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;events.amazonaws.com&#34;</span>
+  source_arn    <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;${aws_cloudwatch_event_rule.every_five_minutes.arn}&#34;</span>
 }
-</code></pre></div><h1 id="import-現有的-iam-role">Import 現有的 IAM Role</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="import-現有的-iam-role">Import 現有的 IAM Role</h1>
 <p>回過頭說一下之前採用 AWS CDK 的最大問題，當初研究時沒有看到 AWS CDK 與現有架構的整合，這導致公司要採用需要很大的決心，或是只能用在測試或新的環境建設，沒有辦法 graceful 轉移，這點我覺得對於要導入新技術來說，有點麻煩，尤其是架構這麼重要的地方；</p>
 <p>另一點是角色的權限管理，公司都會有針對不同的職位給予不同的權限，AWS CDK 預設就要 CreateRole 等權限，基本上很難直接要到這麼高的權限，也是當初要在公司專案嘗試 AWS CDK 最大失敗的原因</p>
 <p>Terraform 現行支援 <code>import</code> 既有的資源，但是資源內容要自己填寫，未來宣稱會支援自動載入內容；<br>
@@ -262,27 +415,53 @@ Developer Experience 還不賴，官方的文件、教學，以及整體的設�
 <blockquote>
 <p>$ terraform import aws_iam_role.existed_role existed_role</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#586e75"># existed iam role
-</span><span style="color:#586e75"></span><span style="color:#719e07">resource</span> <span style="color:#2aa198">&#34;aws_iam_role&#34; &#34;existed_role&#34;</span> {
-  name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;existed_role&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#75715e"># existed iam role
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">resource</span> <span style="color:#e6db74">&#34;aws_iam_role&#34; &#34;existed_role&#34;</span> {
+  name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;existed_role&#34;</span>
 
-  assume_role_policy <span style="color:#719e07">=</span> &lt;&lt;<span style="color:#719e07">EOF</span>
+  assume_role_policy <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">&lt;&lt;</span><span style="color:#66d9ef">EOF</span>
 {
-  <span style="color:#2aa198">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
-  <span style="color:#2aa198">&#34;Statement&#34;</span>: [
+  <span style="color:#e6db74">&#34;Version&#34;: &#34;2012-10-17&#34;</span>,
+  <span style="color:#e6db74">&#34;Statement&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
     {
-      <span style="color:#2aa198">&#34;Action&#34;: &#34;sts:AssumeRole&#34;</span>,
-      <span style="color:#2aa198">&#34;Principal&#34;</span>: {
-        <span style="color:#2aa198">&#34;Service&#34;: &#34;lambda.amazonaws.com&#34;</span>
+      <span style="color:#e6db74">&#34;Action&#34;: &#34;sts:AssumeRole&#34;</span>,
+      <span style="color:#e6db74">&#34;Principal&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
+        <span style="color:#e6db74">&#34;Service&#34;: &#34;lambda.amazonaws.com&#34;</span>
       },
-      <span style="color:#2aa198">&#34;Effect&#34;: &#34;Allow&#34;</span>,
-      <span style="color:#2aa198">&#34;Sid&#34;: &#34;&#34;</span>
+      <span style="color:#e6db74">&#34;Effect&#34;: &#34;Allow&#34;</span>,
+      <span style="color:#e6db74">&#34;Sid&#34;: &#34;&#34;</span>
     }
   ]
 }
-<span style="color:#719e07">EOF</span>
+<span style="color:#66d9ef">EOF</span>
 }
-</code></pre></div><h1 id="variables---抽離參數">Variables - 抽離參數</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="variables---抽離參數">Variables - 抽離參數</h1>
 <p>目前的參數都是寫死的，例如說部署的區域、Lambda 名稱等，Terraform 支援 variable 定義，可以有以下幾種類型</p>
 <ol>
 <li>string</li>
@@ -294,33 +473,80 @@ Developer Experience 還不賴，官方的文件、教學，以及整體的設�
 <li>tuple</li>
 </ol>
 <p>如果要在參數使用變數的話，必須要先在資源檔 <code>.tf</code> 宣告</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">variable</span> <span style="color:#2aa198">&#34;image_id&#34;</span> {
-    type        <span style="color:#719e07">=</span> <span style="color:#719e07">string</span>
-    default <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;default 值&#34;</span>
-    description <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;The id of the machine image (AMI) to use for the server.&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">variable</span> <span style="color:#e6db74">&#34;image_id&#34;</span> {
+    type        <span style="color:#f92672">=</span> <span style="color:#66d9ef">string</span>
+    default <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;default 值&#34;</span>
+    description <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;The id of the machine image (AMI) to use for the server.&#34;</span>
 }
-</code></pre></div><p>type 必填，但是 default 跟 description 不用，當沒有 default 且後續變數沒有賦值的話，在 <code>&gt;$terraform apply</code> 時會中斷要求輸入</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>type 必填，但是 default 跟 description 不用，當沒有 default 且後續變數沒有賦值的話，在 <code>&gt;$terraform apply</code> 時會中斷要求輸入</p>
 <p>在資源定義檔上，可以採用 <code>var.變數名稱</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">provider</span> <span style="color:#2aa198">&#34;aws&#34;</span> {
-  profile <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;default&#34;</span>
-  region  <span style="color:#719e07">=</span> <span style="color:#719e07">var</span>.<span style="color:#719e07">image_id</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">provider</span> <span style="color:#e6db74">&#34;aws&#34;</span> {
+  profile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;default&#34;</span>
+  region  <span style="color:#f92672">=</span> <span style="color:#66d9ef">var</span>.<span style="color:#66d9ef">image_id</span>
 }
-</code></pre></div><p>接著，透過以下幾種方式賦值給 variable</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>接著，透過以下幾種方式賦值給 variable</p>
 <ol>
 <li>環境變數
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL">$export TF_VAR_image_id<span style="color:#719e07">=</span><span style="color:#719e07">ami</span>-<span style="color:#719e07">abc123</span>
-$export TF_VAR_availability_zone_names<span style="color:#719e07">=</span>&#39;[<span style="color:#2aa198">&#34;us-west-1b&#34;,&#34;us-west-1d&#34;</span>]&#39;    
-</code></pre></div></li>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL">$export TF_VAR_image_id<span style="color:#f92672">=</span><span style="color:#66d9ef">ami</span><span style="color:#960050;background-color:#1e0010">-</span><span style="color:#66d9ef">abc123</span>
+$export TF_VAR_availability_zone_names<span style="color:#f92672">=</span><span style="color:#960050;background-color:#1e0010">&#39;</span>[<span style="color:#e6db74">&#34;us-west-1b&#34;,&#34;us-west-1d&#34;</span>]<span style="color:#960050;background-color:#1e0010">&#39;</span>    
+</code></pre></td></tr></table>
+</div>
+</div></li>
 <li><code>terraform.tfvars</code> 檔案中
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL">image_id <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;ami-abc123&#34;</span>
-availability_zone_names<span style="color:#719e07">=</span>[<span style="color:#2aa198">&#34;us-west-1b&#34;,&#34;us-west-1d&#34;</span>]
-</code></pre></div></li>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL">image_id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ami-abc123&#34;</span>
+availability_zone_names<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;us-west-1b&#34;,&#34;us-west-1d&#34;</span>]
+</code></pre></td></tr></table>
+</div>
+</div></li>
 <li><code>terraform.tfvars.json</code> 檔案中
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-     <span style="color:#268bd2">&#34;image_id&#34;</span>: <span style="color:#2aa198">&#34;ami-abc123&#34;</span>,
-     <span style="color:#268bd2">&#34;availability_zone_names&#34;</span>: [<span style="color:#2aa198">&#34;us-west-1a&#34;</span>, <span style="color:#2aa198">&#34;us-west-1c&#34;</span>]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+     <span style="color:#f92672">&#34;image_id&#34;</span>: <span style="color:#e6db74">&#34;ami-abc123&#34;</span>,
+     <span style="color:#f92672">&#34;availability_zone_names&#34;</span>: [<span style="color:#e6db74">&#34;us-west-1a&#34;</span>, <span style="color:#e6db74">&#34;us-west-1c&#34;</span>]
  }
-</code></pre></div></li>
+</code></pre></td></tr></table>
+</div>
+</div></li>
 <li><code>*.auto.tfvars</code> 或是 <code>*.auto.tfvars.json</code>，順序按照檔名</li>
 <li>在 CLI 執行時指定 <code>-var</code> <code>-var-file</code>
 <blockquote>
@@ -333,20 +559,44 @@ availability_zone_names<span style="color:#719e07">=</span>[<span style="color:#
 <p>對於 root module 來說，設定 output 會在 <code>&gt; $terraform apply</code> 時打印，例如說 EC2 Instance 的 public DNS等；
 對 module 來說，Output 等同於 function 的 return value，決定哪些資源讓外部讀取</p>
 <p>在範例程式的目錄下有獨立的 <code>output.tf</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#719e07">output</span> <span style="color:#2aa198">&#34;lambda-arn&#34;</span> {
-    value <span style="color:#719e07">=</span> <span style="color:#719e07">aws_lambda_function</span>.<span style="color:#719e07">lambda_main</span>.<span style="color:#719e07">arn</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-HCL" data-lang="HCL"><span style="color:#66d9ef">output</span> <span style="color:#e6db74">&#34;lambda-arn&#34;</span> {
+    value <span style="color:#f92672">=</span> <span style="color:#66d9ef">aws_lambda_function</span>.<span style="color:#66d9ef">lambda_main</span>.<span style="color:#66d9ef">arn</span>
 }
 
-<span style="color:#719e07">output</span> <span style="color:#719e07">輸出參數名餐</span> {
-    value <span style="color:#719e07">=</span> <span style="color:#719e07">資源類別</span>.<span style="color:#719e07">資源命名</span>.<span style="color:#719e07">資源屬性</span>
+<span style="color:#66d9ef">output</span> <span style="color:#66d9ef">輸出參數名餐</span> {
+    value <span style="color:#f92672">=</span> <span style="color:#66d9ef">資源類別</span>.<span style="color:#66d9ef">資源命名</span>.<span style="color:#66d9ef">資源屬性</span>
 }
-</code></pre></div><p>會在 apply 成功後打印出來</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+</code></pre></td></tr></table>
+</div>
+</div><p>會在 apply 成功後打印出來</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 lambda-arn = arn:aws:lambda:us-east-1:.....
-</code></pre></div><h1 id="state---terraform-如何掌管架構的更動">State - Terraform 如何掌管架構的更動</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="state---terraform-如何掌管架構的更動">State - Terraform 如何掌管架構的更動</h1>
 <p>當架構異動的時候，Terraform 如何知道前後架構的差異呢？
 每次在執行 <code>$ terraform plan</code> 時，專案目錄底下有 <code>terraform.tfstate</code> 檔案，用 JSON 描述架構中的所有資源，每當下次執行 <code>$ terraform plan</code> 時，Terraform 會根據 tfstate 中的資源 ID 取得最新的資訊，接著與描述檔做 diff 決定哪部分資源要更新</p>
 <p>當我們要跨團隊協作時，就需要把 terraform 描述檔 + terraform.tfstate 與團隊共享，此時會有有三個要素</p>

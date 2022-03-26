@@ -118,20 +118,39 @@
 <h3 id="seeing-everything-as-an-object">Seeing Everything as an Object</h3>
 <p>在 Ruby 的世界中，幾乎每一個變數都是物件，包含 <code>1+2</code> 也可以寫成 <code>1.+(2)</code>，1 本身是 <code>Integer 類別</code>裡頭有 + 這個方法<br>
 這讓 Ruby 很適合 OOP，也帶來很多的彈性，像是在 operator overwrite</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Integer</span>
-  <span style="color:#719e07">alias</span> <span style="color:#2aa198">:plus</span> <span style="color:#2aa198">:+</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">+</span> (other)
-    <span style="color:#b58900">puts</span> <span style="color:#b58900">self</span><span style="color:#719e07">.</span>to_s <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34; is adding &#34;</span> <span style="color:#719e07">+</span> other<span style="color:#719e07">.</span>to_s
-    <span style="color:#b58900">self</span><span style="color:#719e07">.</span>plus other
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Integer</span>
+  <span style="color:#66d9ef">alias</span> <span style="color:#e6db74">:plus</span> <span style="color:#e6db74">:+</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">+</span> (other)
+    puts self<span style="color:#f92672">.</span>to_s <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; is adding &#34;</span> <span style="color:#f92672">+</span> other<span style="color:#f92672">.</span>to_s
+    self<span style="color:#f92672">.</span>plus other
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#b58900">puts</span> <span style="color:#2aa198">1</span> <span style="color:#719e07">+</span> <span style="color:#2aa198">2</span>
+puts <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>
 
-<span style="color:#586e75"># 輸出結果</span>
-<span style="color:#586e75"># 1 is adding 2</span>
-<span style="color:#586e75"># 3</span>
-</code></pre></div><p>Integer 是預設類別，Ruby 遇到類別重複宣告時會<code>合併</code>，接著我們在 Integer 宣告 plus 是原本 + 的別名，接著覆寫 <code>+</code> 先打印出 is adding 字串在回傳，在 Ruby 中預設 function 最後一行即使不顯式宣告也會 return</p>
+<span style="color:#75715e"># 輸出結果</span>
+<span style="color:#75715e"># 1 is adding 2</span>
+<span style="color:#75715e"># 3</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Integer 是預設類別，Ruby 遇到類別重複宣告時會<code>合併</code>，接著我們在 Integer 宣告 plus 是原本 + 的別名，接著覆寫 <code>+</code> 先打印出 is adding 字串在回傳，在 Ruby 中預設 function 最後一行即使不顯式宣告也會 return</p>
 <h3 id="透過匿名函式支援-functional-programming-style">透過匿名函式支援 Functional Programming Style</h3>
 <p>在 Ruby 世界中，不像 Javascript / Golang 把 function 視為一等公民</p>
 <blockquote>
@@ -143,16 +162,31 @@
 </ol>
 </blockquote>
 <p>但是 Ruby 也還是匿名函式的語法，大致如下</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">sum</span>(x)
-  total <span style="color:#719e07">=</span> x
-  <span style="color:#b58900">proc</span> { <span style="color:#719e07">|</span>y<span style="color:#719e07">|</span> x <span style="color:#719e07">+=</span> y }
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sum</span>(x)
+  total <span style="color:#f92672">=</span> x
+  proc { <span style="color:#f92672">|</span>y<span style="color:#f92672">|</span> x <span style="color:#f92672">+=</span> y }
+<span style="color:#66d9ef">end</span>
 
-sum_five <span style="color:#719e07">=</span> sum <span style="color:#2aa198">5</span>
-<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
-<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
-<span style="color:#b58900">puts</span> sum_five<span style="color:#719e07">.</span>call(<span style="color:#2aa198">5</span>)
-</code></pre></div><p>後續會有更詳細補充，但至少 Ruby 世界中也是可以做到 functional programming 的</p>
+sum_five <span style="color:#f92672">=</span> sum <span style="color:#ae81ff">5</span>
+puts sum_five<span style="color:#f92672">.</span>call(<span style="color:#ae81ff">5</span>)
+puts sum_five<span style="color:#f92672">.</span>call(<span style="color:#ae81ff">5</span>)
+puts sum_five<span style="color:#f92672">.</span>call(<span style="color:#ae81ff">5</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>後續會有更詳細補充，但至少 Ruby 世界中也是可以做到 functional programming 的</p>
 <p>綜合以上，Ruby 是一門彈性很大、很自由的語言，這是一把雙面刃，對於新手可能也不是這麼友善，畢竟有太多語法跟關鍵字要去熟悉</p>
 <h3 id="如何安裝">如何安裝</h3>
 <p>可以從官網下載安裝 <a href="https://www.ruby-lang.org/en/documentation/installation/">Installing Ruby</a>，或是先安裝 Ruby 版本管理工具如 <a href="http://rvm.io/">RVM</a></p>
@@ -170,113 +204,241 @@ sum_five <span style="color:#719e07">=</span> sum <span style="color:#2aa198">5<
 <li>但是沒有隱式的型別轉換</li>
 <li>變數的 <code>scope 只有當前的 context</code>，但要注意匿名函式會讀取當前的 context，並不會一直往上查找，除非用全域變數 <code>$</code> 開頭</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span>
-x <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;123&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#f92672">=</span> <span style="color:#ae81ff">123</span>
+x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123&#34;</span>
 
-x <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span> <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;123&#34;</span> <span style="color:#586e75"># 拋錯 TypeError (String can&#39;t be coerced into Integer)</span>
+x <span style="color:#f92672">=</span> <span style="color:#ae81ff">123</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;123&#34;</span> <span style="color:#75715e"># 拋錯 TypeError (String can&#39;t be coerced into Integer)</span>
 
-sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
-<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>
-    <span style="color:#b58900">puts</span> sum <span style="color:#586e75"># 拋錯</span>
-<span style="color:#719e07">end</span>
+sum <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">func</span>
+    puts sum <span style="color:#75715e"># 拋錯</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>) { <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span> sum <span style="color:#719e07">+=</span> i } <span style="color:#586e75"># 這樣是可以的，因為 block 是用宣告當前的 context</span>
+<span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(<span style="color:#ae81ff">5</span>) { <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span> sum <span style="color:#f92672">+=</span> i } <span style="color:#75715e"># 這樣是可以的，因為 block 是用宣告當前的 context</span>
 
-$sum <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <span style="color:#586e75"># 全域變數可以</span>
-<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>
-    <span style="color:#b58900">puts</span> $sum 
-<span style="color:#719e07">end</span>
-</code></pre></div><h4 id="命名規則">命名規則</h4>
+$sum <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span> <span style="color:#75715e"># 全域變數可以</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">func</span>
+    puts $sum 
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="命名規則">命名規則</h4>
 <ol>
 <li>變數名稱常用蛇形命名法</li>
 <li>變數全大寫代表<code>常數</code>，但是常數被改會有 warning 不會有錯誤</li>
 <li>Class/Module 名稱開頭大寫</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">naming_convetion <span style="color:#719e07">=</span> <span style="color:#2aa198">123</span>
-<span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span>
-<span style="color:#cb4b16">FIVE</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">4</span> <span style="color:#586e75">#  warning: already initialized constant X</span>
-</code></pre></div><h4 id="symbols">Symbols</h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">naming_convetion <span style="color:#f92672">=</span> <span style="color:#ae81ff">123</span>
+<span style="color:#66d9ef">FIVE</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
+<span style="color:#66d9ef">FIVE</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span> <span style="color:#75715e">#  warning: already initialized constant X</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="symbols">Symbols</h4>
 <p>建立唯一且不可變的物件，用 <code>:</code> 開頭，重複宣告都會指向同一份記憶體位置 (<code>透過 object_id 識別</code>)，而字串每一次宣告都會在記憶體產生新的一份 String Object，如果是要單純用來識別 Symbol 效能會比 String 好上很多喔</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">hello <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
-world <span style="color:#719e07">=</span> <span style="color:#2aa198">:hello</span>
-<span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
-<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id <span style="color:#586e75">#true</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">hello <span style="color:#f92672">=</span> <span style="color:#e6db74">:hello</span>
+world <span style="color:#f92672">=</span> <span style="color:#e6db74">:hello</span>
+puts hello <span style="color:#f92672">==</span> world
+puts hello<span style="color:#f92672">.</span>object_id <span style="color:#f92672">==</span> world<span style="color:#f92672">.</span>object_id <span style="color:#75715e">#true</span>
 
-hello <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
-world <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
-<span style="color:#b58900">puts</span> hello <span style="color:#719e07">==</span> world
-<span style="color:#b58900">puts</span> hello<span style="color:#719e07">.</span>object_id <span style="color:#719e07">==</span> world<span style="color:#719e07">.</span>object_id <span style="color:#586e75">#false</span>
-</code></pre></div><h4 id="hash">Hash</h4>
+hello <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+world <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+puts hello <span style="color:#f92672">==</span> world
+puts hello<span style="color:#f92672">.</span>object_id <span style="color:#f92672">==</span> world<span style="color:#f92672">.</span>object_id <span style="color:#75715e">#false</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="hash">Hash</h4>
 <p>Ruby 有 Hash，可以用 <code>=&gt; 或 :</code> 分隔 key value，但是兩者有很大的差異</p>
 <ol>
 <li>=&gt; 非常的自由，key 值可以是任意的值</li>
 <li>: 的 key 只能是 symbol，如果放字串會直接轉成 symbol<br>
 要非常小心 <code>string 跟 symbol</code> 是不同的，實作上很容易踩到這個坑</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#719e07">=</span> { <span style="color:#2aa198">&#34;123&#34;</span>: <span style="color:#2aa198">&#34;123&#34;</span> }
-b <span style="color:#719e07">=</span> { <span style="color:#2aa198">&#34;123&#34;</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;123&#34;</span> }
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#f92672">=</span> { <span style="color:#e6db74">&#34;123&#34;</span>: <span style="color:#e6db74">&#34;123&#34;</span> }
+b <span style="color:#f92672">=</span> { <span style="color:#e6db74">&#34;123&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;123&#34;</span> }
 
-<span style="color:#b58900">puts</span> a<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># nil</span>
-<span style="color:#b58900">puts</span> a<span style="color:#719e07">[</span><span style="color:#2aa198">:&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># &#34;123&#34;</span>
-<span style="color:#b58900">puts</span> b<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># &#34;123&#34;</span>
-<span style="color:#b58900">puts</span> b<span style="color:#719e07">[</span><span style="color:#2aa198">:&#34;123&#34;</span><span style="color:#719e07">]</span> <span style="color:#586e75"># nil</span>
-</code></pre></div><h3 id="ruby-中幾乎都是物件有內建很多便利的方法">Ruby 中幾乎都是物件，有內建很多便利的方法</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
-<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>methods <span style="color:#586e75"># 列出所有 Integer 包含的 method</span>
-<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>odd? <span style="color:#586e75"># 是不是偶數</span>
-<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>class <span style="color:#586e75"># 類別</span>
-<span style="color:#b58900">puts</span> x<span style="color:#719e07">.</span>to_s <span style="color:#586e75"># 轉成字串</span>
-</code></pre></div><h4 id="陣列">陣列</h4>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>,<span style="color:#2aa198">4</span>,<span style="color:#2aa198">5</span><span style="color:#719e07">]</span>
+puts a<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">]</span> <span style="color:#75715e"># nil</span>
+puts a<span style="color:#f92672">[</span><span style="color:#e6db74">:&#34;123&#34;</span><span style="color:#f92672">]</span> <span style="color:#75715e"># &#34;123&#34;</span>
+puts b<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;123&#34;</span><span style="color:#f92672">]</span> <span style="color:#75715e"># &#34;123&#34;</span>
+puts b<span style="color:#f92672">[</span><span style="color:#e6db74">:&#34;123&#34;</span><span style="color:#f92672">]</span> <span style="color:#75715e"># nil</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="ruby-中幾乎都是物件有內建很多便利的方法">Ruby 中幾乎都是物件，有內建很多便利的方法</h3>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+puts x<span style="color:#f92672">.</span>methods <span style="color:#75715e"># 列出所有 Integer 包含的 method</span>
+puts x<span style="color:#f92672">.</span>odd? <span style="color:#75715e"># 是不是偶數</span>
+puts x<span style="color:#f92672">.</span>class <span style="color:#75715e"># 類別</span>
+puts x<span style="color:#f92672">.</span>to_s <span style="color:#75715e"># 轉成字串</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="陣列">陣列</h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span><span style="color:#f92672">]</span>
 
-<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>include?(<span style="color:#2aa198">2</span>)
-<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>push <span style="color:#2aa198">0</span>
-<span style="color:#b58900">puts</span> arr<span style="color:#719e07">.</span>pop
-</code></pre></div><h3 id="loop--control-flow">loop / control flow</h3>
+puts arr<span style="color:#f92672">.</span>include?(<span style="color:#ae81ff">2</span>)
+puts arr<span style="color:#f92672">.</span>push <span style="color:#ae81ff">0</span>
+puts arr<span style="color:#f92672">.</span>pop
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="loop--control-flow">loop / control flow</h3>
 <h4 id="條件式">條件式</h4>
 <p>基本的 if / elseif / else 與三元判斷式</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
-<span style="color:#719e07">if</span> x<span style="color:#719e07">.</span>odd?
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is odd&#34;</span>
-<span style="color:#719e07">elsif</span> x<span style="color:#719e07">.</span>even?
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is even&#34;</span>
-<span style="color:#719e07">else</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;never happen&#34;</span>
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+<span style="color:#66d9ef">if</span> x<span style="color:#f92672">.</span>odd?
+  puts <span style="color:#e6db74">&#34;x is odd&#34;</span>
+<span style="color:#66d9ef">elsif</span> x<span style="color:#f92672">.</span>even?
+  puts <span style="color:#e6db74">&#34;x is even&#34;</span>
+<span style="color:#66d9ef">else</span>
+  puts <span style="color:#e6db74">&#34;never happen&#34;</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#b58900">puts</span> (x<span style="color:#719e07">.</span>odd?) ? <span style="color:#2aa198">&#34;x is odd&#34;</span><span style="color:#2aa198">:&#34;x is even&#34;</span>
-</code></pre></div><h4 id="switch-case">switch case</h4>
+puts (x<span style="color:#f92672">.</span>odd?) ? <span style="color:#e6db74">&#34;x is odd&#34;</span><span style="color:#e6db74">:&#34;x is even&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="switch-case">switch case</h4>
 <ol>
 <li>採用 case / when / else 語法，不用加 break</li>
 <li>case 如果沒有接參數，則 when 條件可以放 statement / 如果有接參數，則 when 條件放常數</li>
 <li>如果希望 case when 結果賦值給變數，可以用 when &hellip; then</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#719e07">=</span> <span style="color:#2aa198">1</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">x <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
 
-<span style="color:#719e07">case</span>
-<span style="color:#719e07">when</span> x<span style="color:#719e07">.</span>odd?
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is odd&#34;</span>
-<span style="color:#719e07">when</span> x<span style="color:#719e07">.</span>even?
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is even&#34;</span>
-<span style="color:#719e07">else</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;never happen&#34;</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">case</span>
+<span style="color:#66d9ef">when</span> x<span style="color:#f92672">.</span>odd?
+  puts <span style="color:#e6db74">&#34;x is odd&#34;</span>
+<span style="color:#66d9ef">when</span> x<span style="color:#f92672">.</span>even?
+  puts <span style="color:#e6db74">&#34;x is even&#34;</span>
+<span style="color:#66d9ef">else</span>
+  puts <span style="color:#e6db74">&#34;never happen&#34;</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#719e07">case</span> x
-<span style="color:#719e07">when</span> <span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#2aa198">10</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is in 1 to 10&#34;</span>
-<span style="color:#719e07">else</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;x is not in 1 to 10&#34;</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">case</span> x
+<span style="color:#66d9ef">when</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>
+  puts <span style="color:#e6db74">&#34;x is in 1 to 10&#34;</span>
+<span style="color:#66d9ef">else</span>
+  puts <span style="color:#e6db74">&#34;x is not in 1 to 10&#34;</span>
+<span style="color:#66d9ef">end</span>
 
-val <span style="color:#719e07">=</span> <span style="color:#719e07">case</span> x
-<span style="color:#719e07">when</span> <span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#2aa198">10</span>
-  <span style="color:#719e07">then</span> <span style="color:#2aa198">&#34;x is in 1 to 10&#34;</span>
-<span style="color:#719e07">else</span>
-  <span style="color:#2aa198">&#34;x is not in 1 to 10&#34;</span>
-<span style="color:#719e07">end</span>
-<span style="color:#586e75"># val = &#34;x is in 1 to 10&#34;</span>
-</code></pre></div><h4 id="迴圈">迴圈</h4>
+val <span style="color:#f92672">=</span> <span style="color:#66d9ef">case</span> x
+<span style="color:#66d9ef">when</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">10</span>
+  <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#34;x is in 1 to 10&#34;</span>
+<span style="color:#66d9ef">else</span>
+  <span style="color:#e6db74">&#34;x is not in 1 to 10&#34;</span>
+<span style="color:#66d9ef">end</span>
+<span style="color:#75715e"># val = &#34;x is in 1 to 10&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="迴圈">迴圈</h4>
 <p>方式很多種</p>
 <ol>
 <li>先檢查條件的 for in / while / until</li>
@@ -284,51 +446,102 @@ val <span style="color:#719e07">=</span> <span style="color:#719e07">case</span>
 <li>Enumerable 物件可以用 each</li>
 </ol>
 <p>但<code>沒有常見 for(initialExpression; conditionExpression; incrementExpression)</code> 宣告</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#719e07">=</span> <span style="color:#719e07">[</span><span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>,<span style="color:#2aa198">4</span>,<span style="color:#2aa198">5</span><span style="color:#719e07">]</span>
-i <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">arr <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span><span style="color:#f92672">]</span>
+i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
 
-<span style="color:#719e07">while</span> i <span style="color:#719e07">&lt;</span> arr<span style="color:#719e07">.</span>size <span style="color:#719e07">do</span>
-  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
-  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">while</span> i <span style="color:#f92672">&lt;</span> arr<span style="color:#f92672">.</span>size <span style="color:#66d9ef">do</span>
+  puts arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>
+  i <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+<span style="color:#66d9ef">end</span>
 
-i<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-<span style="color:#719e07">until</span> i <span style="color:#719e07">&gt;=</span> arr<span style="color:#719e07">.</span>size
-  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
-  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
-<span style="color:#719e07">end</span>
+i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">until</span> i <span style="color:#f92672">&gt;=</span> arr<span style="color:#f92672">.</span>size
+  puts arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>
+  i <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+<span style="color:#66d9ef">end</span>
 
-i<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-<span style="color:#719e07">begin</span>
-  <span style="color:#b58900">puts</span> arr<span style="color:#719e07">[</span>i<span style="color:#719e07">]</span>
-  i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span>
-<span style="color:#719e07">end</span> <span style="color:#719e07">while</span> i <span style="color:#719e07">&lt;</span> arr<span style="color:#719e07">.</span>size
+i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">begin</span>
+  puts arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>
+  i <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+<span style="color:#66d9ef">end</span> <span style="color:#66d9ef">while</span> i <span style="color:#f92672">&lt;</span> arr<span style="color:#f92672">.</span>size
 
 
-<span style="color:#719e07">for</span> i <span style="color:#719e07">in</span> arr <span style="color:#719e07">do</span>
-  <span style="color:#b58900">puts</span> i
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> arr <span style="color:#66d9ef">do</span>
+  puts i
+<span style="color:#66d9ef">end</span>
 
-arr<span style="color:#719e07">.</span>each { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span> <span style="color:#b58900">puts</span> x }
-</code></pre></div><h4 id="error-handling">Error handling</h4>
+arr<span style="color:#f92672">.</span>each { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> puts x }
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="error-handling">Error handling</h4>
 <ol>
 <li>透過 raise 拋出錯誤</li>
 <li>透過 rescue 接錯誤，可以更進階指定錯誤類型</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">begin</span>
-  <span style="color:#586e75">#... process, may raise an exception</span>
-  <span style="color:#719e07">raise</span> <span style="color:#cb4b16">ArgumentError</span>
-<span style="color:#719e07">rescue</span> <span style="color:#cb4b16">ArgumentError</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;ArgumentError&#34;</span>
-<span style="color:#719e07">rescue</span> <span style="color:#719e07">=&gt;</span> error
-  <span style="color:#b58900">puts</span> error
-  <span style="color:#586e75">#... error handler</span>
-<span style="color:#719e07">else</span>
-  <span style="color:#586e75">#... executes when no error</span>
-<span style="color:#719e07">ensure</span>
-  <span style="color:#586e75">#... always executed</span>
-<span style="color:#719e07">end</span>
-</code></pre></div><p>進階資料請參考 <a href="https://stackify.com/rescue-exceptions-ruby/">How to Rescue Exceptions in Ruby</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">begin</span>
+  <span style="color:#75715e">#... process, may raise an exception</span>
+  <span style="color:#66d9ef">raise</span> <span style="color:#66d9ef">ArgumentError</span>
+<span style="color:#66d9ef">rescue</span> <span style="color:#66d9ef">ArgumentError</span>
+  puts <span style="color:#e6db74">&#34;ArgumentError&#34;</span>
+<span style="color:#66d9ef">rescue</span> <span style="color:#f92672">=&gt;</span> error
+  puts error
+  <span style="color:#75715e">#... error handler</span>
+<span style="color:#66d9ef">else</span>
+  <span style="color:#75715e">#... executes when no error</span>
+<span style="color:#66d9ef">ensure</span>
+  <span style="color:#75715e">#... always executed</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>進階資料請參考 <a href="https://stackify.com/rescue-exceptions-ruby/">How to Rescue Exceptions in Ruby</a></p>
 <h3 id="function">Function</h3>
 <ol>
 <li>function 不用定義回傳值</li>
@@ -336,12 +549,23 @@ arr<span style="color:#719e07">.</span>each { <span style="color:#719e07">|</spa
 <li>預設最後一行會回傳，不用在顯示宣告 return</li>
 <li>如果呼叫的參數數量跟宣告不同會拋出錯誤</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">add</span> (a, b)
-  a <span style="color:#719e07">+</span> b <span style="color:#586e75"># 等同於 return a + b</span>
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span> (a, b)
+  a <span style="color:#f92672">+</span> b <span style="color:#75715e"># 等同於 return a + b</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#b58900">puts</span> add <span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>
-</code></pre></div><h3 id="class">Class</h3>
+puts add <span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="class">Class</h3>
 <ol>
 <li>預設 Class 名稱開頭大寫</li>
 <li>支援繼承 <code>Successor &lt; Predecessor</code></li>
@@ -357,161 +581,338 @@ arr<span style="color:#719e07">.</span>each { <span style="color:#719e07">|</spa
 <li>定義 static method 可以用 <code>def self.method</code>，或是用 <code>class &lt;&lt; self</code></li>
 <li><code>沒有 interface / method overloading / polymorphism</code></li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
-  <span style="color:#719e07">attr_accessor</span> <span style="color:#2aa198">:name</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>, age)
-    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
-    @age <span style="color:#719e07">=</span> age
-  <span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>
+  <span style="color:#66d9ef">attr_accessor</span> <span style="color:#e6db74">:name</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(name, age)
+    @name <span style="color:#f92672">=</span> name
+    @age <span style="color:#f92672">=</span> age
+  <span style="color:#66d9ef">end</span>
 
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">hello</span>
-    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;Hello, my name is </span><span style="color:#2aa198">#{</span>@name<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-  <span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hello</span>
+    puts <span style="color:#e6db74">&#34;Hello, my name is </span><span style="color:#e6db74">#{</span>@name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+  <span style="color:#66d9ef">end</span>
 
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">self</span><span style="color:#719e07">.</span><span style="color:#268bd2">show_specy</span>
-    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;we are Mammals&#34;</span>
-  <span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">self</span><span style="color:#f92672">.</span><span style="color:#a6e22e">show_specy</span>
+    puts <span style="color:#e6db74">&#34;we are Mammals&#34;</span>
+  <span style="color:#66d9ef">end</span>
 
-<span style="color:#586e75">=begin 等同於上者，此方法適和於大量定義
-</span><span style="color:#586e75">  class &lt;&lt; self
-</span><span style="color:#586e75">    def show_specy
-</span><span style="color:#586e75">        puts &#34;we are Mammals&#34;
-</span><span style="color:#586e75">    end
-</span><span style="color:#586e75">  end 
-</span><span style="color:#586e75">=end</span>
+<span style="color:#75715e">=begin 等同於上者，此方法適和於大量定義
+</span><span style="color:#75715e">  class &lt;&lt; self
+</span><span style="color:#75715e">    def show_specy
+</span><span style="color:#75715e">        puts &#34;we are Mammals&#34;
+</span><span style="color:#75715e">    end
+</span><span style="color:#75715e">  end 
+</span><span style="color:#75715e">=end</span>
 
-  <span style="color:#719e07">protected</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">my_protected_method</span>
-    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;my protected method&#34;</span>
-  <span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">protected</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">my_protected_method</span>
+    puts <span style="color:#e6db74">&#34;my protected method&#34;</span>
+  <span style="color:#66d9ef">end</span>
 
-  <span style="color:#719e07">private</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">my_little_secret</span>
-    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;private methods&#34;</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">private</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">my_little_secret</span>
+    puts <span style="color:#e6db74">&#34;private methods&#34;</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>show_specy
-p1 <span style="color:#719e07">=</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;yoyo&#34;</span>, <span style="color:#2aa198">10</span>)
-<span style="color:#b58900">puts</span> p1<span style="color:#719e07">.</span>name
-p1<span style="color:#719e07">.</span>name <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;hello&#34;</span>
-<span style="color:#586e75"># puts p1.age 對應第5點，不能直接呼叫 .age 取得 age 變數</span>
+<span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>show_specy
+p1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;yoyo&#34;</span>, <span style="color:#ae81ff">10</span>)
+puts p1<span style="color:#f92672">.</span>name
+p1<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+<span style="color:#75715e"># puts p1.age 對應第5點，不能直接呼叫 .age 取得 age 變數</span>
 
-<span style="color:#719e07">class</span> <span style="color:#268bd2">Teacher</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">Person</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>, age, major)
-    <span style="color:#719e07">super</span>(<span style="color:#b58900">name</span>, age)
-    @major <span style="color:#719e07">=</span> major
-  <span style="color:#719e07">end</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Teacher</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">Person</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(name, age, major)
+    <span style="color:#66d9ef">super</span>(name, age)
+    @major <span style="color:#f92672">=</span> major
+  <span style="color:#66d9ef">end</span>
 
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">can_access_parent_private_method</span>
-    <span style="color:#b58900">self</span><span style="color:#719e07">.</span>my_protected_method
-    my_little_secret <span style="color:#586e75"># 這樣可以讀取 parent private method</span>
-    <span style="color:#586e75">#self.my_little_secret </span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">can_access_parent_private_method</span>
+    self<span style="color:#f92672">.</span>my_protected_method
+    my_little_secret <span style="color:#75715e"># 這樣可以讀取 parent private method</span>
+    <span style="color:#75715e">#self.my_little_secret </span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-t1 <span style="color:#719e07">=</span> <span style="color:#cb4b16">Teacher</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;Mark&#34;</span>, <span style="color:#2aa198">10</span>, <span style="color:#2aa198">&#34;English&#34;</span>)
-t1<span style="color:#719e07">.</span>hello
-t1<span style="color:#719e07">.</span>can_access_parent_private_method
+t1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Teacher</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;Mark&#34;</span>, <span style="color:#ae81ff">10</span>, <span style="color:#e6db74">&#34;English&#34;</span>)
+t1<span style="color:#f92672">.</span>hello
+t1<span style="color:#f92672">.</span>can_access_parent_private_method
 
-t1<span style="color:#719e07">.</span>send <span style="color:#2aa198">:my_little_secret</span>
-t1<span style="color:#719e07">.</span>send <span style="color:#2aa198">:my_protected_method</span>
-</code></pre></div><p>Ruby 物件比想像中複雜，尤其是支援 Meta programming，進階資料可以參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-1-%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E5%A6%82%E4%BD%95%E5%AF%A6%E8%B8%90-10324ec7546d">Ruby 的繼承鍊 (1) 物件導向如何實踐</a></p>
+t1<span style="color:#f92672">.</span>send <span style="color:#e6db74">:my_little_secret</span>
+t1<span style="color:#f92672">.</span>send <span style="color:#e6db74">:my_protected_method</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Ruby 物件比想像中複雜，尤其是支援 Meta programming，進階資料可以參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-1-%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E5%A6%82%E4%BD%95%E5%AF%A6%E8%B8%90-10324ec7546d">Ruby 的繼承鍊 (1) 物件導向如何實踐</a></p>
 <h3 id="匿名函式-block--proc--lambda">匿名函式 block / Proc / lambda</h3>
 <ol>
 <li>block 代表程式碼區塊，少數 Ruby 中<code>不是物件</code>的存在，必須依附在 function 上，透過 yeild 呼叫 block 執行，單行宣告用 <code>{...}</code>，多行用 <code>do ... end</code></li>
 <li>Proc 是物件，不限制參數，return 時是代表當時的 context return，透過 proc.call 執行</li>
 <li>lambda 是特殊的 Proc，會嚴格檢查參數，return 就如同一般的 function return</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#2aa198">5</span>)<span style="color:#719e07">.</span>map {<span style="color:#719e07">|</span>ele<span style="color:#719e07">|</span> <span style="color:#b58900">puts</span> ele}
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(<span style="color:#ae81ff">5</span>)<span style="color:#f92672">.</span>map {<span style="color:#f92672">|</span>ele<span style="color:#f92672">|</span> puts ele}
 
-<span style="color:#586e75"># 可以判斷是不是有 block 被傳入，如果有則用 yeild 呼叫執行</span>
-<span style="color:#719e07">def</span> <span style="color:#268bd2">hello</span>
-  <span style="color:#719e07">if</span> <span style="color:#b58900">block_given?</span>
-    <span style="color:#719e07">yield</span>(<span style="color:#2aa198">&#34;world&#34;</span>)
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<span style="color:#75715e"># 可以判斷是不是有 block 被傳入，如果有則用 yeild 呼叫執行</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hello</span>
+  <span style="color:#66d9ef">if</span> block_given?
+    <span style="color:#66d9ef">yield</span>(<span style="color:#e6db74">&#34;world&#34;</span>)
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-hello <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;message from hello: </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-<span style="color:#719e07">end</span>
+hello <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span>
+  puts <span style="color:#e6db74">&#34;message from hello: </span><span style="color:#e6db74">#{</span>x<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#586e75"># Proc / lambda 可以儲存於變數備用</span>
-my_proc <span style="color:#719e07">=</span> <span style="color:#cb4b16">Proc</span><span style="color:#719e07">.</span>new{ <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
-  <span style="color:#719e07">return</span> <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;from proc </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#75715e"># Proc / lambda 可以儲存於變數備用</span>
+my_proc <span style="color:#f92672">=</span> <span style="color:#66d9ef">Proc</span><span style="color:#f92672">.</span>new{ <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span>
+  <span style="color:#66d9ef">return</span> puts <span style="color:#e6db74">&#34;from proc </span><span style="color:#e6db74">#{</span>x<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
 }
 
-my_lambda <span style="color:#719e07">=</span> <span style="color:#b58900">lambda</span> { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;from lambda </span><span style="color:#2aa198">#{</span>x<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+my_lambda <span style="color:#f92672">=</span> lambda { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span>
+  puts <span style="color:#e6db74">&#34;from lambda </span><span style="color:#e6db74">#{</span>x<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
 }
 
-<span style="color:#719e07">def</span> <span style="color:#268bd2">func</span>(block)
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;before call&#34;</span>
-  block<span style="color:#719e07">.</span>call(<span style="color:#2aa198">&#34;func&#34;</span>)
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;after call&#34;</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">func</span>(block)
+  puts <span style="color:#e6db74">&#34;before call&#34;</span>
+  block<span style="color:#f92672">.</span>call(<span style="color:#e6db74">&#34;func&#34;</span>)
+  puts <span style="color:#e6db74">&#34;after call&#34;</span>
+<span style="color:#66d9ef">end</span>
 
 
-func(my_lambda) <span style="color:#586e75"># before call/n from lambda func/n after call</span>
+func(my_lambda) <span style="color:#75715e"># before call/n from lambda func/n after call</span>
 
-<span style="color:#586e75"># proc 宣告於最上層 context，所以 return 時會連帶結束整個程式</span>
-func(my_proc) <span style="color:#586e75"># before call/n from proc func</span>
-</code></pre></div><h4 id="有趣的語法-symbol">有趣的語法 <code>&amp;:symbol</code></h4>
+<span style="color:#75715e"># proc 宣告於最上層 context，所以 return 時會連帶結束整個程式</span>
+func(my_proc) <span style="color:#75715e"># before call/n from proc func</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="有趣的語法-symbol">有趣的語法 <code>&amp;:symbol</code></h4>
 <p>網路上有些說法是 <code>{|x| x[:symbol]}</code> 的縮寫，讓我們看下去</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
-  <span style="color:#719e07">attr_reader</span> <span style="color:#2aa198">:name</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
-    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>
+  <span style="color:#66d9ef">attr_reader</span> <span style="color:#e6db74">:name</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(name)
+    @name <span style="color:#f92672">=</span> name
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-a <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>), <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;2222&#34;</span>) <span style="color:#719e07">]</span>
+a <span style="color:#f92672">=</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;123&#34;</span>), <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;2222&#34;</span>) <span style="color:#f92672">]</span>
 
-name_list <span style="color:#719e07">=</span> a<span style="color:#719e07">.</span>map { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span> x<span style="color:#719e07">.</span>name } <span style="color:#586e75"># 兩者相同</span>
-name_list <span style="color:#719e07">=</span> a<span style="color:#719e07">.</span>map(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:name</span>) 
-<span style="color:#b58900">p</span> name_list
-</code></pre></div><ol>
+name_list <span style="color:#f92672">=</span> a<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">.</span>name } <span style="color:#75715e"># 兩者相同</span>
+name_list <span style="color:#f92672">=</span> a<span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#e6db74">:name</span>) 
+p name_list
+</code></pre></td></tr></table>
+</div>
+</div><ol>
 <li>參數用 &amp; 開頭代表參數是以 Proc 傳入，他跟一般的參數 args是切開的</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">def</span> <span style="color:#268bd2">some_method</span>(<span style="color:#719e07">*</span>args, <span style="color:#719e07">&amp;</span>block)
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;args: </span><span style="color:#2aa198">#{</span>args<span style="color:#719e07">.</span>inspect<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-  <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;block: </span><span style="color:#2aa198">#{</span>block<span style="color:#719e07">.</span>inspect<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-<span style="color:#719e07">end</span>
-some_method(<span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>, <span style="color:#2aa198">:whatever</span>)
-<span style="color:#586e75"># args: [1,2,3, :whatever]</span>
-<span style="color:#586e75"># block: nil</span>
-some_method(<span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</span>,<span style="color:#2aa198">3</span>, <span style="color:#719e07">&amp;</span><span style="color:#2aa198">:whatever</span>)
-<span style="color:#586e75"># args: [1,2,3]</span>
-<span style="color:#586e75"># block: #&lt;Proc:0x007fd23d010da8&gt;</span>
-</code></pre></div><ol start="2">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">some_method</span>(<span style="color:#f92672">*</span>args, <span style="color:#f92672">&amp;</span>block)
+  puts <span style="color:#e6db74">&#34;args: </span><span style="color:#e6db74">#{</span>args<span style="color:#f92672">.</span>inspect<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+  puts <span style="color:#e6db74">&#34;block: </span><span style="color:#e6db74">#{</span>block<span style="color:#f92672">.</span>inspect<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#66d9ef">end</span>
+some_method(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>, <span style="color:#e6db74">:whatever</span>)
+<span style="color:#75715e"># args: [1,2,3, :whatever]</span>
+<span style="color:#75715e"># block: nil</span>
+some_method(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>, <span style="color:#f92672">&amp;</span><span style="color:#e6db74">:whatever</span>)
+<span style="color:#75715e"># args: [1,2,3]</span>
+<span style="color:#75715e"># block: #&lt;Proc:0x007fd23d010da8&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>在 Ruby 呼叫 object method 可以用 send 的方式</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span>
-  <span style="color:#719e07">attr_reader</span> <span style="color:#2aa198">:name</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
-    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
-<span style="color:#b58900">p</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>)<span style="color:#719e07">.</span>name <span style="color:#719e07">==</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>)<span style="color:#719e07">.</span>send(<span style="color:#2aa198">:name</span>)
-</code></pre></div><ol start="3">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>
+  <span style="color:#66d9ef">attr_reader</span> <span style="color:#e6db74">:name</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(name)
+    @name <span style="color:#f92672">=</span> name
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+p <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;123&#34;</span>)<span style="color:#f92672">.</span>name <span style="color:#f92672">==</span> <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;123&#34;</span>)<span style="color:#f92672">.</span>send(<span style="color:#e6db74">:name</span>)
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li>&amp;:symbol 實際上會去呼叫 :symbol#to_proc ，而在 Symbol 中有定義 to_proc 行為，也會有人去自定義 class 中的 to_proc 方法</li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">Symbol</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">to_proc</span>
-    <span style="color:#cb4b16">Proc</span><span style="color:#719e07">.</span>new <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>receiver<span style="color:#719e07">|</span>
-      receiver<span style="color:#719e07">.</span>send <span style="color:#b58900">self</span>
-    <span style="color:#719e07">end</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
-</code></pre></div><p>綜合上述，可以拆解成</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#719e07">=</span> <span style="color:#719e07">[</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;123&#34;</span>), <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;2222&#34;</span>) <span style="color:#719e07">]</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Symbol</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_proc</span>
+    <span style="color:#66d9ef">Proc</span><span style="color:#f92672">.</span>new <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>receiver<span style="color:#f92672">|</span>
+      receiver<span style="color:#f92672">.</span>send self
+    <span style="color:#66d9ef">end</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>綜合上述，可以拆解成</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">a <span style="color:#f92672">=</span> <span style="color:#f92672">[</span> <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;123&#34;</span>), <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;2222&#34;</span>) <span style="color:#f92672">]</span>
 
-<span style="color:#b58900">puts</span> a<span style="color:#719e07">.</span>map(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:name</span>)
-<span style="color:#586e75"># 可以拆解成下者</span>
-<span style="color:#b58900">puts</span> a<span style="color:#719e07">.</span>map { <span style="color:#719e07">|</span>x<span style="color:#719e07">|</span>
-  x<span style="color:#719e07">.</span>send(<span style="color:#2aa198">:name</span>)
+puts a<span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#e6db74">:name</span>)
+<span style="color:#75715e"># 可以拆解成下者</span>
+puts a<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span>
+  x<span style="color:#f92672">.</span>send(<span style="color:#e6db74">:name</span>)
 }
-</code></pre></div><p>也就是 receiver 會收到 symbol 的方法呼叫，參考自 <a href="https://stackoverflow.com/questions/1217088/what-does-mapname-mean-in-ruby">What does map(&amp;:name) mean in Ruby?</a></p>
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是 receiver 會收到 symbol 的方法呼叫，參考自 <a href="https://stackoverflow.com/questions/1217088/what-does-mapname-mean-in-ruby">What does map(&amp;:name) mean in Ruby?</a></p>
 <p>其他優秀的資訊</p>
 <ol>
 <li><a href="https://5xruby.tw/posts/discover-ruby-block">Ruby 探索：Blocks 深入淺出</a></li>
@@ -530,74 +931,149 @@ some_method(<span style="color:#2aa198">1</span>,<span style="color:#2aa198">2</
 <blockquote>
 <p>Thread releases GIL when it hits blocking I/O operations such as HTTP requests, DB queries, writing / reading from disk and even sleep</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;benchmark&#39;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">require <span style="color:#e6db74">&#39;benchmark&#39;</span>
 
-<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">1000</span>
-<span style="color:#cb4b16">PROCESS_NUM</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">2</span>
-arr <span style="color:#719e07">=</span> <span style="color:#b58900">Array</span><span style="color:#719e07">.</span>new(<span style="color:#cb4b16">ELE_AMOUNT</span>) { <span style="color:#b58900">Array</span><span style="color:#719e07">.</span>new(<span style="color:#cb4b16">ELE_AMOUNT</span>){<span style="color:#b58900">rand</span>(<span style="color:#2aa198">1</span><span style="color:#719e07">...</span><span style="color:#2aa198">9</span>)}}
+<span style="color:#66d9ef">ELE_AMOUNT</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>
+<span style="color:#66d9ef">PROCESS_NUM</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+arr <span style="color:#f92672">=</span> Array<span style="color:#f92672">.</span>new(<span style="color:#66d9ef">ELE_AMOUNT</span>) { Array<span style="color:#f92672">.</span>new(<span style="color:#66d9ef">ELE_AMOUNT</span>){rand(<span style="color:#ae81ff">1</span><span style="color:#f92672">...</span><span style="color:#ae81ff">9</span>)}}
 
-<span style="color:#cb4b16">Benchmark</span><span style="color:#719e07">.</span>bm(<span style="color:#2aa198">10</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>bm<span style="color:#719e07">|</span>
-  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;seq&#34;</span>) <span style="color:#719e07">do</span>
-    total <span style="color:#719e07">=</span> arr<span style="color:#719e07">.</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
-      sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
-    <span style="color:#719e07">end</span>
-  <span style="color:#719e07">end</span>
+<span style="color:#66d9ef">Benchmark</span><span style="color:#f92672">.</span>bm(<span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>bm<span style="color:#f92672">|</span>
+  bm<span style="color:#f92672">.</span>report(<span style="color:#e6db74">&#34;seq&#34;</span>) <span style="color:#66d9ef">do</span>
+    total <span style="color:#f92672">=</span> arr<span style="color:#f92672">.</span>reduce(<span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>sum, ele<span style="color:#f92672">|</span>
+      sum <span style="color:#f92672">+</span> ele<span style="color:#f92672">.</span>sum
+    <span style="color:#66d9ef">end</span>
+  <span style="color:#66d9ef">end</span>
 
-  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;parallel&#34;</span>) <span style="color:#719e07">do</span>
-    read, write <span style="color:#719e07">=</span> <span style="color:#cb4b16">IO</span><span style="color:#719e07">.</span>pipe
-    <span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>map <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
-      <span style="color:#cb4b16">Process</span><span style="color:#719e07">.</span>fork <span style="color:#719e07">do</span>
-        <span style="color:#b58900">p</span> i
-        step <span style="color:#719e07">=</span> (<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1</span><span style="color:#719e07">.</span><span style="color:#2aa198">0</span> <span style="color:#719e07">/</span> <span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>ceil
-        start_ele <span style="color:#719e07">=</span> step <span style="color:#719e07">*</span> (i<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>)
-        total <span style="color:#719e07">=</span> arr<span style="color:#719e07">[</span>start_ele, step<span style="color:#719e07">].</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
-          sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
-        <span style="color:#719e07">end</span>
-        write<span style="color:#719e07">.</span>puts total
-      <span style="color:#719e07">end</span>
-    <span style="color:#719e07">end</span>
-    <span style="color:#cb4b16">Process</span><span style="color:#719e07">.</span>wait
-  <span style="color:#719e07">end</span>
+  bm<span style="color:#f92672">.</span>report(<span style="color:#e6db74">&#34;parallel&#34;</span>) <span style="color:#66d9ef">do</span>
+    read, write <span style="color:#f92672">=</span> <span style="color:#66d9ef">IO</span><span style="color:#f92672">.</span>pipe
+    <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(<span style="color:#66d9ef">PROCESS_NUM</span>)<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
+      <span style="color:#66d9ef">Process</span><span style="color:#f92672">.</span>fork <span style="color:#66d9ef">do</span>
+        p i
+        step <span style="color:#f92672">=</span> (<span style="color:#66d9ef">ELE_AMOUNT</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span><span style="color:#ae81ff">0</span> <span style="color:#f92672">/</span> <span style="color:#66d9ef">PROCESS_NUM</span>)<span style="color:#f92672">.</span>ceil
+        start_ele <span style="color:#f92672">=</span> step <span style="color:#f92672">*</span> (i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+        total <span style="color:#f92672">=</span> arr<span style="color:#f92672">[</span>start_ele, step<span style="color:#f92672">].</span>reduce(<span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>sum, ele<span style="color:#f92672">|</span>
+          sum <span style="color:#f92672">+</span> ele<span style="color:#f92672">.</span>sum
+        <span style="color:#66d9ef">end</span>
+        write<span style="color:#f92672">.</span>puts total
+      <span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">Process</span><span style="color:#f92672">.</span>wait
+  <span style="color:#66d9ef">end</span>
 
-  bm<span style="color:#719e07">.</span>report(<span style="color:#2aa198">&#34;thread&#34;</span>) <span style="color:#719e07">do</span>
-    total <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>
-    threads <span style="color:#719e07">=</span> <span style="color:#719e07">[]</span>
-    <span style="color:#2aa198">1</span><span style="color:#719e07">.</span>upto(<span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>map <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
-      t <span style="color:#719e07">=</span> <span style="color:#cb4b16">Thread</span><span style="color:#719e07">.</span>new <span style="color:#719e07">do</span>
-        step <span style="color:#719e07">=</span> (<span style="color:#cb4b16">ELE_AMOUNT</span> <span style="color:#719e07">*</span> <span style="color:#2aa198">1</span><span style="color:#719e07">.</span><span style="color:#2aa198">0</span> <span style="color:#719e07">/</span> <span style="color:#cb4b16">PROCESS_NUM</span>)<span style="color:#719e07">.</span>ceil
-        start_ele <span style="color:#719e07">=</span> step <span style="color:#719e07">*</span> (i<span style="color:#719e07">-</span><span style="color:#2aa198">1</span>)
-        total <span style="color:#719e07">+=</span> arr<span style="color:#719e07">[</span>start_ele, step<span style="color:#719e07">].</span>reduce(<span style="color:#2aa198">0</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>sum, ele<span style="color:#719e07">|</span>
-          sum <span style="color:#719e07">+</span> ele<span style="color:#719e07">.</span>sum
-        <span style="color:#719e07">end</span>
-      <span style="color:#719e07">end</span>
-      threads <span style="color:#719e07">&lt;&lt;</span> t
-    <span style="color:#719e07">end</span>
-    threads<span style="color:#719e07">.</span>each(<span style="color:#719e07">&amp;</span><span style="color:#2aa198">:join</span>)
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
-</code></pre></div><ol start="3">
+  bm<span style="color:#f92672">.</span>report(<span style="color:#e6db74">&#34;thread&#34;</span>) <span style="color:#66d9ef">do</span>
+    total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    threads <span style="color:#f92672">=</span> <span style="color:#f92672">[]</span>
+    <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(<span style="color:#66d9ef">PROCESS_NUM</span>)<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
+      t <span style="color:#f92672">=</span> <span style="color:#66d9ef">Thread</span><span style="color:#f92672">.</span>new <span style="color:#66d9ef">do</span>
+        step <span style="color:#f92672">=</span> (<span style="color:#66d9ef">ELE_AMOUNT</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span><span style="color:#ae81ff">0</span> <span style="color:#f92672">/</span> <span style="color:#66d9ef">PROCESS_NUM</span>)<span style="color:#f92672">.</span>ceil
+        start_ele <span style="color:#f92672">=</span> step <span style="color:#f92672">*</span> (i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+        total <span style="color:#f92672">+=</span> arr<span style="color:#f92672">[</span>start_ele, step<span style="color:#f92672">].</span>reduce(<span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>sum, ele<span style="color:#f92672">|</span>
+          sum <span style="color:#f92672">+</span> ele<span style="color:#f92672">.</span>sum
+        <span style="color:#66d9ef">end</span>
+      <span style="color:#66d9ef">end</span>
+      threads <span style="color:#f92672">&lt;&lt;</span> t
+    <span style="color:#66d9ef">end</span>
+    threads<span style="color:#f92672">.</span>each(<span style="color:#f92672">&amp;</span><span style="color:#e6db74">:join</span>)
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li>Fiber 是類似於 goroutine 的概念，更輕量的 user space thread，主要用來非同步的排程，適用於結合 Non-blocking IO，因為 Fiber 在 Context Switch 比 Thread 更為輕量<br>
 範例來源：<a href="https://engineering.universe.com/introduction-to-concurrency-models-with-ruby-part-i-550d0dbb970">Introduction to Concurrency Models with Ruby. Part I</a></li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">EventMachine</span><span style="color:#719e07">.</span>run <span style="color:#719e07">do</span>
-  <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>new {
-    page <span style="color:#719e07">=</span> http_get(<span style="color:#2aa198">&#39;http://www.google.com/&#39;</span>)     
-    <span style="color:#719e07">if</span> page<span style="color:#719e07">.</span>response_header<span style="color:#719e07">.</span>status <span style="color:#719e07">==</span> <span style="color:#2aa198">200</span>
-      about <span style="color:#719e07">=</span> http_get(<span style="color:#2aa198">&#39;https://google.ca/search?q=universe.com&#39;</span>) 
-      <span style="color:#586e75"># ... </span>
-    <span style="color:#719e07">else</span> 
-      <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;Google is down&#34;</span>
-    <span style="color:#719e07">end</span>  
-  }<span style="color:#719e07">.</span>resume 
-<span style="color:#719e07">end</span>
-<span style="color:#719e07">def</span> <span style="color:#268bd2">http_get</span>(url)
-  current_fiber <span style="color:#719e07">=</span> <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>current
-  http <span style="color:#719e07">=</span> <span style="color:#cb4b16">EM</span><span style="color:#719e07">::</span><span style="color:#cb4b16">HttpRequest</span><span style="color:#719e07">.</span>new(url)<span style="color:#719e07">.</span>get    
-  http<span style="color:#719e07">.</span>callback { current_fiber<span style="color:#719e07">.</span>resume(http) }   
-  http<span style="color:#719e07">.</span>errback  { current_fiber<span style="color:#719e07">.</span>resume(http) }    
-  <span style="color:#cb4b16">Fiber</span><span style="color:#719e07">.</span>yield
-<span style="color:#719e07">end</span>
-</code></pre></div><ol start="4">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">EventMachine</span><span style="color:#f92672">.</span>run <span style="color:#66d9ef">do</span>
+  <span style="color:#66d9ef">Fiber</span><span style="color:#f92672">.</span>new {
+    page <span style="color:#f92672">=</span> http_get(<span style="color:#e6db74">&#39;http://www.google.com/&#39;</span>)     
+    <span style="color:#66d9ef">if</span> page<span style="color:#f92672">.</span>response_header<span style="color:#f92672">.</span>status <span style="color:#f92672">==</span> <span style="color:#ae81ff">200</span>
+      about <span style="color:#f92672">=</span> http_get(<span style="color:#e6db74">&#39;https://google.ca/search?q=universe.com&#39;</span>) 
+      <span style="color:#75715e"># ... </span>
+    <span style="color:#66d9ef">else</span> 
+      puts <span style="color:#e6db74">&#34;Google is down&#34;</span>
+    <span style="color:#66d9ef">end</span>  
+  }<span style="color:#f92672">.</span>resume 
+<span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">http_get</span>(url)
+  current_fiber <span style="color:#f92672">=</span> <span style="color:#66d9ef">Fiber</span><span style="color:#f92672">.</span>current
+  http <span style="color:#f92672">=</span> <span style="color:#66d9ef">EM</span><span style="color:#f92672">::</span><span style="color:#66d9ef">HttpRequest</span><span style="color:#f92672">.</span>new(url)<span style="color:#f92672">.</span>get    
+  http<span style="color:#f92672">.</span>callback { current_fiber<span style="color:#f92672">.</span>resume(http) }   
+  http<span style="color:#f92672">.</span>errback  { current_fiber<span style="color:#f92672">.</span>resume(http) }    
+  <span style="color:#66d9ef">Fiber</span><span style="color:#f92672">.</span>yield
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
 <li>Ruby 3.0 導入了基於 Actor 模式的 <code>Ractor</code> ，真正能做到利用 Thread 達成 Parallelism，以前會需要 GIL 是為了避免 multi thread 之下的 deadlock / race condition 狀況，但是在 Ractor 中基本上 Object 都不會被共享，參考 <a href="https://blog.golang.org/codelab-share">Share Memory By Communicating</a>
 有些文章會寫 Guild，但我查 Ruby 官方文件只有看到 Ractor</li>
 </ol>
@@ -621,30 +1097,59 @@ arr <span style="color:#719e07">=</span> <span style="color:#b58900">Array</span
 <li>使用 Mixin 要小心多個 Module 可能會有不預期的互相干擾，例如修改同一個 instance 變數，有狀態要紀錄記得取一個比較特殊的名稱</li>
 <li>如果 Module 中有 Class 宣告，要指定該 Class 可以用雙冒號 <code>::</code> 連接例如 <code>Module Name::Class Name</code></li>
 </ol>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#586e75">##### calculator.rb</span>
-<span style="color:#719e07">module</span> Greeting
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">sayhi</span>
-    <span style="color:#b58900">puts</span> <span style="color:#2aa198">&#34;hello, </span><span style="color:#2aa198">#{</span>@name<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-  <span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#75715e">##### calculator.rb</span>
+<span style="color:#66d9ef">module</span> Greeting
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sayhi</span>
+    puts <span style="color:#e6db74">&#34;hello, </span><span style="color:#e6db74">#{</span>@name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+  <span style="color:#66d9ef">end</span>
   
-  <span style="color:#719e07">class</span> <span style="color:#268bd2">Hi</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Hi</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#586e75">###### main.rb</span>
-require_relative <span style="color:#2aa198">&#39;./calculator&#39;</span>
+<span style="color:#75715e">###### main.rb</span>
+require_relative <span style="color:#e6db74">&#39;./calculator&#39;</span>
 
-<span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span> <span style="color:#719e07">&lt;</span> <span style="color:#cb4b16">Greeting</span><span style="color:#719e07">::</span><span style="color:#cb4b16">Hi</span>
-  <span style="color:#586e75"># 透過 include 達到 mixin 效果</span>
-  <span style="color:#719e07">include</span> <span style="color:#cb4b16">Greeting</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">initialize</span>(<span style="color:#b58900">name</span>)
-    @name <span style="color:#719e07">=</span> <span style="color:#b58900">name</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">Greeting</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Hi</span>
+  <span style="color:#75715e"># 透過 include 達到 mixin 效果</span>
+  <span style="color:#66d9ef">include</span> <span style="color:#66d9ef">Greeting</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(name)
+    @name <span style="color:#f92672">=</span> name
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-<span style="color:#b58900">p</span> <span style="color:#719e07">=</span> <span style="color:#cb4b16">Person</span><span style="color:#719e07">.</span>new(<span style="color:#2aa198">&#34;yoyo&#34;</span>)
-<span style="color:#b58900">p</span><span style="color:#719e07">.</span>sayhi
-</code></pre></div><p>Module 除了可以被 include 外，還有 extend 跟 prepend，請參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-2-module-%E7%9A%84-include-prepend-%E5%92%8C-extend-ae4e1c940097">Ruby 的繼承鍊 (2) — Module 的 include、prepend 和 extend</a></p>
+p <span style="color:#f92672">=</span> <span style="color:#66d9ef">Person</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">&#34;yoyo&#34;</span>)
+p<span style="color:#f92672">.</span>sayhi
+</code></pre></td></tr></table>
+</div>
+</div><p>Module 除了可以被 include 外，還有 extend 跟 prepend，請參考 <a href="https://spreered.medium.com/ruby-%E7%9A%84%E7%B9%BC%E6%89%BF%E9%8D%8A-2-module-%E7%9A%84-include-prepend-%E5%92%8C-extend-ae4e1c940097">Ruby 的繼承鍊 (2) — Module 的 include、prepend 和 extend</a></p>
 <h3 id="程式碼拆分檔案">程式碼拆分檔案</h3>
 <p>把全部程式碼塞在同一個檔案十分的可怕，透過適時的拆分可以讓程式碼更好維護，在 Ruby 中如果要 include 其他檔案的宣告，可以用 <code>require_relative '檔案本身的相對路徑'</code>的方式<br>
 目前看起來只有常數、Module、Class 會被自動 export，還再找到相關的文件說明</p>
@@ -676,32 +1181,63 @@ require_relative <span style="color:#2aa198">&#39;./calculator&#39;</span>
 <li>如果是有變數要在每一次 test case 前執行，可以用 before(:each)，或是用 <code>let(變數名稱){回傳值}</code></li>
 </ol>
 <p>以下是一個簡單的運費計算</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span>(<span style="color:#2aa198">&#39;rspec&#39;</span>)
-require_relative <span style="color:#2aa198">&#39;../calculator&#39;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">require(<span style="color:#e6db74">&#39;rspec&#39;</span>)
+require_relative <span style="color:#e6db74">&#39;../calculator&#39;</span>
 
-describe <span style="color:#cb4b16">Calculator</span> <span style="color:#719e07">do</span>
-  let(<span style="color:#2aa198">:calculator</span>) { <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new }
-  it <span style="color:#2aa198">&#39;small package should get $100 fee&#39;</span> <span style="color:#719e07">do</span>
-    expect(calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">1</span>, <span style="color:#2aa198">5</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">100</span>)
-  <span style="color:#719e07">end</span>
+describe <span style="color:#66d9ef">Calculator</span> <span style="color:#66d9ef">do</span>
+  let(<span style="color:#e6db74">:calculator</span>) { <span style="color:#66d9ef">Calculator</span><span style="color:#f92672">.</span>new }
+  it <span style="color:#e6db74">&#39;small package should get $100 fee&#39;</span> <span style="color:#66d9ef">do</span>
+    expect(calculator<span style="color:#f92672">.</span>fee(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">5</span>))<span style="color:#f92672">.</span>to eq(<span style="color:#ae81ff">100</span>)
+  <span style="color:#66d9ef">end</span>
 
-  it <span style="color:#2aa198">&#39;medium size should get $500 fee&#39;</span> <span style="color:#719e07">do</span>
-    expect(calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">10</span>, <span style="color:#2aa198">5</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">500</span>)
-  <span style="color:#719e07">end</span>
+  it <span style="color:#e6db74">&#39;medium size should get $500 fee&#39;</span> <span style="color:#66d9ef">do</span>
+    expect(calculator<span style="color:#f92672">.</span>fee(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">5</span>))<span style="color:#f92672">.</span>to eq(<span style="color:#ae81ff">500</span>)
+  <span style="color:#66d9ef">end</span>
 
-  before <span style="color:#719e07">do</span>
-    @calculator <span style="color:#719e07">=</span> <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new
-  <span style="color:#719e07">end</span>
-  around <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>t<span style="color:#719e07">|</span>
-    <span style="color:#b58900">p</span> <span style="color:#2aa198">&#34;before each test&#34;</span>
-    t<span style="color:#719e07">.</span>run
-    <span style="color:#b58900">p</span> <span style="color:#2aa198">&#34;after each test&#34;</span>
-  <span style="color:#719e07">end</span>
-  it <span style="color:#2aa198">&#39;large size should get $700 fee&#39;</span> <span style="color:#719e07">do</span>
-    expect(@calculator<span style="color:#719e07">.</span>fee(<span style="color:#2aa198">100</span>, <span style="color:#2aa198">10</span>))<span style="color:#719e07">.</span>to eq(<span style="color:#2aa198">750</span>)
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
-</code></pre></div><h3 id="stub--mock--spy">Stub / Mock / Spy</h3>
+  before <span style="color:#66d9ef">do</span>
+    @calculator <span style="color:#f92672">=</span> <span style="color:#66d9ef">Calculator</span><span style="color:#f92672">.</span>new
+  <span style="color:#66d9ef">end</span>
+  around <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>t<span style="color:#f92672">|</span>
+    p <span style="color:#e6db74">&#34;before each test&#34;</span>
+    t<span style="color:#f92672">.</span>run
+    p <span style="color:#e6db74">&#34;after each test&#34;</span>
+  <span style="color:#66d9ef">end</span>
+  it <span style="color:#e6db74">&#39;large size should get $700 fee&#39;</span> <span style="color:#66d9ef">do</span>
+    expect(@calculator<span style="color:#f92672">.</span>fee(<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">10</span>))<span style="color:#f92672">.</span>to eq(<span style="color:#ae81ff">750</span>)
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="stub--mock--spy">Stub / Mock / Spy</h3>
 <p>RSpec 提供 mock 方法叫做 double (出自於 stunt double 演員替身)</p>
 <ol>
 <li>double 可以憑空產生物件，可以自定義 function 與回傳值</li>
@@ -711,83 +1247,173 @@ describe <span style="color:#cb4b16">Calculator</span> <span style="color:#719e0
 <li>因為是動態語言，所以要 &ldquo;double(string)&rdquo; 等方法都是可以的</li>
 </ol>
 <p>運費計算加上一個 VIP 檢查</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#719e07">class</span> <span style="color:#268bd2">VIP_Service</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">is_vip?</span>
-    <span style="color:#719e07">raise</span> <span style="color:#2aa198">&#34;do some query&#34;</span>
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">VIP_Service</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_vip?</span>
+    <span style="color:#66d9ef">raise</span> <span style="color:#e6db74">&#34;do some query&#34;</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
 describe 
-  let(<span style="color:#2aa198">:calculator</span>) <span style="color:#719e07">do</span>
-    vip_service <span style="color:#719e07">=</span> <span style="color:#cb4b16">VIP_Service</span><span style="color:#719e07">.</span>new
-    <span style="color:#586e75"># 這裡透過 mock 動態改變</span>
-    allow(vip_service)<span style="color:#719e07">.</span>to receive(<span style="color:#2aa198">:is_vip?</span>)<span style="color:#719e07">.</span>and_return(<span style="color:#719e07">false</span>)
-    <span style="color:#cb4b16">Calculator</span><span style="color:#719e07">.</span>new(vip_service)
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span> 
-</code></pre></div><p>spy 的案例請看官方文件範例</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rspec&#39;</span>
+  let(<span style="color:#e6db74">:calculator</span>) <span style="color:#66d9ef">do</span>
+    vip_service <span style="color:#f92672">=</span> <span style="color:#66d9ef">VIP_Service</span><span style="color:#f92672">.</span>new
+    <span style="color:#75715e"># 這裡透過 mock 動態改變</span>
+    allow(vip_service)<span style="color:#f92672">.</span>to receive(<span style="color:#e6db74">:is_vip?</span>)<span style="color:#f92672">.</span>and_return(<span style="color:#66d9ef">false</span>)
+    <span style="color:#66d9ef">Calculator</span><span style="color:#f92672">.</span>new(vip_service)
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span> 
+</code></pre></td></tr></table>
+</div>
+</div><p>spy 的案例請看官方文件範例</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">require <span style="color:#e6db74">&#39;rspec&#39;</span>
 
-<span style="color:#719e07">class</span> <span style="color:#268bd2">Invitation</span>
-  <span style="color:#719e07">def</span> <span style="color:#268bd2">deliver</span>(email)
-    <span style="color:#b58900">p</span> email
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Invitation</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">deliver</span>(email)
+    p email
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
 
-describe <span style="color:#2aa198">&#34;Invitation&#34;</span> <span style="color:#719e07">do</span>
-  let(<span style="color:#2aa198">:invitation</span>) { spy(<span style="color:#2aa198">&#34;invitation&#34;</span>) }
+describe <span style="color:#e6db74">&#34;Invitation&#34;</span> <span style="color:#66d9ef">do</span>
+  let(<span style="color:#e6db74">:invitation</span>) { spy(<span style="color:#e6db74">&#34;invitation&#34;</span>) }
 
-  before <span style="color:#719e07">do</span>
-    invitation<span style="color:#719e07">.</span>deliver(<span style="color:#2aa198">&#34;foo@example.com&#34;</span>)
-    invitation<span style="color:#719e07">.</span>deliver(<span style="color:#2aa198">&#34;bar@example.com&#34;</span>)
-  <span style="color:#719e07">end</span>
+  before <span style="color:#66d9ef">do</span>
+    invitation<span style="color:#f92672">.</span>deliver(<span style="color:#e6db74">&#34;foo@example.com&#34;</span>)
+    invitation<span style="color:#f92672">.</span>deliver(<span style="color:#e6db74">&#34;bar@example.com&#34;</span>)
+  <span style="color:#66d9ef">end</span>
 
-  it <span style="color:#2aa198">&#34;passes when a count constraint is satisfied&#34;</span> <span style="color:#719e07">do</span>
-    <span style="color:#586e75"># 透過 have_recieved 看方法有沒有被呼叫</span>
-    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>twice
-  <span style="color:#719e07">end</span>
+  it <span style="color:#e6db74">&#34;passes when a count constraint is satisfied&#34;</span> <span style="color:#66d9ef">do</span>
+    <span style="color:#75715e"># 透過 have_recieved 看方法有沒有被呼叫</span>
+    expect(invitation)<span style="color:#f92672">.</span>to have_received(<span style="color:#e6db74">:deliver</span>)<span style="color:#f92672">.</span>twice
+  <span style="color:#66d9ef">end</span>
 
-  it <span style="color:#2aa198">&#34;passes when an order constraint is satisifed&#34;</span> <span style="color:#719e07">do</span>
-  <span style="color:#586e75"># 加上 with 檢查方法呼叫時傳入的參數</span>
-  <span style="color:#586e75"># 加上 ordered 代表要按照此順序呼叫</span>
-    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;foo@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
-    expect(invitation)<span style="color:#719e07">.</span>to have_received(<span style="color:#2aa198">:deliver</span>)<span style="color:#719e07">.</span>with(<span style="color:#2aa198">&#34;bar@example.com&#34;</span>)<span style="color:#719e07">.</span>ordered
-  <span style="color:#719e07">end</span>
-<span style="color:#719e07">end</span>
-</code></pre></div><h2 id="http-request--api-server">HTTP Request &amp; API Server</h2>
+  it <span style="color:#e6db74">&#34;passes when an order constraint is satisifed&#34;</span> <span style="color:#66d9ef">do</span>
+  <span style="color:#75715e"># 加上 with 檢查方法呼叫時傳入的參數</span>
+  <span style="color:#75715e"># 加上 ordered 代表要按照此順序呼叫</span>
+    expect(invitation)<span style="color:#f92672">.</span>to have_received(<span style="color:#e6db74">:deliver</span>)<span style="color:#f92672">.</span>with(<span style="color:#e6db74">&#34;foo@example.com&#34;</span>)<span style="color:#f92672">.</span>ordered
+    expect(invitation)<span style="color:#f92672">.</span>to have_received(<span style="color:#e6db74">:deliver</span>)<span style="color:#f92672">.</span>with(<span style="color:#e6db74">&#34;bar@example.com&#34;</span>)<span style="color:#f92672">.</span>ordered
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="http-request--api-server">HTTP Request &amp; API Server</h2>
 <p>Ruby 並沒有提供 http server 的封裝，只有 tcp server，所以我們選用 <a href="https://github.com/rack/rack">Rack</a> 這一套 library，他被 Ruby 生態圈廣泛採用的底層框架，如 RoR 也是</p>
 <blockquote>
 <p>Rack provides a minimal, modular, and adaptable interface for developing web applications in Ruby.</p>
 </blockquote>
 <h3 id="api-server">API Server</h3>
 <p>新增 server.ru，透過 <code>$rackup server.ru</code> 啟動</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;rack&#39;</span>
-<span style="color:#b58900">require</span> <span style="color:#2aa198">&#39;json&#39;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">require <span style="color:#e6db74">&#39;rack&#39;</span>
+require <span style="color:#e6db74">&#39;json&#39;</span>
 
-rack_proc <span style="color:#719e07">=</span> <span style="color:#b58900">lambda</span> { <span style="color:#719e07">|</span>env<span style="color:#719e07">|</span>
-  req <span style="color:#719e07">=</span> <span style="color:#cb4b16">Rack</span><span style="color:#719e07">::</span><span style="color:#cb4b16">Request</span><span style="color:#719e07">.</span>new(env)
+rack_proc <span style="color:#f92672">=</span> lambda { <span style="color:#f92672">|</span>env<span style="color:#f92672">|</span>
+  req <span style="color:#f92672">=</span> <span style="color:#66d9ef">Rack</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Request</span><span style="color:#f92672">.</span>new(env)
 
-  <span style="color:#719e07">case</span> req<span style="color:#719e07">.</span>request_method <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;:&#34;</span> <span style="color:#719e07">+</span> req<span style="color:#719e07">.</span>path_info
-  <span style="color:#719e07">when</span> <span style="color:#2aa198">&#34;GET:/hello&#34;</span>
-    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">200</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;application/json&#34;</span> }, <span style="color:#719e07">[</span> { <span style="color:#2aa198">&#34;hello&#34;</span> <span style="color:#719e07">=&gt;</span> req<span style="color:#719e07">.</span>params<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;name&#34;</span><span style="color:#719e07">]</span> }<span style="color:#719e07">.</span>to_json <span style="color:#719e07">]]</span>
-  <span style="color:#719e07">when</span> <span style="color:#2aa198">&#34;POST:/world&#34;</span>
-    body <span style="color:#719e07">=</span> <span style="color:#cb4b16">JSON</span><span style="color:#719e07">.</span>parse req<span style="color:#719e07">.</span>body<span style="color:#719e07">.</span>gets
-    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">200</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;application/json&#34;</span> }, <span style="color:#719e07">[</span> { <span style="color:#2aa198">&#34;hello&#34;</span> <span style="color:#719e07">=&gt;</span> body<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;name&#34;</span><span style="color:#719e07">]</span>}<span style="color:#719e07">.</span>to_json <span style="color:#719e07">]]</span>
-  <span style="color:#719e07">else</span>
-    <span style="color:#719e07">return</span> <span style="color:#719e07">[</span><span style="color:#2aa198">406</span>, { <span style="color:#2aa198">&#34;content-type&#34;</span><span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;html/txt&#34;</span> }, <span style="color:#719e07">[</span><span style="color:#2aa198">&#39;not_implemented_yet&#39;</span><span style="color:#719e07">]]</span>
-  <span style="color:#719e07">end</span>
+  <span style="color:#66d9ef">case</span> req<span style="color:#f92672">.</span>request_method <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;:&#34;</span> <span style="color:#f92672">+</span> req<span style="color:#f92672">.</span>path_info
+  <span style="color:#66d9ef">when</span> <span style="color:#e6db74">&#34;GET:/hello&#34;</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">200</span>, { <span style="color:#e6db74">&#34;content-type&#34;</span><span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;application/json&#34;</span> }, <span style="color:#f92672">[</span> { <span style="color:#e6db74">&#34;hello&#34;</span> <span style="color:#f92672">=&gt;</span> req<span style="color:#f92672">.</span>params<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> }<span style="color:#f92672">.</span>to_json <span style="color:#f92672">]]</span>
+  <span style="color:#66d9ef">when</span> <span style="color:#e6db74">&#34;POST:/world&#34;</span>
+    body <span style="color:#f92672">=</span> <span style="color:#66d9ef">JSON</span><span style="color:#f92672">.</span>parse req<span style="color:#f92672">.</span>body<span style="color:#f92672">.</span>gets
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">200</span>, { <span style="color:#e6db74">&#34;content-type&#34;</span><span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;application/json&#34;</span> }, <span style="color:#f92672">[</span> { <span style="color:#e6db74">&#34;hello&#34;</span> <span style="color:#f92672">=&gt;</span> body<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span>}<span style="color:#f92672">.</span>to_json <span style="color:#f92672">]]</span>
+  <span style="color:#66d9ef">else</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">406</span>, { <span style="color:#e6db74">&#34;content-type&#34;</span><span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;html/txt&#34;</span> }, <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;not_implemented_yet&#39;</span><span style="color:#f92672">]]</span>
+  <span style="color:#66d9ef">end</span>
 }
 run rack_proc
-</code></pre></div><h3 id="http-request">HTTP Request</h3>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="http-request">HTTP Request</h3>
 <p>參考 <a href="https://www.twilio.com/blog/5-ways-make-http-requests-ruby">5 ways to make HTTP requests in Ruby</a></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#b58900">require</span> <span style="color:#2aa198">&#34;http&#34;</span>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">require <span style="color:#e6db74">&#34;http&#34;</span>
 
-response <span style="color:#719e07">=</span> <span style="color:#cb4b16">HTTP</span><span style="color:#719e07">.</span>get(<span style="color:#2aa198">&#34;http://localhost:9292/hello&#34;</span>, <span style="color:#2aa198">:params</span> <span style="color:#719e07">=&gt;</span> {<span style="color:#2aa198">:name</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;world&#34;</span>})
-<span style="color:#b58900">p</span> response<span style="color:#719e07">.</span>parse
+response <span style="color:#f92672">=</span> <span style="color:#66d9ef">HTTP</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:9292/hello&#34;</span>, <span style="color:#e6db74">:params</span> <span style="color:#f92672">=&gt;</span> {<span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;world&#34;</span>})
+p response<span style="color:#f92672">.</span>parse
 
-response <span style="color:#719e07">=</span> <span style="color:#cb4b16">HTTP</span><span style="color:#719e07">.</span>post(<span style="color:#2aa198">&#34;http://localhost:9292/world&#34;</span>, <span style="color:#2aa198">:body</span> <span style="color:#719e07">=&gt;</span> {<span style="color:#2aa198">:name</span> <span style="color:#719e07">=&gt;</span> <span style="color:#2aa198">&#34;jojo&#34;</span> }<span style="color:#719e07">.</span>to_json)
-<span style="color:#b58900">p</span> response<span style="color:#719e07">.</span>parse
-</code></pre></div><h2 id="結語">結語</h2>
+response <span style="color:#f92672">=</span> <span style="color:#66d9ef">HTTP</span><span style="color:#f92672">.</span>post(<span style="color:#e6db74">&#34;http://localhost:9292/world&#34;</span>, <span style="color:#e6db74">:body</span> <span style="color:#f92672">=&gt;</span> {<span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;jojo&#34;</span> }<span style="color:#f92672">.</span>to_json)
+p response<span style="color:#f92672">.</span>parse
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="結語">結語</h2>
 <p>寫過最長的文章，整理了這一個禮拜上手 Ruby 的過程，Ruby 實際上還有非常多的 <code>黑魔法</code>，跟新同事們一起上手的過程不斷發現驚喜(恐?!)<br>
 必須坦白說上手到現在沒有很愛 Ruby，因為太自由了，又有太多關鍵字跟寫法，可能要在一段時間熟悉，之後再來慢慢補充</p>
 
