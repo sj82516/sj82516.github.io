@@ -90,7 +90,7 @@
 <p>Given an array of positive integers nums and a positive integer target, return the <code>minimal length</code> of a <code>contiguous subarray</code></p>
 </blockquote>
 <h3 id="暴力解-1-窮舉子陣列的可能">暴力解 1: 窮舉子陣列的可能</h3>
-<p>再進入滑動視窗前，先看暴力解的思考方式，今天 209 「給定一個陣列與一個目標，想要在陣列中找到一段連續的子陣列加總等於目標，如果找不到則回傳 0」<br>
+<p>再進入滑動視窗前，先看暴力解的思考方式，今天 209 「給定一個陣列與一個目標，想要在陣列中找到一段連續的子陣列加總 &gt;= 目標，如果找不到則回傳 0」<br>
 既然是要找子陣列，那最直接暴力 n * n 展開，如</p>
 <div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">[1,2,3,4] 的所有子陣列組合有 
 [1], [1, 2], [1, 2, 3], [1, 2, 3, 4]
