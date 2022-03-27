@@ -76,15 +76,8 @@
 	</div>
 	<div class="markdown">
 		<p>Nodejs底層是事件驅動，透過 Event Loop處理非同步(non-blocking)操作，讓費時的I/O操作可以交由libuv去呼叫系統事件驅動的 system api或是用 multi thread方式處理，而Main thread則持續處理request或其他運算。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// copy from nodejs 官網   ┌───────────────────────────┐┌─&gt;│           timers          ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │     pending callbacks     ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │       idle, prepare       │   (internal use)│  └─────────────┬─────────────┘      ┌───────────────┐│  ┌─────────────┴─────────────┐      │   incoming:   ││  │           poll            │&lt;─────┤  connections, ││  └─────────────┬─────────────┘      │   data, etc.  ││  ┌─────────────┴─────────────┐      └───────────────┘│  │           check           ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐└──┤      close callbacks      │   └───────────────────────────┘
-</code></pre></td></tr></table>
-</div>
-</div><p>簡而言之，Event Loop有許多不同的階段(phase)，每個phase 是個陣列，當完成非同步操作後，會對應將 callback task push到 phase中；<br>
+<pre><code>// copy from nodejs 官網   ┌───────────────────────────┐┌─&gt;│           timers          ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │     pending callbacks     ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐│  │       idle, prepare       │   (internal use)│  └─────────────┬─────────────┘      ┌───────────────┐│  ┌─────────────┴─────────────┐      │   incoming:   ││  │           poll            │&lt;─────┤  connections, ││  └─────────────┬─────────────┘      │   data, etc.  ││  ┌─────────────┴─────────────┐      └───────────────┘│  │           check           ││  └─────────────┬─────────────┘│  ┌─────────────┴─────────────┐└──┤      close callbacks      │   └───────────────────────────┘
+</code></pre><p>簡而言之，Event Loop有許多不同的階段(phase)，每個phase 是個陣列，當完成非同步操作後，會對應將 callback task push到 phase中；<br>
 Nodejs會不斷的輪詢 Event Loop並<code>同步執行callback task</code>，直到 Event Loop上都沒有 task且 Main thread也都執行完成，就會退出。</p>
 <p>Nodejs一些非同步操作對應的 phase如下<br>
 1.<code>setTimeout</code> 屬於 timers <br>
@@ -151,22 +144,7 @@ User 1 &lt;-&gt; n Comment m &lt;-&gt; 1 Post，User可以在Post下發布 Comme
 <h3 id="graphql-n1問題">Graphql N+1問題</h3>
 <p>但是在讀取巢狀資料的過程中，Graphql會發生N+1問題，例如取得所有用戶下的所有文章<code>{User{Post}}</code> ，這時候因為架構設計的關係，Graphql會先讀取所有的User，接著再針對個別User去讀取Post；<br>
 所以資料庫讀取會變成 1 次讀取全部 User + N次個別User讀取Post，例如</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">SELECT \* FROM User; --&gt; 回傳了 [1,2,3,4]  
+<pre><code>SELECT \* FROM User; --&gt; 回傳了 [1,2,3,4]  
 SELECT \* FROM Post WHERE user_id = 1;  
 SELECT \* FROM Post WHERE user_id = 2;  
 ....
@@ -177,9 +155,7 @@ SELECT \* FROM Post WHERE user_id in (1,2,3,4);
 
 \---&gt; 最理想  
 SELECT \* FROM User LEFT JOIN Post on Post.userId = User.id;
-</code></pre></td></tr></table>
-</div>
-</div><p>而dataloader提供的解法相當美妙，在應用層稍作改變，不影響原本graphql / 不干涉資料庫操作，將 N+1進化成第二優化的查詢條件。</p>
+</code></pre><p>而dataloader提供的解法相當美妙，在應用層稍作改變，不影響原本graphql / 不干涉資料庫操作，將 N+1進化成第二優化的查詢條件。</p>
 <h3 id="dataloader-介紹">dataloader 介紹</h3>
 <p>dataloader作者</p>
 <p><a href="https://github.com/facebook/dataloader">dataloader</a> 主要做兩件事 <code>batch</code> &amp; <code>cache</code> ，因為在處理 http request上，為了上資料不過期，大多不會用上 cache，所以這裡僅介紹 batch。<br>
@@ -412,25 +388,13 @@ dataloader內部透過 <code>enqueuePostPromiseJob</code> 機制，將一個執�
 最後內部呼叫 <code>dispatchQueueBatch</code> ，也就是實際調用 <code>customBatchLoader</code> 的地方，最後 resolve 當初宣告的 <code>loader.load()</code> 。</p>
 <h4 id="dataloader簡單範例">dataloader簡單範例</h4>
 <p>打印結果，注意 setTimeout會在下一個loop執行，而Promise.resolve()則在同一個 phase被處理掉。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">batched by dataloader: [ 1, 2, 3, 5 ]  
+<pre><code>batched by dataloader: [ 1, 2, 3, 5 ]  
 content: [ 1, 2, 3, 5 ]  
 1 got 2  
 [2,3] got [ 3, 4 ]  
 batched by dataloader: [ 4 ]  
 content: [ 4 ]
-</code></pre></td></tr></table>
-</div>
-</div><p>對應我們要解決的N+1問題，因為Graphql怎麼處理底層呼叫算是個黑盒子，以下是大概示意</p>
+</code></pre><p>對應我們要解決的N+1問題，因為Graphql怎麼處理底層呼叫算是個黑盒子，以下是大概示意</p>
 <p>1. 原本Graphql的 N + 1問題</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -538,6 +502,8 @@ console.log (4);<br>
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

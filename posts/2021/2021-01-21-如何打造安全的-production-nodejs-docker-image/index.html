@@ -76,30 +76,7 @@
 	</div>
 	<div class="markdown">
 		<p>要打造一個「可以動的 Docker Image」很簡單，參考 Node.js 官方文件 <a href="https://node.js.org/en/docs/guides/node.js-docker-webapp/">Dockerizing a Node.js web app</a> 就可以產出一個將近 <code>1GB</code> 的 Docker Image</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">FROM node:14
+<pre><code>FROM node:14
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -117,10 +94,8 @@ RUN npm install
 COPY . .
 
 EXPOSE 8080
-CMD [ &#34;node&#34;, &#34;server.js&#34; ]
-</code></pre></td></tr></table>
-</div>
-</div><p>就開始想</p>
+CMD [ &quot;node&quot;, &quot;server.js&quot; ]
+</code></pre><p>就開始想</p>
 <ol>
 <li>這樣安全嗎？</li>
 <li>可以打造更輕量、更好 ship 的 Image 嗎？</li>
@@ -135,27 +110,14 @@ CMD [ &#34;node&#34;, &#34;server.js&#34; ]
 <li>用 sha256 指定 base image 版本避免異動</li>
 <li>支援多階段，可以前期 build 用比較大的 base image，最後產出在使用精簡的 base image</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">FROM node:latest AS build
+<pre><code>FROM node:latest AS build
 ....
 # --------------&gt; The production image
 FROM node:lts-alpine@sha256:b2da3316acdc2bec442190a1fe10dc094e7ba4121d029cb32075ff59bb27390a
 ....
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 ....
-</code></pre></td></tr></table>
-</div>
-</div></blockquote>
+</code></pre></blockquote>
 <p>進入 docker hub node.js 官方 image，可以看到玲琅滿目的版本，除了對應不同的 node.js 版本，底層的 os 可以分成幾種</p>
 <ol>
 <li>stretch: 基於 debian 9</li>
@@ -183,28 +145,12 @@ COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 <h2 id="4-正確接收程序中斷事件與優雅地退出">4. 正確接收程序中斷事件與優雅地退出</h2>
 <blockquote>
 <p>採用 dump-init 直接啟動 Node.js process</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">RUN apk add dumb-init
-CMD [&#34;dumb-init&#34;, &#34;node&#34;, &#34;server.js&#34;]
-</code></pre></td></tr></table>
-</div>
-</div><p>並記得在 Node.js 中偵測事件</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">process.on(&#39;SIGINT&#39;, closeGracefully)
-process.on(&#39;SIGTERM&#39;, closeGracefully)
-</code></pre></td></tr></table>
-</div>
-</div></blockquote>
+<pre><code>RUN apk add dumb-init
+CMD [&quot;dumb-init&quot;, &quot;node&quot;, &quot;server.js&quot;]
+</code></pre><p>並記得在 Node.js 中偵測事件</p>
+<pre><code>process.on('SIGINT', closeGracefully)
+process.on('SIGTERM', closeGracefully)
+</code></pre></blockquote>
 <p>伺服器長時間運行時，總會遇到版本更新的時候，最理想的做法是讓中斷流量並讓程序完成剩餘工作後優雅退出，但如果採用的方式錯誤 Docker Container 會無法收到系統中斷的事件 <code>SIGKILL</code> 、<code>SIGTERM</code> 等</p>
 <p>以下是幾種常見的 Container 執行指令，但分別有一些問題</p>
 <h4 id="1-cmd-npm-start">1. CMD &ldquo;npm&rdquo; &ldquo;start&rdquo;</h4>
@@ -230,15 +176,8 @@ process.on(&#39;SIGTERM&#39;, closeGracefully)
 <h2 id="5-正確處理-build-階段使用的機敏資料">5. 正確處理 Build 階段使用的機敏資料</h2>
 <blockquote>
 <p>善用 multi stage，讓機敏資料不要外洩在 Image 當中，並使用 mount secret 同步機敏資料</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">RUN --mount=type=secret,id=npmrc,target=/usr/src/app/.npmrc npm ci --only=production
-</code></pre></td></tr></table>
-</div>
-</div></blockquote>
+<pre><code>RUN --mount=type=secret,id=npmrc,target=/usr/src/app/.npmrc npm ci --only=production
+</code></pre></blockquote>
 <p>如果有一些機敏資料是在 Building 階段所需要，例如要去 private github 拉 repo 的 .npmrc 等資料，需要被妥善處理，常見的錯誤示範有</p>
 <ol>
 <li>hard code 寫死</li>
@@ -247,26 +186,7 @@ process.on(&#39;SIGTERM&#39;, closeGracefully)
 <p>奇怪的是我並沒有在 Docker 文件 <a href="https://docs.docker.com/storage/bind-mounts/">Use bind mounts</a> 看到 &ndash;mount type=secret 的說明，但確實有在官方教學看到 <a href="https://docs.docker.com/develop/develop-images/build_enhancements/">Build images with BuildKit</a></p>
 <h2 id="結語">結語</h2>
 <p>最終的產出會長這樣</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># --------------&gt; The build image
+<pre><code># --------------&gt; The build image
 FROM node:latest AS build
 WORKDIR /usr/src/app
 COPY package-*.json /usr/src/app/
@@ -280,10 +200,8 @@ USER node
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 COPY --chown=node:node . /usr/src/app
-CMD [&#34;dumb-init&#34;, &#34;node&#34;, &#34;server.js&#34;]
-</code></pre></td></tr></table>
-</div>
-</div>
+CMD [&quot;dumb-init&quot;, &quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
 	</div>
 	
 	
@@ -298,6 +216,8 @@ CMD [&#34;dumb-init&#34;, &#34;node&#34;, &#34;server.js&#34;]
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

@@ -128,40 +128,7 @@ value 則是相對應有結構的文字，多個值可以用空白分隔；
 而 media-level 則是 <code>m=</code>開始直到下一個 media level 區段開始</p>
 <p>在 SDP 定義的順序很重要，主要是幫助更快的錯誤偵測與容易實作 parser</p>
 <p>有些欄位是必填有些是選擇性，但重點是一定要按照順序，選擇性欄位以 * 註記，屬性欄位大致介紹含義，不會完整介紹</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Session description
+<pre><code>Session description
     v=  (protocol version)
     o=  (originator and session identifier)
     s=  (session name)
@@ -172,7 +139,7 @@ value 則是相對應有結構的文字，多個值可以用空白分隔；
     c=* (connection information -- not required if included in
         all media)
     b=* (zero or more bandwidth information lines)
-    One or more time descriptions (&#34;t=&#34; and &#34;r=&#34; lines; see below)
+    One or more time descriptions (&quot;t=&quot; and &quot;r=&quot; lines; see below)
     z=* (time zone adjustments)
     k=* (encryption key)
     a=* (zero or more session attribute lines)
@@ -190,29 +157,11 @@ Media description, if present
     b=* (zero or more bandwidth information lines)
     k=* (encryption key)
     a=* (zero or more media attribute lines
-</code></pre></td></tr></table>
-</div>
-</div><p>a= 屬性機制主要是擴展 SDP，由各個使用 SDP 的協定去使用
+</code></pre><p>a= 屬性機制主要是擴展 SDP，由各個使用 SDP 的協定去使用
 有些屬性有制式的含義，有些則基於應用程式的解讀，例如</p>
 <p>有些定義在 Session-level 的屬性如 連線相關 c= 或是屬性相關 a= 會套用在 Session 底下所以的 Media，除非被特別指定覆寫</p>
 <p>如以下範例，所有的 media 都會被冠上 recvonly 的屬性</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">v= 0
+<pre><code>v= 0
 o=jdoe 2890844526 2890842807 IN IP4 10.47.16.5
 s=SDP Seminar
 i=A Seminar on the session description protocol
@@ -224,9 +173,7 @@ a=recvonly
 m=audio 49170 RTP/AVP 0
 m=video 51372 RTP/AVP 99
 a=rtpmap:99 h263-1998/900000
-</code></pre></td></tr></table>
-</div>
-</div><p>文字欄位如 session 名稱和資訊等可以是包含任意位元組的字串除了以下 0x00 Nul 、  0x0a (new line) 、 0x0d (carriage return) ；
+</code></pre><p>文字欄位如 session 名稱和資訊等可以是包含任意位元組的字串除了以下 0x00 Nul 、  0x0a (new line) 、 0x0d (carriage return) ；
 字串以 CRLF(0x0d0a) 當作斷行，但 parser 也應該將 newline 視為斷行的標誌；
 如果沒有 a=charset 屬性指定字符集，則預設為 ISO-10646 字符集搭配 UTF-8 編碼方式</p>
 <p>如果是包含 domain name，則必須確保符合 ASCII Compatible Encoding (ACE)，也就是要經過編碼跳脫字元，因為有些 SDP 相關協定定義早於國際化 domain name，所以不能直接用 UTF-8 表示</p>
@@ -235,15 +182,8 @@ a=rtpmap:99 h263-1998/900000
 <p>沒有其他版本號，就是 v=0</p>
 <h3 id="來源-o">來源 (o=)</h3>
 <p>描述Session 的發起者資料</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">o=&lt;username&gt; &lt;sess-id&gt; &lt;sess-version&gt; &lt;nettype&gt; &lt;addrtype&gt;&lt;unicast-address&gt;
-</code></pre></td></tr></table>
-</div>
-</div><ol>
+<pre><code>o=&lt;username&gt; &lt;sess-id&gt; &lt;sess-version&gt; &lt;nettype&gt; &lt;addrtype&gt;&lt;unicast-address&gt;
+</code></pre><ol>
 <li>sess-id：數字組成的字串，由<!-- raw HTML omitted --> <!-- raw HTML omitted --> <!-- raw HTML omitted --> <!-- raw HTML omitted --> 四者組成的字串必須是全域唯一的 (globally unique)，sess-id 的產生可自行定義，但建議採用 NTP 格式的 timestamp 保證唯一性</li>
 <li>sess-version：此 Session 描述的版號，在改變 SDP 內容時確保版號是遞增的，同樣建議用 NTP 格式 timestamp</li>
 <li>nettype：採用網路類型</li>
@@ -275,25 +215,13 @@ a=rtpmap:99 h263-1998/900000
 <p>如果是應用在多播的場景下，IPv4 需要在網址後加上 TTL，而 IPv6 沒有 TTL 的概念
 在階層式的編碼下，資料串流可能被依照不同頻寬拆分成不同的來源，可以在位址加上來源數量，IP 位置會以連續的方式呈現
 例如說</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">c=IN IP4 224.2.1.1/127/3
+<pre><code>c=IN IP4 224.2.1.1/127/3
 
 這等同於在 media description 中如此表示
 c=IN IP4 224.2.1.1/127
 c=IN IP4 224.2.1.2/127
 c=IN IP4 224.2.1.3/127
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="頻寬-b">頻寬 (b=)</h3>
+</code></pre><h3 id="頻寬-b">頻寬 (b=)</h3>
 <p>顯示預計使用的頻寬，根據不同的 bwtype 有不同含意
 <code>b=&lt;bwtype&gt;:&lt;bandwidth&gt;</code></p>
 <ol>
@@ -310,21 +238,11 @@ c=IN IP4 224.2.1.3/127
 <h3 id="重複次數-r">重複次數 (r=)</h3>
 <p><code>r=&lt;repeat interval&gt; &lt;active duration&gt; &lt;offsets from start-time&gt;</code>
 這會搭配 t 做使用，例如說一個節目是每次播放一小時，於週一 10am 開播，接著每週二 11am 每週播放持續三個月，則表示法為</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">t=3034423619 3042462419
+<pre><code>t=3034423619 3042462419
 r=604800 3600 0 90000
 // 或這樣表示
 r=7d 1h 0 25h
-</code></pre></td></tr></table>
-</div>
-</div><p>3034423619 是開始時間，也就是某週一 10am
+</code></pre><p>3034423619 是開始時間，也就是某週一 10am
 3042462419 是結束時間，也就是開播三個月後的週二 11am</p>
 <p>7d 是播放間隔，所以是 7天的秒數
 1h 是播放的時長
@@ -347,17 +265,9 @@ r=7d 1h 0 25h
 </ol>
 <p>再次強調 SDP 本身要是在安全的情況下才能加 k 欄位</p>
 <h3 id="屬性-a">屬性 (a=)</h3>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">      a=&lt;attribute&gt;
+<pre><code>      a=&lt;attribute&gt;
       a=&lt;attribute&gt;:&lt;value&gt;
-</code></pre></td></tr></table>
-</div>
-</div><p>屬性值主要用來擴展 SDP，可以用在 session level 補充對 conference 的資訊，也可放在 media level 傳遞 media stream 的資訊，在 SDP 會有若干的屬性值宣告</p>
+</code></pre><p>屬性值主要用來擴展 SDP，可以用在 session level 補充對 conference 的資訊，也可放在 media level 傳遞 media stream 的資訊，在 SDP 會有若干的屬性值宣告</p>
 <p>屬性值有兩種宣告方式</p>
 <ol>
 <li>Flag概念 (a=<!-- raw HTML omitted -->)，例如 a=recvonly</li>
@@ -365,15 +275,8 @@ r=7d 1h 0 25h
 </ol>
 <p>至於如何處理與定義屬性值，有些屬性有定義的含義，其餘則應用程式可以彈性處理</p>
 <h3 id="media-description-m">media description (m=)</h3>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">      m=&lt;media&gt; &lt;port&gt; &lt;proto&gt; &lt;fmt&gt; ...
-</code></pre></td></tr></table>
-</div>
-</div><p>一份 session description 中可能含有多個 media description，每一份 media description 從 <code>m=</code> 開始直到下一個 <code>m=</code>或是 session description 結束</p>
+<pre><code>      m=&lt;media&gt; &lt;port&gt; &lt;proto&gt; &lt;fmt&gt; ...
+</code></pre><p>一份 session description 中可能含有多個 media description，每一份 media description 從 <code>m=</code> 開始直到下一個 <code>m=</code>或是 session description 結束</p>
 <ol>
 <li>media
 類別，可以是 audio / video / text 等</li>
@@ -381,17 +284,9 @@ r=7d 1h 0 25h
 串流從哪個 port 發送，這會根據 connection infomation (c=) 而決定，對於某些傳輸協定，如 rtp 會使用兩個 port (RTP+RTCP)，所以宣告時會是 <code>m=video 49170/2 RTP/AVP 31</code>，表示 RTP 使用 49170 / RTCP 使用 49171；
 如果 c 指定多個 IP 位置，則 port 成一對一映射關係，如</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">c=IN IP4 224.2.1.1/127/2
+<pre><code>c=IN IP4 224.2.1.1/127/2
 m=video 49170/2 RTP/AVP 31
-</code></pre></td></tr></table>
-</div>
-</div><pre><code>則因為 RTP 一次使用兩個 port，這表示 224.2.1.1 使用 49170、49171，224.2.1.2 使用 49172、49173
+</code></pre><pre><code>則因為 RTP 一次使用兩個 port，這表示 224.2.1.1 使用 49170、49171，224.2.1.2 使用 49172、49173
 </code></pre>
 <ol start="3">
 <li>proto
@@ -415,43 +310,18 @@ m=video 49170/2 RTP/AVP 31
 搭配 media type(m=)宣告，補充RTP所採用的編碼方式，雖然 RTP 檔案本身就會包含 payload 格式，但是常見做法是透過參數設定動態改變
 例如說 <code>u-law PCM coded single-channel audio sampled at 8 kHz</code>，他的 encode 方式固定只有一種，所以不需要另外宣告rtpmap</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">m=audio 49232 RTP/AVP 0
-</code></pre></td></tr></table>
-</div>
-</div><pre><code>但如果是 `16-bit linear encoded stereo audio sampled at 16 kHz`，希望用 RTP/AVP payload 格式 98 的話，就必須另外宣告解碼方式
+<pre><code>m=audio 49232 RTP/AVP 0
+</code></pre><pre><code>但如果是 `16-bit linear encoded stereo audio sampled at 16 kHz`，希望用 RTP/AVP payload 格式 98 的話，就必須另外宣告解碼方式
 </code></pre>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">m=audio 49232 RTP/AVP 98
+<pre><code>m=audio 49232 RTP/AVP 98
 a=rtpmap:98 L16/16000/2
-</code></pre></td></tr></table>
-</div>
-</div><pre><code>rtpmap 可以針對 payload 格式做映射，如
+</code></pre><pre><code>rtpmap 可以針對 payload 格式做映射，如
 </code></pre>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">m=audio 49230 RTP/AVP 96 97 98
+<pre><code>m=audio 49230 RTP/AVP 96 97 98
 a=rtpmap:96 L8/8000
 a=rtpmap:97 L16/8000
 a=rtpmap:98 L16/11025/2
-</code></pre></td></tr></table>
-</div>
-</div><pre><code>參數對應的參數可以參考 [RTP Profile for Audio and Video Conferences with Minimal Control](https://tools.ietf.org/html/rfc3551)
+</code></pre><pre><code>參數對應的參數可以參考 [RTP Profile for Audio and Video Conferences with Minimal Control](https://tools.ietf.org/html/rfc3551)
 </code></pre>
 <ol start="7">
 <li>a=recvonly
@@ -491,6 +361,8 @@ SDP 資訊採用的語言，如果有多種語言建議每種語言都拆成獨�
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

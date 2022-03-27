@@ -178,15 +178,8 @@ Image 要執行的設定，可以用 shell 執行 / file 上傳檔案，或是�
 </div><p>在 json 檔中，變數取用都是以 <code>{{}}</code> 雙括號括住，只有在 <code>variables</code> 中可以用 <code>env</code> 指定使用環境變數，也可以留空在 command line 執行時指定，如 <code>$ packer build -var 'aws_access_key=YOUR ACCESS KEY' ...</code>  <br>
 來源還可以從 Consul / Vault 等地方，可以參考文件</p>
 <p>後續階段要讀取就要用</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{{user `aws_access_key/`}} 
-</code></pre></td></tr></table>
-</div>
-</div><p>的形式讀取 variables 中的參數</p>
+<pre><code>{{user `aws_access_key/`}} 
+</code></pre><p>的形式讀取 variables 中的參數</p>
 <h4 id="builders">builders</h4>
 <p>可以看到 <code>builders</code> 是以陣列形式，這邊可以指定多個建立的目標，例如增加 vmware / virtualbox 等等，Packer 會併發建立 Image</p>
 <h4 id="provisioner">provisioner</h4>
@@ -269,6 +262,8 @@ Image 要執行的設定，可以用 shell 執行 / file 上傳檔案，或是�
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

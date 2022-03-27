@@ -243,61 +243,28 @@ MOVED 代表的是往後的永久性所有針對 slot 8 的請求都去 Node B�
 <ol>
 <li>Cluster 初始化，此時 Slot 都沒有對應的 Master，需要 <code>CLUSTER ADDSLOTS</code> 分配</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<pre><code>0 -&gt; NULL
 1 -&gt; NULL
 2 -&gt; NULL
 ...
 16383 -&gt; NULL
-</code></pre></td></tr></table>
-</div>
-</div><ol start="2">
+</code></pre><ol start="2">
 <li>假設分配部分給 A，A 會順便標記 epoch，假設此時值為 3</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<pre><code>0 -&gt; NULL
 1 -&gt; A [3]
 2 -&gt; A [3]
 ...
 16383 -&gt; NULL
-</code></pre></td></tr></table>
-</div>
-</div><ol start="3">
+</code></pre><ol start="3">
 <li>產生 Failover，B 上來頂替 A，此時會把 <code>epoch + 1</code></li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0 -&gt; NULL
+<pre><code>0 -&gt; NULL
 1 -&gt; B [4]
 2 -&gt; B [4]
 ...
 16383 -&gt; NULL
-</code></pre></td></tr></table>
-</div>
-</div><p>這也就是 <code>last failover wins</code> 策略，假使 A 此時網路連線回來要宣稱自己是 Master 也會被擋下來，因為 A 的 epoch 比較小</p>
+</code></pre><p>這也就是 <code>last failover wins</code> 策略，假使 A 此時網路連線回來要宣稱自己是 Master 也會被擋下來，因為 A 的 epoch 比較小</p>
 <h4 id="實際案例">實際案例</h4>
 <p>假設 Master 已經掛了，此時有 A,B,C 三個 Slave</p>
 <ol>
@@ -331,6 +298,8 @@ MOVED 代表的是往後的永久性所有針對 slot 8 的請求都去 Node B�
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

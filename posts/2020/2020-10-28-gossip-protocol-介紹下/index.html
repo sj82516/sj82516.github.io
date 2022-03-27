@@ -135,21 +135,11 @@ updates be timestamped with this clock.</p>
 <p><code>{(r, max(µp(r))) | r ∈ P}</code> // 此公式表示 r 是屬於節點 P 的屬性，找出 r 以及當下 P 中 r 最大的版號；</p>
 </blockquote>
 <p>例如說目前 Participant p 的列表是</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">key | value | version
+<pre><code>key | value | version
 a   |  a1   | 1
 b   |  b1   | 2
 c   |  c1   | 3
-</code></pre></td></tr></table>
-</div>
-</div><p>如果此時 a 要更新，則版號至少要拉到 4，而且不像 precise-conciliation 會一次送多組間值更新，Scuttlebutt 允許一次可以送一個鍵值，但必須按照 version 大小逐一送
+</code></pre><p>如果此時 a 要更新，則版號至少要拉到 4，而且不像 precise-conciliation 會一次送多組間值更新，Scuttlebutt 允許一次可以送一個鍵值，但必須按照 version 大小逐一送
 整個架構必須符合以下狀態
 <img src="/posts/img/20201028/gossip_equation.png" alt=""></p>
 <p>也就是說在整個集群下，任一鍵值 k 在節點 p / 節點 q 必須滿足以下任一條件</p>
@@ -264,6 +254,8 @@ c   |  c1   | 3
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

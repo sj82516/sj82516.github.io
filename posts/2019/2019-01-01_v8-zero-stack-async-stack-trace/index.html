@@ -106,17 +106,9 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>如果運行在 V8 7.1 版本，會發現 error.stack 僅會印出部分錯誤資訊</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: Let&#39;s have a look...
+<pre><code>Error: Let's have a look...
 at bar (&lt;anonymous&gt;:7:9)
-</code></pre></td></tr></table>
-</div>
-</div><p>而調用者 foo 則消失無蹤，這是因為從 JSVM角度，當 bar 因為 await x 而暫停執行，接著從 microtask queue 恢復執行後，在 stack 上已經沒有其他 function 了</p>
+</code></pre><p>而調用者 foo 則消失無蹤，這是因為從 JSVM角度，當 bar 因為 await x 而暫停執行，接著從 microtask queue 恢復執行後，在 stack 上已經沒有其他 function 了</p>
 <p>目前可以開 Chrome Dev Inspector ( <code>&gt; node --inspect</code>)，執行同樣的程式，可以看到完整的 error stack，但這會有很大的性能影響，所以只建議在開發中使用。</p>
 <p><img src="/posts/img/0__zUDoBxW4TG__IFqDF.jpg" alt=""></p>
 <h3 id="解法">解法</h3>
@@ -253,42 +245,20 @@ err =&gt; @throw(<em>.generator_object</em>, err),<br>
 </code></pre></td></tr></table>
 </div>
 </div><p>使用目前的 Nodejs v11.5.0 執行，打印的結果是</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Error: err  
+<pre><code>Error: err  
     at one (/Users/.../Desktop/test.js:7:8)
-</code></pre></td></tr></table>
-</div>
-</div><p>整個 call stack 只剩 function one 而已，這樣要 debug 相當困難。</p>
+</code></pre><p>整個 call stack 只剩 function one 而已，這樣要 debug 相當困難。</p>
 <p>此時可以開啟 inspector， <code>&gt; node —inspect-brk=0.0.0.0:9229 test.js</code></p>
 <p>接著打開 chrome dev tool，記得打開 Discover network targets，點擊進去會跳出下方的 debug視窗，接著要打開 Pause on caught rejection 不然出錯就會結束了</p>
 <p><img src="/posts/img/1__Z2ZYMsG__OSWF9QF1UWBn3Q.jpeg" alt=""></p>
 <p>如同上面所說，這種方法只適用於開發。</p>
 <h4 id="新的-zero-cost-async-stacktrace">新的 zero-cost async stack trace</h4>
 <p>目前需要 V8 v7.2 並透過 flag 才能開啟此功能，所以現在要先下載 v8-canary版的 Nodejs，平常都是用 nvm 管理多個 Nodejs 版本，可以用以下方式下載</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$  NVM_NODEJS_ORG_MIRROR=[https://nodejs.org/download/v8-canary](https://nodejs.org/download/v8-canary) nvm install node
-</code></pre></td></tr></table>
-</div>
-</div><p>可以透過 node的 REPL 環境執行 &gt; process.versions 看 V8的版號。</p>
+<pre><code>$  NVM_NODEJS_ORG_MIRROR=[https://nodejs.org/download/v8-canary](https://nodejs.org/download/v8-canary) nvm install node
+</code></pre><p>可以透過 node的 REPL 環境執行 &gt; process.versions 看 V8的版號。</p>
 <p>接著執行</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ node --async-stack-traces test.js
-</code></pre></td></tr></table>
-</div>
-</div><p>打印結果就會是</p>
+<pre><code>$ node --async-stack-traces test.js
+</code></pre><p>打印結果就會是</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
@@ -322,6 +292,8 @@ err =&gt; @throw(<em>.generator_object</em>, err),<br>
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

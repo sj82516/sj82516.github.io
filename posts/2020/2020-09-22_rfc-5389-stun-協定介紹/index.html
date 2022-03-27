@@ -117,22 +117,7 @@ NAT 共有四種類型，其中 symmetric NATs 是每次通訊沒有固定的 Pu
 <li>NAT 接著會一路改 ip port，但因為內文不改所以 client 會知道最外層 NAT 的 public ip + port</li>
 </ol>
 <h4 id="packet-format">Packet Format</h4>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0                   1                   2                   3
+<pre><code>0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |0 0|     STUN Message Type     |         Message Length        |
@@ -143,9 +128,7 @@ NAT 共有四種類型，其中 symmetric NATs 是每次通訊沒有固定的 Pu
 |                     Transaction ID (96 bits)                  |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-</code></pre></td></tr></table>
-</div>
-</div><p>封包格式介紹</p>
+</code></pre><p>封包格式介紹</p>
 <ol>
 <li>最前方兩個 bit 固定為 0 ，主要是用來區分是不是 STUN 的 packet</li>
 <li>Message Type 包含 Transaction 類型 / response 成功或失敗</li>
@@ -167,26 +150,11 @@ Server 回傳錯誤時，必須<code>指定 error code，並挾帶 error code at
 <p>再Multiplexing 下，會有多個不同 protocol 的 packet 傳送到相同位址的，例如說 RTP，加上 <code>fingerprint</code> 可以方便 STUN Server 區分 STUN message</p>
 <h3 id="dns">DNS</h3>
 <p>透過 SRV 紀錄回傳 STUN Server 相關的服務，SRV 格式如下</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">_service._proto.name. TTL class SRV priority weight port target.
-</code></pre></td></tr></table>
-</div>
-</div><p>如果是以 STUN Server 開放 TCP / UDP ，假設 STUN Server domain name 是 <code>stun.example.com</code>的話</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">_stun._udp.example.com 86400 IN SRV 0 5 3489 stun.example.com.
+<pre><code>_service._proto.name. TTL class SRV priority weight port target.
+</code></pre><p>如果是以 STUN Server 開放 TCP / UDP ，假設 STUN Server domain name 是 <code>stun.example.com</code>的話</p>
+<pre><code>_stun._udp.example.com 86400 IN SRV 0 5 3489 stun.example.com.
 _stun._tcp.example.com 86400 IN SRV 0 5 3489 stun.example.com.
-</code></pre></td></tr></table>
-</div>
-</div><p>使用 SRV 好處是可以改變預設的 Port；<br>
+</code></pre><p>使用 SRV 好處是可以改變預設的 Port；<br>
 如果不用 SRV，也可以用 A / AAAA 紀錄返回 IP List，但 Port 就只能用預設的</p>
 <h3 id="身份驗證與訊息完整性檢查">身份驗證與訊息完整性檢查</h3>
 <p>共有兩種身份驗證的方式，</p>
@@ -229,27 +197,14 @@ Client 收到後，用相同的 transport protocol / credential 對新的 Server
 </blockquote>
 <h3 id="stun-attributes">STUN Attributes</h3>
 <p>再 STUN Header 之後，可以接零至多個 attribute，attribute 採用 TLV encode</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">0                   1                   2                   3
+<pre><code>0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |         Type                  |            Length             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                         Value (variable)                ....
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-</code></pre></td></tr></table>
-</div>
-</div><p>如果 response 中有重複的 attribute，只有 <code>第一個</code> 會被考慮，其餘會被捨棄
+</code></pre><p>如果 response 中有重複的 attribute，只有 <code>第一個</code> 會被考慮，其餘會被捨棄
 Type 再 0x0000 and 0x7FFF 是必須要被處理的，如果 STUN agent 無法處理則會失敗
 0x8000~0xFFFF 則是 optional
 以下舉幾個常見的 attribute</p>
@@ -276,15 +231,8 @@ HMAC key 會因為 credential 不同而有所不同</p>
 <p>對整個 STUN Message (排除自己) 取 CRC-32，接著與 0x5354554e
 做 XOR ( 避免其他 packet 也用 CRC-32
 Fingerprint 必須是最後一個屬性</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">the FINGERPRINT attribute MUST be the last attribute in the message, and thus will appear after MESSAGE-INTEGRITY.
-</code></pre></td></tr></table>
-</div>
-</div><h4 id="error-code">Error Code</h4>
+<pre><code>the FINGERPRINT attribute MUST be the last attribute in the message, and thus will appear after MESSAGE-INTEGRITY.
+</code></pre><h4 id="error-code">Error Code</h4>
 <p>包含數值的 error code 從 300~699，保持與 SIP / HTTP 相似的羽翼
 再加上 rease: utf-8的文字描述 ，主要是讓用戶可以理解</p>
 <h4 id="realm">REALM</h4>
@@ -330,6 +278,8 @@ Attack 居中的話，可以攔截client 的 source ip 並修改，server 收到
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

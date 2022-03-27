@@ -98,37 +98,17 @@
 <p>在解除寫鎖 / 讀鎖，會分別去出發信號，讓等待的讀鎖 / 寫鎖開始執行</p>
 <h3 id="rwmutex-跟-mutex-效能比較">RWMutex 跟 Mutex 效能比較</h3>
 <p>實際測試的結果，設定一個寫入比率，單純比較取鎖/釋放鎖，跑一百萬次兩者差異不大</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest-8            10000000                 0.04064 ns/op
+<pre><code>BenchmarkMutexTest-8            10000000                 0.04064 ns/op
 BenchmarkRWMutexTest
 BenchmarkRWMutexTest-8          10000000                 0.04699 ns/op
 BenchmarkFakeWrite
-</code></pre></td></tr></table>
-</div>
-</div><p>加入了讀取跟寫入，有些測試會用 time.Sleep ，但我實驗因為同時跑 goroutine 關係，如果全部 goroutine 都在 sleep 會出錯，所以改用簡單的計數從零數到一百萬當作讀取，而寫入則是五倍的讀取時間</p>
+</code></pre><p>加入了讀取跟寫入，有些測試會用 time.Sleep ，但我實驗因為同時跑 goroutine 關係，如果全部 goroutine 都在 sleep 會出錯，所以改用簡單的計數從零數到一百萬當作讀取，而寫入則是五倍的讀取時間</p>
 <p>寫入比例抓 0.2 的話，RWMutex 用起來有優勢很多</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">BenchmarkMutexTest
+<pre><code>BenchmarkMutexTest
 BenchmarkMutexTest-8               10000             58176 ns/op
 BenchmarkRWMutexTest
 BenchmarkRWMutexTest-8             10000             37176 ns/op
-</code></pre></td></tr></table>
-</div>
-</div><p>測試的程式碼在此 <a href="https://github.com/sj82516/go-rwmutex-benchmark">go-rwmutex-benchmark</a></p>
+</code></pre><p>測試的程式碼在此 <a href="https://github.com/sj82516/go-rwmutex-benchmark">go-rwmutex-benchmark</a></p>
 <p>總結</p>
 <blockquote>
 <p>RWMutex 測試起來效能蠻好的，在考量到讀取比較多的情況表現會比 Mutex 還要好</p>
@@ -201,6 +181,8 @@ BenchmarkRWMutexTest-8             10000             37176 ns/op
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

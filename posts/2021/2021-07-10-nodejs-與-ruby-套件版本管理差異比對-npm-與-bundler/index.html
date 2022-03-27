@@ -83,21 +83,11 @@
 做更深入的了解與比對</li>
 </ol>
 <p>實驗方式會準備 test_module_1 / test_module_2，分別使用 depend_module version 1 / version 2，最後同時使用 test_module_1 &amp; 2</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">- test_module_1
+<pre><code>- test_module_1
    |- depend_module@1.0.0
 - test_module_2
    |- depend_module@2.0.0
-</code></pre></td></tr></table>
-</div>
-</div><blockquote>
+</code></pre><blockquote>
 <p>TLDR；NPM 可以在不同模組引用不同的版本；而 Gem 不行；Golang 可以透過 replace 指定多個版本</p>
 </blockquote>
 <h2 id="npm">NPM</h2>
@@ -114,17 +104,9 @@
 </ol>
 <p>在 package 路徑下執行 $npm install，則會安裝 packages 在 node_modules 中；<code>-g</code> 會安裝到 global 環境下；<code>--production</code> 則不會安裝 devDependencies 下的 package</p>
 <p>如果要安裝同一個 package 不同版本並同時使用，在 npm 6.9.0 以後可以用 alias</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">npm install jquery2@npm:jquery@2
+<pre><code>npm install jquery2@npm:jquery@2
 npm install jquery3@npm:jquery@3
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="載入-nodejs-require">載入 Nodejs require</h3>
+</code></pre><h3 id="載入-nodejs-require">載入 Nodejs require</h3>
 <p>節錄自 Nodejs v16.4.2 <a href="https://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders">Modules: CommonJS modules</a>，這邊先探討 Commonjs Module 而不是 ESM</p>
 <p>在 Nodejs 中，<code>每一個 file 就是一個獨立的 module</code>，可以透過 require 來引入，當 require(X) 在 Path Y 下發生時，會嘗試以下步驟</p>
 <ol>
@@ -193,62 +175,29 @@ npm install jquery3@npm:jquery@3
 </code></pre></td></tr></table>
 </div>
 </div><p>出乎我意料之外，node_modules 的結構是</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">|- node_modules
+<pre><code>|- node_modules
     |- depend_module (version 1)
     |- yuan_test_module_1
     |- yuan_test_module_2
         |- node_modules
             |- depend_module (version 2)
-</code></pre></td></tr></table>
-</div>
-</div><p>我沒有預期第一層結構中會有 depend_module，以為都會是在個別的 test_module 下，再回來看 npm 文件說明</p>
+</code></pre><p>我沒有預期第一層結構中會有 depend_module，以為都會是在個別的 test_module 下，再回來看 npm 文件說明</p>
 <ol>
 <li>package{dep} structure: A{B,C}, B{C}, C{D}，沒有版本衝突，則預設都安裝在最上層</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A
+<pre><code>A
 +-- B
 +-- C
 +-- D
-</code></pre></td></tr></table>
-</div>
-</div><ol start="2">
+</code></pre><ol start="2">
 <li>A{B,C}, B{C,D@1}, C{D@2}，D@1 安裝在最上層，D@2 則安裝在 C 下面</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">A
+<pre><code>A
 +-- B
 +-- C
    `-- D@2
 +-- D@1
-</code></pre></td></tr></table>
-</div>
-</div><p>這樣可以做到預設共享相同版本的 module 避免重複下載，卻也不用擔心多個版本衝突的問題</p>
+</code></pre><p>這樣可以做到預設共享相同版本的 module 避免重複下載，卻也不用擔心多個版本衝突的問題</p>
 <h3 id="環狀相依">環狀相依</h3>
 <p>如果 package A require package B 而 package B 又 require package A，變成環狀相依的情況，在 Nodejs 中這樣不會拋出錯誤，只是行為可能不如預期</p>
 <p>官網的案例中</p>
@@ -306,26 +255,11 @@ npm install jquery3@npm:jquery@3
 </ol>
 <h3 id="實驗">實驗</h3>
 <p>實驗方式相同，但是發現 Ruby 不能載入多個版本，會出現</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">`raise_if_conflicts&#39;: Unable to activate yuan_test_gem_2-2.0.0, because depend_gem-1.0.0 conflicts with depend_gem (= 2.0.0) (Gem::ConflictError)
-</code></pre></td></tr></table>
-</div>
-</div><p>使用 Bundler 會因為找不到適合版本而拋錯</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">There was an error parsing `Gemfile`: You cannot specify the same gem twice with different version requirements.
+<pre><code>`raise_if_conflicts': Unable to activate yuan_test_gem_2-2.0.0, because depend_gem-1.0.0 conflicts with depend_gem (= 2.0.0) (Gem::ConflictError)
+</code></pre><p>使用 Bundler 會因為找不到適合版本而拋錯</p>
+<pre><code>There was an error parsing `Gemfile`: You cannot specify the same gem twice with different version requirements.
 You specified: depend_gem (~&gt; 1.0) and depend_gem (~&gt; 2.0). Bundler cannot continue.
-</code></pre></td></tr></table>
-</div>
-</div><h2 id="golang-mod">Golang mod</h2>
+</code></pre><h2 id="golang-mod">Golang mod</h2>
 <p>參考<a href="https://www.percona.com/blog/2020/03/09/using-different-versions-of-a-package-in-an-application-via-go-modules/">Using Different Versions of a Package in an Application via Go Modules</a>，Golang 可以在 mod file 中指定 <code>replace</code>，就可以在程式中使用多個版本，也可以指向自己的 fork，相當的方便，<a href="https://golang.org/doc/modules/managing-dependencies#external_fork">官方文件：Requiring external module code from your own repository fork</a></p>
 <h2 id="結語">結語</h2>
 <p>比對不同的實作蠻有趣，目前看來 npm 會 install 在當下路徑，換來好處是可以載入多個版本的相同模組；而 gem 沒有這樣的彈性
@@ -345,6 +279,8 @@ You specified: depend_gem (~&gt; 1.0) and depend_gem (~&gt; 2.0). Bundler cannot
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

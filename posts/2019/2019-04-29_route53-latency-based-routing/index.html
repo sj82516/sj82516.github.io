@@ -104,23 +104,7 @@ Route53 身為 DNS Server，如果是從 DNS Server 去打 Server，那量測的
 <p>目前來說，Recursive Resolver 使用日益增加，因為集中化管理有幾個優點 <code>cache 更多資訊</code> 、<code>審查用戶的 DNS查詢</code> ，但是傳統的 Recursive Resolver 在遞迴查詢時，會將 Source IP 改成自己的 IP而不是 Client 的 IP，但 Recursive Resolver 跟 Client 可能隔很遠(網路拓墣上的距離)；<br>
 如果此時 Authoritative Nameserver 希望解析 Client IP 提供量身定做的 DNS Answer (Tailored Response)，就沒有辦法，因此制定 edns-subset-client 解決此問題。</p>
 <h4 id="option-format">Option Format</h4>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">+0 (MSB)                            +1 (LSB)  
+<pre><code>+0 (MSB)                            +1 (LSB)  
       +---+---+---+---+---+---+---+---+---+---+---+---+---+  
    0: |                          OPTION-CODE              |  
       +---+---+---+---+---+---+---+---+---+---+---+---+---+  
@@ -132,9 +116,7 @@ Route53 身為 DNS Server，如果是從 DNS Server 去打 Server，那量測的
       +---+---+---+---+---+---+---+---+---+---+---+---+---+  
    8: |                           ADDRESS...              |  
       +---+---+---+---+---+---+---+---+---+---+---+---+---+
-</code></pre></td></tr></table>
-</div>
-</div><p>edns-subset-client protocol 是基於 <a href="https://tools.ietf.org/html/rfc6891">EDNS0</a> 制定，以下是他的 package 內容：</p>
+</code></pre><p>edns-subset-client protocol 是基於 <a href="https://tools.ietf.org/html/rfc6891">EDNS0</a> 制定，以下是他的 package 內容：</p>
 <ol>
 <li>OPTION-CODE<br>
 兩個八位元組，固定是 <code>0x00 0x08</code></li>
@@ -210,6 +192,8 @@ GeoIP 查詢透過 <a href="https://www.maxmind.com/en/geoip-demo">Maxmind</a>�
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

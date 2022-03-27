@@ -91,35 +91,14 @@ Document = MongoDB Document / MySQL Row</p>
 <ol>
 <li>如果系統已經有規劃 _id</li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/amazon/book/1?op_type=create
-</code></pre></td></tr></table>
-</div>
-</div><ol start="2">
+<pre><code>$ curl -XPUT http://localhost:9200/amazon/book/1?op_type=create
+</code></pre><ol start="2">
 <li>如果沒有 _id 則由 Elasticsearch 生成，預設生成的 <code>_id 是 22字元長 + Base64 編碼 + URL 合法的字串</code></li>
 </ol>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPOST http://localhost:9200/amazon/book
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="刪除">刪除</h3>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XDELETE http://localhost:9200/amazon/book/1
-</code></pre></td></tr></table>
-</div>
-</div><p>可以看到回傳值 _version 也會被增加</p>
+<pre><code>$ curl -XPOST http://localhost:9200/amazon/book
+</code></pre><h3 id="刪除">刪除</h3>
+<pre><code>$ curl -XDELETE http://localhost:9200/amazon/book/1
+</code></pre><p>可以看到回傳值 _version 也會被增加</p>
 <h3 id="更新--部分更新">更新 / 部分更新</h3>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -140,96 +119,39 @@ $ curl -XPOST http://localhost:9200/amazon/book/1/_update
 <h4 id="scripting">scripting</h4>
 <p>有時候我們會希望基於現有的 document 欄位進行更新，例如說瀏覽次數 +1 等等的功能，可以透過 scripting 語法<br>
 如</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl -XPOST curl http://localhost:9200/amazon/book/iVKeNXMBpRlP8dKifEma/_update -H &#39;Content-Type: application/json&#39; \
--d &#39;{ &#34;script&#34;: &#34;ctx._source.page_num += 1&#34; }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><p>在 Body 中夾帶 <code>script</code>，並指定欄位與操作即可，像這邊我是將書籍的頁面 +1</p>
+<pre><code>curl -XPOST curl http://localhost:9200/amazon/book/iVKeNXMBpRlP8dKifEma/_update -H 'Content-Type: application/json' \
+-d '{ &quot;script&quot;: &quot;ctx._source.page_num += 1&quot; }'
+</code></pre><p>在 Body 中夾帶 <code>script</code>，並指定欄位與操作即可，像這邊我是將書籍的頁面 +1</p>
 <h4 id="upsert">upsert</h4>
 <p>有時候欄位要更新時可能不存在，可以透過 upsert 指定欄位不存在時的行為</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">&#39;{ &#34;script&#34;: &#34;ctx._source.page_num += 1&#34;, &#34;upsert&#34;: { &#34;page_num&#34;: 100 } }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="樂觀鎖與-_version">樂觀鎖與 _version</h3>
+<pre><code>'{ &quot;script&quot;: &quot;ctx._source.page_num += 1&quot;, &quot;upsert&quot;: { &quot;page_num&quot;: 100 } }'
+</code></pre><h3 id="樂觀鎖與-_version">樂觀鎖與 _version</h3>
 <p>當每次有寫的操作，document 的 _version 都會被 +1，這是為了實踐樂觀鎖提供在併發狀況下的保護，在所有的操作中可以加入 querystring <code>?version=</code> 確保版號
 例如我要查找 id=&ldquo;iVKeNXMBpRlP8dKifEma&rdquo; 的書籍且確保是 version 1</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/amazon/book/iVKeNXMBpRlP8dKifEma?version=1
-</code></pre></td></tr></table>
-</div>
-</div><p>如果有其他人已經更動過書籍導致 version 不再是 1，此操作會拋出 <code>409</code> 錯誤</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">&#34;reason&#34;:&#34;[iVKeNXMBpRlP8dKifEma]: version conflict, current version [4] is different than the one provided [1]&#34;,&#34;index_uuid&#34;:&#34;gSaILK3KSH6UCpOeYBGKcQ&#34;,&#34;shard&#34;:&#34;0&#34;,&#34;index&#34;:&#34;amazon&#34;},&#34;status&#34;:409
-</code></pre></td></tr></table>
-</div>
-</div><blockquote>
+<pre><code>curl http://localhost:9200/amazon/book/iVKeNXMBpRlP8dKifEma?version=1
+</code></pre><p>如果有其他人已經更動過書籍導致 version 不再是 1，此操作會拋出 <code>409</code> 錯誤</p>
+<pre><code>&quot;reason&quot;:&quot;[iVKeNXMBpRlP8dKifEma]: version conflict, current version [4] is different than the one provided [1]&quot;,&quot;index_uuid&quot;:&quot;gSaILK3KSH6UCpOeYBGKcQ&quot;,&quot;shard&quot;:&quot;0&quot;,&quot;index&quot;:&quot;amazon&quot;},&quot;status&quot;:409
+</code></pre><blockquote>
 <p>Warning：樂觀鎖僅適用於單文檔更新，Elasticsearch 沒有 Transaction 概念，所以沒有多文檔更新的一致性保證</p>
 </blockquote>
 <h3 id="查詢">查詢</h3>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XGET http://localhost:9200/amazon/book/1
-</code></pre></td></tr></table>
-</div>
-</div><p>如果想要針對多筆 document 查詢
+<pre><code>$ curl -XGET http://localhost:9200/amazon/book/1
+</code></pre><p>如果想要針對多筆 document 查詢
 需指定多筆的 index/type/id，如果某一個檔案不存在回傳值得 _found 就會是 false</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">跨 index 查詢
-$ curl http://localhost:9200/_mget -H &#39;Content-Type: application/json&#39; \
--d &#39;{ &#34;docs&#34;: [ { &#34;_index&#34;: &#34;amazon&#34;, &#34;_type&#34;: &#34;book&#34;, &#34;_id&#34;: 5 }, { &#34;_index&#34;: &#34;amazon&#34;, &#34;_type&#34;: &#34;book&#34;, &#34;_id&#34;: &#34;iVKeNXMBpRlP8dKifEma&#34; } ]  }
+<pre><code>跨 index 查詢
+$ curl http://localhost:9200/_mget -H 'Content-Type: application/json' \
+-d '{ &quot;docs&quot;: [ { &quot;_index&quot;: &quot;amazon&quot;, &quot;_type&quot;: &quot;book&quot;, &quot;_id&quot;: 5 }, { &quot;_index&quot;: &quot;amazon&quot;, &quot;_type&quot;: &quot;book&quot;, &quot;_id&quot;: &quot;iVKeNXMBpRlP8dKifEma&quot; } ]  }
 
 也可以在同一個 index/type 底下查詢，只要標注 id 就好
-$ curl http://localhost:9200/amazon/book/_mget -H &#39;Content-Type: application/json&#39; \
--d &#39;{ &#34;ids&#34;: [ 1, &#34;iVKeNXMBpRlP8dKifEma&#34; ]  }
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="批次寫入操作">批次寫入操作</h3>
+$ curl http://localhost:9200/amazon/book/_mget -H 'Content-Type: application/json' \
+-d '{ &quot;ids&quot;: [ 1, &quot;iVKeNXMBpRlP8dKifEma&quot; ]  }
+</code></pre><h3 id="批次寫入操作">批次寫入操作</h3>
 <p>如果我們想要一次建立多個檔案，或是刪除等，甚至是混雜各種查詢一次性呼叫，可以使用 batch<br>
 Elasticsearch 執行 Batch 時會同時<code>獨立處理，結果也需要去對應的 Response 查詢</code>，如果有 Shard 就會分散到對應的 Shard 最後再把結果合併
 如果操作是 create/index/update 的話，下一行是放 document 內容</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/_bulk -H &#39;Content-Type: application/json&#39; \
--d $&#39;{ &#34;create&#34;: {&#34;_index&#34;:&#34;amazon&#34;, &#34;_type&#34;:&#34;book&#34;, &#34;_id&#34;: 2 }\n {&#34;name&#34;:&#34;....&#34;,&#34;page_num&#34;:991,&#34;publish_date&#34;:&#34;2017/05/16&#34;,&#34;intro&#34;: &#34;....&#34;}\n{&#34;delete&#34;: { &#34;_index&#34;: &#34;amazon&#34;, &#34;_type&#34;: &#34;book&#34;, &#34;_id&#34;: 5 } }\n
-</code></pre></td></tr></table>
-</div>
-</div><p>需注意 Body 中是以 <code>\n</code> 當作新的指令開始，且<code>最後一筆紀錄也要以 \n 結尾</code></p>
+<pre><code>curl http://localhost:9200/_bulk -H 'Content-Type: application/json' \
+-d $'{ &quot;create&quot;: {&quot;_index&quot;:&quot;amazon&quot;, &quot;_type&quot;:&quot;book&quot;, &quot;_id&quot;: 2 }\n {&quot;name&quot;:&quot;....&quot;,&quot;page_num&quot;:991,&quot;publish_date&quot;:&quot;2017/05/16&quot;,&quot;intro&quot;: &quot;....&quot;}\n{&quot;delete&quot;: { &quot;_index&quot;: &quot;amazon&quot;, &quot;_type&quot;: &quot;book&quot;, &quot;_id&quot;: 5 } }\n
+</code></pre><p>需注意 Body 中是以 <code>\n</code> 當作新的指令開始，且<code>最後一筆紀錄也要以 \n 結尾</code></p>
 <blockquote>
 <p>為什麼 Elasticsearch 不用 JSON Array 當作 Body 呢？<br>
 這是因為如果是 Array 的話，Node 接收到之後還要去拆解 Array，接著決定哪些 Query 是屬於哪個 Shard 在包一層 Array；
@@ -237,46 +159,18 @@ Elasticsearch 執行 Batch 時會同時<code>獨立處理，結果也需要去�
 </blockquote>
 <h2 id="搜尋">搜尋</h2>
 <p>Elasticsearch 在搜尋上彈性很大，可以跨 index / 跨 type 搜尋</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/_search
-</code></pre></td></tr></table>
-</div>
-</div><p>指定條件部分，可以用 querystring 或是 Body 夾帶，推薦後者因為彈性與可維護性更高</p>
+<pre><code>curl http://localhost:9200/_search
+</code></pre><p>指定條件部分，可以用 querystring 或是 Body 夾帶，推薦後者因為彈性與可維護性更高</p>
 <h4 id="指定某欄位的條件搜尋">指定某欄位的條件搜尋</h4>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/amazon/book/_search?q=name:Elasticsearch 
-</code></pre></td></tr></table>
-</div>
-</div><p>用 <code>q=${欄位名稱}:${條件}</code>，如果有多筆則用<code>+</code>連結</p>
+<pre><code>curl http://localhost:9200/amazon/book/_search?q=name:Elasticsearch 
+</code></pre><p>用 <code>q=${欄位名稱}:${條件}</code>，如果有多筆則用<code>+</code>連結</p>
 <h4 id="某文檔任一欄位符合條件搜尋">某文檔任一欄位符合條件搜尋</h4>
 <p>在 Elasticsearch 中，每個文件都有一個特出欄位 <code>_all</code>，也就是把文件中所有的字串格式欄位都拼接起來</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/amazon/book/_search?q=Elasticsearch 
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="mapping">Mapping</h3>
+<pre><code>curl http://localhost:9200/amazon/book/_search?q=Elasticsearch 
+</code></pre><h3 id="mapping">Mapping</h3>
 <p>為了更好的支援搜尋，Elasticsearch 在寫入文件時會有建立 Schema，可以透過以下指令查詢</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/amazon/_mapping
-</code></pre></td></tr></table>
-</div>
-</div><p>型別有分成 text / number 系列(int, long) / date / boolean / object / geo_point 等等 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html">非常多種</a><br>
+<pre><code>curl http://localhost:9200/amazon/_mapping
+</code></pre><p>型別有分成 text / number 系列(int, long) / date / boolean / object / geo_point 等等 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html">非常多種</a><br>
 如果欄位是 Array，則以第一個元素的型別為主，且同一 Array 中元素必須都是同型別</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -341,17 +235,9 @@ Elasticsearch 執行 Batch 時會同時<code>獨立處理，結果也需要去�
 <h3 id="建立-mapping">建立 Mapping</h3>
 <p>先刪除 amazon Index，重新建立 Index 與 Mapping<br>
 假設我希望 page_num 欄位是 Integer 且不要建立索引</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/amazon/_mapping -H &#39;Content-Type: application/json&#39; \
-	--data &#39;{ &#34;properties&#34;: { &#34;page_num&#34;: { &#34;type&#34;: &#34;integer&#34;, &#34;index&#34;: false }  }  }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><p>重新將資料寫入後，其餘的欄位 Elasticsearch 會幫忙補上型別，page_num 因為已經存在則不會改變 <br>
+<pre><code>$ curl -XPUT http://localhost:9200/amazon/_mapping -H 'Content-Type: application/json' \
+	--data '{ &quot;properties&quot;: { &quot;page_num&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;index&quot;: false }  }  }'
+</code></pre><p>重新將資料寫入後，其餘的欄位 Elasticsearch 會幫忙補上型別，page_num 因為已經存在則不會改變 <br>
 需要注意如果 <code>index指定false</code> 則使用 <code>/_search?q</code> 會無法搜尋</p>
 <h3 id="analyzer">Analyzer</h3>
 <p>如果只能針對條件做篩選，這一般的資料庫也做得到，真正讓 Elasticsearch 區別於一般資料庫的地方在於 Analyzer<br>
@@ -368,203 +254,71 @@ Elasticsearch 執行 Batch 時會同時<code>獨立處理，結果也需要去�
 </ol>
 <h4 id="測試-analyzer">測試 Analyzer</h4>
 <p>如果不知道要怎麼選擇 Analyzer，可以看文件找出<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html">內建的 Analyzer</a>並透過 API 去測試，指定不同的 Analyzer 與測試字串</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl http://localhost:9200/_analyze -H &#39;Content-Type: application/json&#39; \
-	--data &#39;{ &#34;analyzer&#34;: &#34;standard&#34;, &#34;text&#34;:&#34;this is a test&#34; }&#39; 
+<pre><code>$ curl http://localhost:9200/_analyze -H 'Content-Type: application/json' \
+	--data '{ &quot;analyzer&quot;: &quot;standard&quot;, &quot;text&quot;:&quot;this is a test&quot; }' 
 
-$ curl http://localhost:9200/_analyze -H &#39;Content-Type: application/json&#39; \ 
-	--data &#39;{ &#34;filter&#34;: [&#34;lowercase&#34;], &#34;char_filter&#34; : [&#34;html_strip&#34;], &#34;tokenizer&#34;: &#34;whitespace&#34;,  &#34;text&#34;:&#34;this &lt;a&gt;iS&lt;/a&gt; A Test&#34; }&#39; 
-</code></pre></td></tr></table>
-</div>
-</div><p>可以看到回傳值是 Analyzer 會如何 parse 字串並產生索引的 keyword，更多的參數可以參考文件 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html">Analyze API</a> <br>
+$ curl http://localhost:9200/_analyze -H 'Content-Type: application/json' \ 
+	--data '{ &quot;filter&quot;: [&quot;lowercase&quot;], &quot;char_filter&quot; : [&quot;html_strip&quot;], &quot;tokenizer&quot;: &quot;whitespace&quot;,  &quot;text&quot;:&quot;this &lt;a&gt;iS&lt;/a&gt; A Test&quot; }' 
+</code></pre><p>可以看到回傳值是 Analyzer 會如何 parse 字串並產生索引的 keyword，更多的參數可以參考文件 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html">Analyze API</a> <br>
 如果需要支援中文，則需要另外安裝 plugin</p>
 <h4 id="調整欄位的-analyzer">調整欄位的 Analyzer</h4>
 <p>可以在 Index 下建立客製化的 Analyzer，例如我建立一個 <code>my_intro_analyzer</code></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/amazon/_settings -H &#39;Content-Type: application/json&#39; --data \
-	&#39;{ &#34;analysis&#34;: { &#34;analyzer&#34;: { &#34;my_intro_analyzer&#34;: { &#34;filter&#34;: [&#34;lowercase&#34;], &#34;char_filter&#34; : [&#34;html_strip&#34;], &#34;tokenizer&#34;: &#34;whitespace&#34; } } } }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><p>透過 Mapping API 去更改欄位的 Analyzer，同樣是不能更改既有的 Index，且只能指定 Analyzer 而不能在欄位中自訂 tokenizer 等</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/amazon -H &#39;Content-Type: application/json&#39; --data \ 
-	&#39;{ &#34;mappings&#34;: { &#34;properties&#34;: { &#34;intro&#34;: { &#34;type&#34;: &#34;text&#34;, &#34;analyzer&#34;: &#34;my_intro_analyzer&#34;  } }  }, &#34;settings&#34;: { &#34;analysis&#34;: { &#34;analyzer&#34;: { &#34;my_intro_analyzer&#34;: { &#34;filter&#34;: [&#34;lowercase&#34;], &#34;char_filter&#34; : [&#34;html_strip&#34;], &#34;tokenizer&#34;: &#34;whitespace&#34; } } } } }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><blockquote>
+<pre><code>$ curl -XPUT http://localhost:9200/amazon/_settings -H 'Content-Type: application/json' --data \
+	'{ &quot;analysis&quot;: { &quot;analyzer&quot;: { &quot;my_intro_analyzer&quot;: { &quot;filter&quot;: [&quot;lowercase&quot;], &quot;char_filter&quot; : [&quot;html_strip&quot;], &quot;tokenizer&quot;: &quot;whitespace&quot; } } } }'
+</code></pre><p>透過 Mapping API 去更改欄位的 Analyzer，同樣是不能更改既有的 Index，且只能指定 Analyzer 而不能在欄位中自訂 tokenizer 等</p>
+<pre><code>$ curl -XPUT http://localhost:9200/amazon -H 'Content-Type: application/json' --data \ 
+	'{ &quot;mappings&quot;: { &quot;properties&quot;: { &quot;intro&quot;: { &quot;type&quot;: &quot;text&quot;, &quot;analyzer&quot;: &quot;my_intro_analyzer&quot;  } }  }, &quot;settings&quot;: { &quot;analysis&quot;: { &quot;analyzer&quot;: { &quot;my_intro_analyzer&quot;: { &quot;filter&quot;: [&quot;lowercase&quot;], &quot;char_filter&quot; : [&quot;html_strip&quot;], &quot;tokenizer&quot;: &quot;whitespace&quot; } } } } }'
+</code></pre><blockquote>
 <p>看起來 Indexing 深度與 Analyzer 分析的 Token 數都需要設定上限，否則預設值會變成記憶體怪獸!</p>
 </blockquote>
 <h2 id="dsl">DSL</h2>
 <p>前面提到搜尋時可以用 querystring 加上條件，但為了設定更複雜且彈性的查詢語法，可以使用 Elasticsearch 自訂的查詢語言</p>
 <h3 id="query">Query</h3>
 <p>如果今天想要找欄位中是否有相近的值，可以用 <code>match</code></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl http://localhost:9200/amazon/_search -H &#39;Content-Type: application/json&#39; --data \
- &#39;{ &#34;query&#34;: { &#34;match&#34;: { &#34;name&#34;: &#34;Distributed&#34; }  }  }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="filter">Filter</h3>
+<pre><code>$ curl http://localhost:9200/amazon/_search -H 'Content-Type: application/json' --data \
+ '{ &quot;query&quot;: { &quot;match&quot;: { &quot;name&quot;: &quot;Distributed&quot; }  }  }'
+</code></pre><h3 id="filter">Filter</h3>
 <p>如果今天想要找欄位中完全一模一樣值，可以用 <code>term</code> 接篩選條件</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl http://localhost:9200/amazon/_search -H &#39;Content-Type: application/json&#39; --data \
- &#39;{ &#34;query&#34;: { &#34;term&#34;: { &#34;name&#34;: &#34;Elasticsearch: The Definitive Guide: A Distributed Real-Time Search and Analytics Engine 1st Edition, Kindle Edition&#34; }  }  }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="組合多種條件">組合多種條件</h3>
+<pre><code>$ curl http://localhost:9200/amazon/_search -H 'Content-Type: application/json' --data \
+ '{ &quot;query&quot;: { &quot;term&quot;: { &quot;name&quot;: &quot;Elasticsearch: The Definitive Guide: A Distributed Real-Time Search and Analytics Engine 1st Edition, Kindle Edition&quot; }  }  }'
+</code></pre><h3 id="組合多種條件">組合多種條件</h3>
 <p>如果今天要搜尋的條件比較複雜，例如說我希望<code>名稱一定要包含 Distributed</code>，頁數<code>最好</code>在200至500頁或是出版年份在今年(但兩者必須至少符合一項)<br>
 可以用 <code>bool</code> 搭配 <code>must</code> 必須符合 + <code>should</code> 應該符合，搭配 <code>minimum_should_match</code> 可以決定條件的符合程度</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">curl http://localhost:9200/amazon/_search -H &#39;Content-Type: application/json&#39; --data \
-&#39;{ &#34;query&#34;: { &#34;bool&#34;: { &#34;must&#34;: { &#34;match&#34;: { &#34;name&#34;: &#34;Distributed&#34; } }, &#34;minimum_should_match&#34;: 1, &#34;should&#34;: [ { &#34;range&#34;: { &#34;page_num&#34;: { &#34;gt&#34;: 200, &#34;lt&#34;: 500 } } }, { &#34;range&#34;: {&#34;publish_date&#34;: { &#34;gt&#34;: &#34;2020/01/01&#34; } } } ] } } }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><h2 id="系統配置與設定">系統配置與設定</h2>
+<pre><code>curl http://localhost:9200/amazon/_search -H 'Content-Type: application/json' --data \
+'{ &quot;query&quot;: { &quot;bool&quot;: { &quot;must&quot;: { &quot;match&quot;: { &quot;name&quot;: &quot;Distributed&quot; } }, &quot;minimum_should_match&quot;: 1, &quot;should&quot;: [ { &quot;range&quot;: { &quot;page_num&quot;: { &quot;gt&quot;: 200, &quot;lt&quot;: 500 } } }, { &quot;range&quot;: {&quot;publish_date&quot;: { &quot;gt&quot;: &quot;2020/01/01&quot; } } } ] } } }'
+</code></pre><h2 id="系統配置與設定">系統配置與設定</h2>
 <h3 id="sharding-相關">Sharding 相關</h3>
 <h4 id="1-設定-index-的-sharding-與-replica-數量">1. 設定 Index 的 sharding 與 replica 數量</h4>
 <p>有兩種方式，一種是建立 Index 時就指定，第二種是建立 Index 後續調整</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">1. 建立 Index 指定
-curl -XPUT http://localhost:9200/amazon -H &#39;Content-Type: application/json&#39; --data \
-&#39;{ &#34;index&#34;: { &#34;number_of_shards&#34;: 2, &#34;number_of_replicas&#34;: 0 }  }&#39;
+<pre><code>1. 建立 Index 指定
+curl -XPUT http://localhost:9200/amazon -H 'Content-Type: application/json' --data \
+'{ &quot;index&quot;: { &quot;number_of_shards&quot;: 2, &quot;number_of_replicas&quot;: 0 }  }'
 
 2. 後續動態調整
-curl -XPUT http://localhost:9200/amazon/_settings -H &#39;Content-Type: application/json&#39; --data \
-&#39;{ &#34;index&#34;: { &#34;number_of_replicas&#34;: 0 }  }&#39;
-</code></pre></td></tr></table>
-</div>
-</div><p>需注意 sharding number 最好一開始就設定好，可以配置稍微多一點 Primary shard 方便後續 scale out<br>
+curl -XPUT http://localhost:9200/amazon/_settings -H 'Content-Type: application/json' --data \
+'{ &quot;index&quot;: { &quot;number_of_replicas&quot;: 0 }  }'
+</code></pre><p>需注意 sharding number 最好一開始就設定好，可以配置稍微多一點 Primary shard 方便後續 scale out<br>
 後續如果要動態調整很麻煩，要把 Index 設成 read-only 並透過 Split API 修改 / 或是用 Reindex 方式重建新的 Index</p>
 <h4 id="2-指定-index-使用的機型">2. 指定 Index 使用的機型</h4>
 <p>有時候我們會希望某些熱門的 Index 使用較好的硬體，其他冷門的使用差一點的硬體，Elasticsearch 在機器運作時可以打上標記 <code>--node.box_type</code></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ ./bin/elasticsearch --node.box_type strong
-</code></pre></td></tr></table>
-</div>
-</div><p>指定 Index 要存放的機型</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ POST /logs_2014-09-30/_settings
+<pre><code>$ ./bin/elasticsearch --node.box_type strong
+</code></pre><p>指定 Index 要存放的機型</p>
+<pre><code>$ POST /logs_2014-09-30/_settings
 {
-  &#34;index.routing.allocation.include.box_type&#34; : &#34;strong&#34;
+  &quot;index.routing.allocation.include.box_type&quot; : &quot;strong&quot;
 }
-</code></pre></td></tr></table>
-</div>
-</div><p>結合後續的 Alias 可以配置出更符合實際應用的設定</p>
+</code></pre><p>結合後續的 Alias 可以配置出更符合實際應用的設定</p>
 <h4 id="index-template">Index template</h4>
 <p>當建立新的 Index 時，可以指定 template 套用設定，就不用每次都要打設定，Elasticsearch 在 7.8 版本中，可以指定 component template 與 index template；<br>
 component template 是小單位可以被用來組合的；而 index template 則是 Index 直接套用的</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">// Component template
+<pre><code>// Component template
 PUT _component_template/other_component_template
 {
-  &#34;template&#34;: {
-    &#34;mappings&#34;: {
-      &#34;properties&#34;: {
-        &#34;ip_address&#34;: {
-          &#34;type&#34;: &#34;ip&#34;
+  &quot;template&quot;: {
+    &quot;mappings&quot;: {
+      &quot;properties&quot;: {
+        &quot;ip_address&quot;: {
+          &quot;type&quot;: &quot;ip&quot;
         }
       }
     }
@@ -574,59 +328,42 @@ PUT _component_template/other_component_template
 // Index template，只要 Index 開頭是 bar 就會套用
 PUT _index_template/template_1
 {
-  &#34;index_patterns&#34;: [&#34;bar*&#34;],
-  &#34;template&#34;: {
-    &#34;settings&#34;: {
-      &#34;number_of_shards&#34;: 1
+  &quot;index_patterns&quot;: [&quot;bar*&quot;],
+  &quot;template&quot;: {
+    &quot;settings&quot;: {
+      &quot;number_of_shards&quot;: 1
     },
-    &#34;mappings&#34;: {
-      &#34;_source&#34;: {
-        &#34;enabled&#34;: false
+    &quot;mappings&quot;: {
+      &quot;_source&quot;: {
+        &quot;enabled&quot;: false
       },
-      &#34;properties&#34;: {
-        &#34;host_name&#34;: {
-          &#34;type&#34;: &#34;keyword&#34;
+      &quot;properties&quot;: {
+        &quot;host_name&quot;: {
+          &quot;type&quot;: &quot;keyword&quot;
         },
-        &#34;created_at&#34;: {
-          &#34;type&#34;: &#34;date&#34;,
-          &#34;format&#34;: &#34;EEE MMM dd HH:mm:ss Z yyyy&#34;
+        &quot;created_at&quot;: {
+          &quot;type&quot;: &quot;date&quot;,
+          &quot;format&quot;: &quot;EEE MMM dd HH:mm:ss Z yyyy&quot;
         }
       }
     },
-    &#34;aliases&#34;: {
-      &#34;mydata&#34;: { }
+    &quot;aliases&quot;: {
+      &quot;mydata&quot;: { }
     }
   },
-  &#34;priority&#34;: 10,
-  &#34;composed_of&#34;: [&#34;component_template1&#34;, ....],
-  &#34;version&#34;: 3,
-  &#34;_meta&#34;: {
-    &#34;description&#34;: &#34;my custom&#34;
+  &quot;priority&quot;: 10,
+  &quot;composed_of&quot;: [&quot;component_template1&quot;, ....],
+  &quot;version&quot;: 3,
+  &quot;_meta&quot;: {
+    &quot;description&quot;: &quot;my custom&quot;
   }
 }
-</code></pre></td></tr></table>
-</div>
-</div><h3 id="reindex-與-alias">Reindex 與 Alias</h3>
+</code></pre><h3 id="reindex-與-alias">Reindex 與 Alias</h3>
 <p>先介紹 <code>Alias</code>，看到這個功能讓我覺得十分驚豔，可以將維運與開發拆分的更加獨立<br>
 今天假設因為資料的格式問題 / Sharding 重新分配等問題需要<code>Index 需要重建</code>，Alias 就能派上用場</p>
 <p>他的概念就好像檔案連結，可以取一個連結名稱，但同時對應到多個實際的檔案路徑，例如說我有兩個 Index 想要分開儲存 /amazon + /eslite<br>
 但我希望查詢時可以有一個共同的 endpoint 取名叫 /bookstore，就可以用 Alias 連結 /amazon 與 /eslite</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ curl -XPUT http://localhost:9200/eslite/_alias/bookstore
+<pre><code>$ curl -XPUT http://localhost:9200/eslite/_alias/bookstore
 $ curl -XPUT http://localhost:9200/amazon/_alias/bookstore
 
 $ curl http://localhost:9200/boostore/_search
@@ -637,9 +374,7 @@ $ curl http://localhost:9200/*/_alias/bookstore
 
 $ curl -X DELETE http://localhost:9200/amazon/_alias/bookstore
 // 刪除 alias 
-</code></pre></td></tr></table>
-</div>
-</div><p>雖然搜尋的時候也可以直接指定多個 Index 如 <code>curl http://localhost:9200/amazon,eslite/_search</code>，但如果要增減 Index 項目就需要改程式碼，十分不乾淨</p>
+</code></pre><p>雖然搜尋的時候也可以直接指定多個 Index 如 <code>curl http://localhost:9200/amazon,eslite/_search</code>，但如果要增減 Index 項目就需要改程式碼，十分不乾淨</p>
 <p>另外更大的好處在於同一個 Index 要升級時，實際儲存可以用版號如 index_name_v1，用 alias 指定 index_name；<br>
 接著在建立新的 index_name_v2 換成新的 Index，完成後在切換 index_name 的指向就能 zero downtime 切換 index 了</p>
 <blockquote>
@@ -678,6 +413,8 @@ $ curl -X DELETE http://localhost:9200/amazon/_alias/bookstore
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			

@@ -485,38 +485,19 @@ gRPC 預設使用 <code>protocol buffer</code> 當作編碼/解碼傳輸內容�
 </code></pre></td></tr></table>
 </div>
 </div><p>先前定義 service 時並沒有宣告錯誤回傳，這是因為 gRPC 內建錯誤訊息，格式如下</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{
+<pre><code>{
     string error
     string message
 }
-</code></pre></td></tr></table>
-</div>
-</div><p>error 對應於 HTTP status code，可以從 grpc 的靜態參數取得如 <code>grpc.status.PERMISSION_DENIED</code> 等同於 403，message 則是自定義的字串，需注意 Nodejs 不支援 rich format，以下截自官方文件</p>
+</code></pre><p>error 對應於 HTTP status code，可以從 grpc 的靜態參數取得如 <code>grpc.status.PERMISSION_DENIED</code> 等同於 403，message 則是自定義的字串，需注意 Nodejs 不支援 rich format，以下截自官方文件</p>
 <blockquote>
 <p>This richer error model is already supported in the C++, Go, Java, Python, and Ruby libraries, and at least the grpc-web and Node.js libraries have open issues requesting it.</p>
 </blockquote>
 <p>所以 gRPC client 收到的錯誤訊息會被轉成</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">{
-  &#34;error&#34;: &#34;2 UNKNOWN: too many ToDoItem&#34;
+<pre><code>{
+  &quot;error&quot;: &quot;2 UNKNOWN: too many ToDoItem&quot;
 }
-</code></pre></td></tr></table>
-</div>
-</div><p>另外 Streaming response 傳遞錯誤的方式是</p>
+</code></pre><p>另外 Streaming response 傳遞錯誤的方式是</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
@@ -554,43 +535,21 @@ gRPC 預設使用 <code>protocol buffer</code> 當作編碼/解碼傳輸內容�
 因為最低有效位，所以重組成 <code>000 0010 010 1100</code>，也就是 300</p>
 <h4 id="key-value">Key Value</h4>
 <p>其實 Protocol buffer 就是編碼一連串的 Key-Value，在編碼時會以 <code>編碼號(5 bits) 類別(3 bits) 數值</code>表示，例如說</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">message Test2 {
+<pre><code>message Test2 {
   optional string b = 2;
 }
-</code></pre></td></tr></table>
-</div>
-</div><p>假設 b 儲存了 &ldquo;testing&rdquo;，那時記得編碼結果是 <code>12 07 74 65 73 74 69 6e 67</code>，拆解 12 成 <code>0001 0010</code> =&gt; <code>00010 010</code> 對應到欄位編號 2 + 數值類別 2(代表是自訂長度的類別，如 string / object 等)；<br>
+</code></pre><p>假設 b 儲存了 &ldquo;testing&rdquo;，那時記得編碼結果是 <code>12 07 74 65 73 74 69 6e 67</code>，拆解 12 成 <code>0001 0010</code> =&gt; <code>00010 010</code> 對應到欄位編號 2 + 數值類別 2(代表是自訂長度的類別，如 string / object 等)；<br>
 接著 <code>07</code> 表示接下來 7 個 bytes 是數值表示；<br>
 後續的數值是 utf-8 編碼的顯示</p>
 <p>接著看</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
-<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">message Test1 {
+<pre><code>message Test1 {
   optional int32 a = 1;
 }
 
 message Test3 {
   optional Test1 c = 3;
 }
-</code></pre></td></tr></table>
-</div>
-</div><p>假設 Test1 a 儲存 150，則編碼結果hex 表示為 <code>08 96 01</code>，也就是 <code>00001 000</code> 欄位編號 1 + 數值編號 0 也就是 varints；<br>
+</code></pre><p>假設 Test1 a 儲存 150，則編碼結果hex 表示為 <code>08 96 01</code>，也就是 <code>00001 000</code> 欄位編號 1 + 數值編號 0 也就是 varints；<br>
 <code>96 01</code> 則是 <code>1001 0110 + 0000 0001</code> 並依照 varints 表示法轉乘 <code>000 0001 001 0110</code> 也就是 150</p>
 <p>接著 Test3 儲存 Test1，假設 Test1 的 a 等於 150；<br>
 hex 表示法為 <code> 1a 03 08 96 01</code>，也就是 <code>00011 010</code>，欄位 3的類別是 2，接下來 <code>03</code> 共 3 個bytes 為數值，也就是上一步的 <code>08 96 01</code></p>
@@ -613,6 +572,8 @@ hex 表示法為 <code> 1a 03 08 96 01</code>，也就是 <code>00011 010</code>
 		</div>
 		<div class="termsfloating_right">
 			<p>
+			
+			
 			
 			
 			
