@@ -477,6 +477,7 @@ ul.flat li {
 code, kbd, pre, samp {
   /* font-family: "Roboto Mono", monospace; */
   font-size: 0.95em;
+  line-height: 1.5rem;
 }
 
 .highlight pre {
