@@ -83,7 +83,7 @@
 <li><a href="https://leetcode.com/problems/accounts-merge/">721. Accounts Merge</a></li>
 </ol>
 <h2 id="解題思路">解題思路</h2>
-<p>當今天看到找合併群組 <code>connecting adjacent / merge</code> 關鍵字，想要找兩個元素是否處於相同的連通塊 (disjoint union) / 聯通塊數量，大概就是 Union Find 可以派上用場的地方，通常出現在 Graph 相關問題，所以大多數 Union Find 問題也能用 BFS / DFS 解決，但如果是 <code>動態改變</code>如 305 則使用 Union Find 會輕鬆很多</p>
+<p>當今天看到找合併群組 <code>connecting adjacent / merge</code> 關鍵字，想要找兩個元素是否處於相同的連通塊 (disjoint union) / 連通塊數量，大概就是 Union Find 可以派上用場的地方，通常出現在 Graph 相關問題，所以大多數 Union Find 問題也能用 BFS / DFS 解決，但如果是 <code>動態改變</code>如 305 則使用 Union Find 會輕鬆很多</p>
 <h3 id="union-find-基本介紹">Union Find 基本介紹</h3>
 <p>Union Find 主要是維護一個資料結構 (常用陣列，也可以用 HashMap)，保持元素所對應的群組，如果今天兩個元素要合併，找到元素所屬群組的代表值進行合併；<br>
 如果要判斷兩元素<code>是否為相同群組</code>，則找到對應群組的代表值比對即可</p>
@@ -92,7 +92,7 @@
 維護一個 parents 數組，初始化 parents[i] = i 視為每個元素都為獨立的族群(自己的 root 就是自己)；如果合併時挑選某一方當作 group root，在查找時只要一直往下找就能找到相同的 root</p>
 <p>既然是 Tree 的構造，不免俗會遇到 <code>平衡的問題</code>，如果合併時 Tree 不平衡，最差情況在搜尋時會是 O(N)，因為要 iterate N 次才能找到組群代表；<br>
 這時候需要套用<code>路徑壓縮</code>的技巧，當我在查找時，如果我是很深的葉節點，我沿路把父節點直接指向 root 攤平，這樣在合併與查找的複雜度會變成 <code>O(log* N)</code> 約等於 O(1)
-<img src="posts/img/0328/uf_2.png" alt=""></p>
+<img src="/posts/2022/img/0328/uf_2.png" alt=""></p>
 <p>程式碼如下</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -190,8 +190,8 @@
 <p><a href="https://leetcode.com/problems/number-of-islands/">200. Number of Islands</a> 要找島嶼的數量，也就是算 Union Find 中族群數</p>
 <p>解題思路大致為</p>
 <ol>
-<li>假設每一塊島嶼都不聯通，預設數量為 &ldquo;1&rdquo; 的個數</li>
-<li>輪詢島嶼，檢查上下左右是否能聯通，發生聯通則代表島嶼合併，數量減一</li>
+<li>假設每一塊島嶼都不連通，預設數量為 &ldquo;1&rdquo; 的個數</li>
+<li>輪詢島嶼，檢查上下左右是否能連通，發生連通則代表島嶼合併，數量減一</li>
 <li>回傳最終島嶼數量</li>
 </ol>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
@@ -399,9 +399,9 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>這題完全可以用 BFS 解，時間複雜度同為 O(M*N)，但是 BFS 的空間複雜度是 O(min(M,N)) 更優於 Union Find 的 O(M*N)，BFS 空間複雜度是看 queue 上的 Node 數量</p>
-<h3 id="變化題動態聯通">變化題：動態聯通</h3>
+<h3 id="變化題動態連通">變化題：動態連通</h3>
 <p><a href="https://leetcode.com/problems/number-of-islands-ii/">305. Number of Islands II</a> 這一題是上一題延伸，使用 Union Find 就非常適合，因為題目是逐一增加島嶼，需要動態計算島嶼數量，如果用 BFS 都要每次從頭開始算，但 Union Find 不用</p>
-<p>解題類似上方，只是在每次加入島嶼時先加一，有聯通再減一</p>
+<p>解題類似上方，只是在每次加入島嶼時先加一，有連通再減一</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  1
@@ -504,6 +504,8 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 98
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 99
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">100
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">101
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">102
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UnionFind</span> {
@@ -533,7 +535,8 @@
             <span style="color:#66d9ef">return</span>;
         }
         
-        island<span style="color:#f92672">--</span>;
+        <span style="color:#75715e">// 有連通就減一
+</span><span style="color:#75715e"></span>        island<span style="color:#f92672">--</span>;
         parents[parent1] <span style="color:#f92672">=</span> parent2;
     }
     
@@ -581,7 +584,8 @@
             }
             
             grids[row][col] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
-            uf<span style="color:#f92672">-&gt;</span>island<span style="color:#f92672">++</span>;
+            <span style="color:#75715e">// 先假設沒有連通，直接加一
+</span><span style="color:#75715e"></span>            uf<span style="color:#f92672">-&gt;</span>island<span style="color:#f92672">++</span>;
             <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> move:kMoves) {
                 <span style="color:#66d9ef">int</span> newRow <span style="color:#f92672">=</span> row <span style="color:#f92672">+</span> move.first;
                 <span style="color:#66d9ef">int</span> newCol <span style="color:#f92672">=</span> col <span style="color:#f92672">+</span> move.second;
@@ -736,6 +740,7 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">121
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">122
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">123
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">124
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UnionFind</span> {
@@ -843,7 +848,8 @@
             }
         }
         
-        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> rowSize; row<span style="color:#f92672">++</span>) {
+        <span style="color:#75715e">// 連通完再來更新數據
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; row <span style="color:#f92672">&lt;</span> rowSize; row<span style="color:#f92672">++</span>) {
             <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> col <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; col <span style="color:#f92672">&lt;</span> colSize; col<span style="color:#f92672">++</span>) {
                 std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> pos {row, col};
                 <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>uf<span style="color:#f92672">-&gt;</span>isRegionConnectedEdge(pos)) {
