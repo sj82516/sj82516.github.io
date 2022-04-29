@@ -91,12 +91,12 @@
 <li>no preemption</li>
 <li>hold and wait</li>
 <li>mutual exclusion</li>
-<li>circular waiting
-在上面的案例中，MySQL 在 RR 下要 update 會先取得 exclusive lock，兩個 Transaction 手上都拿了對方想要的資源卻也不都會先放開手上的鎖，導致 Deadlock
-<img src="/posts/2022/img/0425/01_2.png" alt=""></li>
+<li>circular waiting</li>
 </ul>
+<p>在上面的案例中，MySQL 在 RR 下要 update 會先取得 exclusive lock，兩個 Transaction 手上都拿了對方想要的資源卻也不都會先放開手上的鎖，導致 Deadlock
+<img src="/posts/2022/img/0425/01_2.png" alt=""></p>
 <p>直接從圖片很容易看出彼此 Deadlock，但正式環境中多筆 Transaction 交雜，該如何找出 Deadlock 呢？</p>
-<h3 id="如何-debug-deadlock">如何 Debug Deadlock</h3>
+<h3 id="1-如何-debug-deadlock">1. 如何 Debug Deadlock</h3>
 <p>MySQL 有幾個相關參數</p>
 <ol>
 <li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_deadlock_detect">innodb_deadlock_detect</a>: 是否偵測 deadlock，預設開啟</li>
@@ -104,7 +104,7 @@
 <li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_print_all_deadlocks">innodb_print_all_deadlocks</a>: 將所有 Deadlock 錯誤輸出至 error log</li>
 </ol>
 <p>如果沒有輸出 Deadlock error，可以用 <code>&gt; SHOW ENGINE INNODB STATUS</code> 輸出，其中有兩個區塊 deadlock 顯示最近一筆 deadlock 錯誤，transaction 則會顯示目前在等待 lock 的 transaction</p>
-<h4 id="實際閱讀-deadlock">實際閱讀 Deadlock</h4>
+<h4 id="11-實際閱讀-deadlock">1.1 實際閱讀 Deadlock</h4>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
@@ -164,9 +164,9 @@ TRANSACTION 9597, ACTIVE 3 sec starting index read
 mysql tables in use 1, locked 1
 LOCK WAIT 3 lock struct(s), heap size 1136, 2 row lock(s), undo log entries 1
 MySQL thread id 1034, OS thread handle 278338676480, query id 14980 172.17.0.1 root updating
-UPDATE <span style="color:#e6db74">`teachers`</span> SET <span style="color:#e6db74">`teachers`</span>.`age` = 10 WHERE <span style="color:#e6db74">`teachers`</span>.`id` = 5
+<span style="color:#e6db74">`UPDATE teachers SET teachers.age = 10 WHERE teachers.id = 5`</span>
 *** (1) WAITING FOR THIS LOCK TO BE GRANTED:
-RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table <span style="color:#e6db74">`test`</span>.`teachers` trx id 9597 lock_mode X locks rec but not gap waiting
+RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9597 lock_mode X locks rec but not gap waiting
 Record lock, heap no 3 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  0: len 8; hex 8000000000000005; asc         ;;
  1: len 6; hex 00000000257c; asc     %|;;
@@ -180,9 +180,9 @@ TRANSACTION 9596, ACTIVE 3 sec starting index read
 mysql tables in use 1, locked 1
 3 lock struct(s), heap size 1136, 2 row lock(s), undo log entries 1
 MySQL thread id 1033, OS thread handle 278608463616, query id 14979 172.17.0.1 root updating
-UPDATE <span style="color:#e6db74">`teachers`</span> SET <span style="color:#e6db74">`teachers`</span>.`age` = 6 WHERE <span style="color:#e6db74">`teachers`</span>.`id` = 1
+<span style="color:#e6db74">`UPDATE teachers SET teachers.age = 6 WHERE teachers.id = 1`</span>
 *** (2) HOLDS THE LOCK(S):
-RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table <span style="color:#e6db74">`test`</span>.`teachers` trx id 9596 lock_mode X locks rec but not gap
+RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9596 lock_mode X locks rec but not gap
 Record lock, heap no 3 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  0: len 8; hex 8000000000000005; asc         ;; -&gt; index，用 16 進位表示，這邊是指 id: 5
  1: len 6; hex 00000000257c; asc     %|;;
@@ -192,7 +192,7 @@ Record lock, heap no 3 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  5: SQL NULL;
 
 *** (2) WAITING FOR THIS LOCK TO BE GRANTED:
-RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table <span style="color:#e6db74">`test`</span>.`teachers` trx id 9596 lock_mode X locks rec but not gap waiting
+RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9596 <span style="color:#e6db74">`lock_mode X locks rec but not gap waiting`</span>  
 Record lock, heap no 2 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  0: len 8; hex 8000000000000001; asc         ;;     
  1: len 6; hex 00000000257d; asc     %};;
@@ -205,19 +205,19 @@ Record lock, heap no 2 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
 ------------
 </code></pre></td></tr></table>
 </div>
-</div><p>這部分內容參考 <a href="https://juejin.cn/post/6844903943516979213"></a>，重點看這一段</p>
+</div><p>這部分內容參考 <a href="https://juejin.cn/post/6844903943516979213">MySQL死锁问题如何分析</a>，重點看這一段</p>
 <blockquote>
-<p>RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9596 lock_mode X locks rec but not gap waiting
+<p>RECORD LOCKS space id 275 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9596 lock_mode X locks rec but not gap waiting  <code>專指 row lock</code><br>
 Record lock, heap no 2 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
 0: len 8; hex 8000000000000001; asc         ;;  <code>-&gt; index，用 16 進位表示，這邊是指 id: 1</code></p>
 </blockquote>
 <p>，我們可以從 log 中看出操作 / 手上的 lock / 等待的 lock / <code>Lock 在哪一個 row</code></p>
-<h3 id="取得-lock-的順序性">取得 Lock 的順序性</h3>
+<h3 id="2-取得-lock-的順序性">2. 取得 Lock 的順序性</h3>
 <p>如果查詢的條件命中多筆，那 Lock 會怎麼取得呢？ 接著看以下案例
 <img src="/posts/2022/img/0425/02.png" alt=""></p>
 <p>根據 <a href="https://dev.mysql.com/doc/refman/5.7/en/update.html">MySQL 文件</a>，會根據 Order By 的指定條件與 Index 本身順序性一行一行鎖起來</p>
 <blockquote>
-<p>If an UPDATE statement includes an ORDER BY clause, the rows are updated in the order specified by the clause. This can be useful in certain situations that might otherwise result in an error. Suppose that a table t contains a column id that has a unique index. The following statement could fail with a duplicate-key error, depending on the order in which rows are updated</p>
+<p>If an UPDATE statement includes an ORDER BY clause, the rows <code>are updated in the order specified by the clause</code>. This can be useful in certain situations that might otherwise result in an error. Suppose that a table t contains a column id that has a unique index. The following statement could fail with a duplicate-key error, depending on the order in which rows are updated</p>
 </blockquote>
 <p>從 Deadlock Log 可以清楚看到 id 2 / id 5 被互相鎖住</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
@@ -239,19 +239,19 @@ Record lock, heap no 2 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  0: len 8; hex <span style="color:#e6db74">`8000000000000002`</span>; asc         ;;
 ------
 *** (2) WAITING FOR THIS LOCK TO BE GRANTED:
-RECORD LOCKS space id 278 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9675 lock_mode X waiting
+RECORD LOCKS space id 278 page no 3 n bits 72 index PRIMARY of table test.teachers trx id 9675 lock_mode X waiting  
 Record lock, heap no 3 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
  0: len 8; hex <span style="color:#e6db74">`8000000000000005`</span>; asc         ;;
 </code></pre></td></tr></table>
 </div>
-</div><h4 id="建立-index-時決定順序">建立 Index 時決定順序</h4>
+</div><h4 id="21-建立-index-時決定順序">2.1 建立 Index 時決定順序</h4>
 <p>當<a href="https://dev.mysql.com/doc/refman/5.7/en/create-index.html">建立 MySQL Index</a> 也可以指定順序，但需要注意 MySQL 5.7 會忽視 (全部都是 asc) 只有在 MySQL 8.0 以上才支援，所以以下案例只發生在 MySQL 8.0</p>
 <p>我們可以透過 <code>USE INDEX()</code> 指定執行時的 Index
 <img src="/posts/2022/img/0425/02.png" alt=""></p>
 <blockquote>
 <p>(5.7 文件) A key_part specification can end with ASC or DESC. These keywords are permitted for future extensions for specifying ascending or descending index value storage. Currently, they <code>are parsed but ignored</code>; index values are always stored in ascending order.</p>
 </blockquote>
-<h3 id="查詢沒有命中--gap-lock">查詢沒有命中 : Gap Lock</h3>
+<h3 id="3-查詢沒有命中--gap-lock">3. 查詢沒有命中 : Gap Lock</h3>
 <p>如果查詢沒有命中，此時 MySQL 在 RR 情況下會取得 Gap Lock，所謂的 Gap 是在已存在欄位之間的縫隙，為了避免幻讀 MySQL 會鎖住 Gap 不讓其他 Transaction 插入資料</p>
 <p>這邊特別介紹兩個鎖定區間的 Lock，分別是 Gap Lock / Insert Intention Lock</p>
 <ol>
@@ -312,7 +312,7 @@ Record lock, heap no 1 PHYSICAL RECORD: n_fields 1; compact format; info bits 0
 </div>
 </div><p>所以同樣的 query 只是原始資料改變落在不同區間，就不會有 Deadlock 如以下
 <img src="/posts/2022/img/0425/03_01.png" alt=""></p>
-<h3 id="範圍查詢鎖定找過的每筆資料即使條件不合">範圍查詢：鎖定找過的每筆資料即使條件不合</h3>
+<h3 id="4-範圍查詢鎖定找過的每筆資料即使條件不合">4. 範圍查詢：鎖定找過的每筆資料即使條件不合</h3>
 <p>接下來看一個 RR 蠻嚇人的一個特性，參考文件 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html">15.7.2.1 Transaction Isolation Levels</a></p>
 <blockquote>
 <p>&ldquo;When using the default REPEATABLE READ isolation level, the first UPDATE acquires an x-lock on each row that it reads and <code>does not release any of them</code></p>
@@ -326,7 +326,7 @@ Record lock, heap no 1 PHYSICAL RECORD: n_fields 1; compact format; info bits 0
 </blockquote>
 <h2 id="non-unique-index">Non Unique Index</h2>
 <p>上面的範例都是 Clustered Index，MySQL 支援 Secondary Index，其中 Unique Secondary Index 與 Clustered Index 行為類似，就不另外贅述，但是 Non Unique Index 要稍微留意</p>
-<h3 id="查詢命中依然會-gap-lock">查詢命中：依然會 Gap Lock</h3>
+<h3 id="1-查詢命中依然會-gap-lock">1. 查詢命中：依然會 Gap Lock</h3>
 <p>在一開始的範例，如果 Clustered Index 查詢有命中只會鎖那一行 (ex. update id = 1)，但如果 Non Unique Index 即使完全命中，也會連同 Gap 一起鎖起來 (Next Key Lock)</p>
 <p><img src="/posts/2022/img/0425/05.png" alt="">
 這邊 Lock 比較多，需注意 Secondary Index 會被鎖之外，對應的 Clustered Index 也會被鎖，這邊 age 鎖定 10 以及前面的區間，所以要插入 age: 9 就會失敗；運用上面的技巧，age 切換到不同區間就可以成功插入</p>
