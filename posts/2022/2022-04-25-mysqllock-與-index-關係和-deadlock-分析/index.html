@@ -78,8 +78,10 @@
 		<p>關於 MySQL Lock 來來回回寫了也有幾篇，每次看都有不同的發現，這次為了準備公司內部分享，重新再翻閱一次又找到一些新的有趣發現，以下將盡可能完整的解析 MySQL Lock 與 Index 的關係，怎樣的查詢會拿到怎樣的鎖，以及怎樣的查詢又可能互相 Deadlock</p>
 <p>對應的實驗可以看程式碼 <a href="https://github.com/sj82516/mysql-deadlock-test">sj82516/mysql-deadlock-test</a>，先說結論，<code>在 DML (更新、刪除、插入)的操作中，Lock 會與套用的 Index 有關</code>，在 MySQL 中 Index 有幾種</p>
 <ol>
-<li>Clustered Index: 通常是 Primary Key</li>
-<li>Unique Secondary Index: 如果沒有 Primary Key，則 Unique Secondary Index 會是 Clustered Index，行為與 Clustered Index 雷同，不額外贅述</li>
+<li>Clustered Index:<br>
+通常是 Primary Key</li>
+<li>Unique Secondary Index:<br>
+如果沒有 Primary Key，則 Unique Secondary Index 會是 Clustered Index，行為與 Clustered Index 雷同，不額外贅述</li>
 <li>Non Unique Secondary Index</li>
 </ol>
 <p>以下將重點分析 Clustered Index / Non Unique Secondary Index 對於 MySQL 操作有什麼不同的影響，在 Read Committed 簡稱 RC) 與 Repeatable Read (簡稱 RR) 下又有怎樣的不同行為，實驗預設是 5.7 + Repeatable Read (MySQL 預設)</p>
