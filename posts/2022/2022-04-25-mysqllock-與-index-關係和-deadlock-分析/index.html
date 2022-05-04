@@ -249,10 +249,23 @@ Record lock, heap no 3 PHYSICAL RECORD: n_fields 6; compact format; info bits 0
 </div><h4 id="21-建立-index-時決定順序">2.1 建立 Index 時決定順序</h4>
 <p>當<a href="https://dev.mysql.com/doc/refman/5.7/en/create-index.html">建立 MySQL Index</a> 也可以指定順序，但需要注意 MySQL 5.7 會忽視 (全部都是 asc) 只有在 MySQL 8.0 以上才支援，所以以下案例只發生在 MySQL 8.0</p>
 <p>我們可以透過 <code>USE INDEX()</code> 指定執行時的 Index
-<img src="/posts/2022/img/0425/02.png" alt=""></p>
+<img src="/posts/2022/img/0425/02_01.png" alt=""></p>
 <blockquote>
 <p>(5.7 文件) A key_part specification can end with ASC or DESC. These keywords are permitted for future extensions for specifying ascending or descending index value storage. Currently, they <code>are parsed but ignored</code>; index values are always stored in ascending order.</p>
 </blockquote>
+<h4 id="22-恰巧兩個-index-順序相仿">2.2 恰巧兩個 Index 順序相仿</h4>
+<p>2.1 案例中我們很刻意讓 Index 同一個欄位欄位但順序剛好相反，但如果是兩個不同 Index 而資料寫入時讓順序恰好相反呢？
+在建立資料時，id 跟 name 的順序剛好相反，也就是</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">id1 &gt; id2 <span style="color:#960050;background-color:#1e0010">&amp;&amp;</span> name1 &lt; <span style="color:#f92672">name2</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">例如</span> <span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">1</span><span style="color:#960050;background-color:#1e0010">,</span> <span style="color:#960050;background-color:#1e0010">&#34;</span><span style="color:#a6e22e">zz</span><span style="color:#960050;background-color:#1e0010">&#34;)</span> <span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">2</span><span style="color:#960050;background-color:#1e0010">,</span> <span style="color:#960050;background-color:#1e0010">&#34;</span><span style="color:#a6e22e">zx</span><span style="color:#960050;background-color:#1e0010">&#34;)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>這樣也會發生 Deadlock!</p>
+<p><img src="/posts/2022/img/0425/02_02.png" alt=""></p>
 <h3 id="3-查詢沒有命中--gap-lock">3. 查詢沒有命中 : Gap Lock</h3>
 <p>如果查詢沒有命中，此時 MySQL 在 RR 情況下會取得 Gap Lock，所謂的 Gap 是在已存在欄位之間的縫隙，為了避免幻讀 MySQL 會鎖住 Gap 不讓其他 Transaction 插入資料</p>
 <p>這邊特別介紹兩個鎖定區間的 Lock，分別是 Gap Lock / Insert Intention Lock</p>
