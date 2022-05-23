@@ -363,8 +363,15 @@ END OF INNODB MONITOR OUTPUT
 </code></pre></td></tr></table>
 </div>
 </div><p>答案就此揭曉，因為兩個 Transaction 手上都握有 share lock，如果要取得 exclusive lock 則對方必須先釋放 share lock，因此造成 Deadlock，最終看到 Transaction 2 被 rollback 了</p>
-<pre><code>*** WE ROLL BACK TRANSACTION (2)
-</code></pre><p>Debug 資訊乍看很多，但仔細看還蠻好理解的</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">*** WE ROLL BACK TRANSACTION <span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Debug 資訊乍看很多，但仔細看還蠻好理解的</p>
 <h3 id="找出問題根源">找出問題根源</h3>
 <p>知道是因為 shared lock 導致後面的 exclusive lock 死鎖的原因，回頭爬指令看哪裡有問題</p>
 <p>首先定位到 select from，根據官方文件，除非 isolation 是 serializable，否則一般的 select from 是沒有 lock 的，出處 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html">15.7.2.3 Consistent Nonlocking Reads</a></p>

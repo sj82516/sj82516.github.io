@@ -126,8 +126,15 @@ user1,test1
 user2,test2
 user3,test3
 </code></pre><p>我希望打出 POST /login 中的 body 帶參數，變成</p>
-<pre><code>{&quot;user&quot;: &quot;${account}&quot;, &quot;password&quot;: &quot;${password}&quot;}
-</code></pre><p>JMeter 會依序從上至下不斷輪迴發送喔</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">{&#34;user&#34;: &#34;${account}&#34;, &#34;password&#34;: &#34;${password}&#34;}
+</code></pre></td></tr></table>
+</div>
+</div><p>JMeter 會依序從上至下不斷輪迴發送喔</p>
 <h3 id="sample3-pre-processor">Sample3: Pre Processor</h3>
 <p>如果我們希望在每次 Request 前做一些預處理，例如產生亂數、字串組合等，就可以用 Pre Processor，有分成很多種，可以用 BeanShell (java-like script language) 或是 JSR223 (javascript / groovy 等更多的 script language)，這邊就用 javascript</p>
 <p>延伸自 Sample2，先將 csv 讀進來的 account / password 當作參數，在 account 前面加一個 &ldquo;prefix_&rdquo; 字串，做法上新增一個 JSR223 Preprocessor，選擇 javascript，並輸入</p>

@@ -106,8 +106,15 @@
 <p>在 JS 中，一大令人困惑的地方是 function 跟 constructor 無法區分，如果 function 用 <code>new</code> 呼叫就變成 constructor，所以 Douglas 建議 contructor 用大寫開頭作為區分，但可以的話連 <code>new</code> 都不要用，後續會在補充做法。</p>
 <h3 id="how-numbers-work">How Numbers Work</h3>
 <p>這也是 JS 很常被詬病的誤解 0.1 + 0.2 !== 0.3，但其實 JS 是參照 IEEE 754 其中的雙精度浮點數規範，其餘如 Java 等採用同樣的規範也都會有一樣的問題，畢竟用有限的 bits 怎麼可能對應到無窮的有理數呢，所以在精度上的缺陷才會導致這樣的結果。</p>
-<pre><code>要小心切換儲存的數值與實際表示的數字，這兩者會有數學公式的對應關係，但文字上容易產生誤解
-</code></pre><p>JS 只支援單一種的數字型別就是 Number，這是個良好的設計，因為不需要涉及數字型別的轉換，例如 int 轉 float 或 double 等，在現在機器記憶體非常充足的情況下，程式語言以開發者友善的方式設計會比較適合</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">要小心切換儲存的數值與實際表示的數字，這兩者會有數學公式的對應關係，但文字上容易產生誤解
+</code></pre></td></tr></table>
+</div>
+</div><p>JS 只支援單一種的數字型別就是 Number，這是個良好的設計，因為不需要涉及數字型別的轉換，例如 int 轉 float 或 double 等，在現在機器記憶體非常充足的情況下，程式語言以開發者友善的方式設計會比較適合</p>
 <p>Number 以 64 bits 儲存，拆分成3個部分儲存，significand 是介於 0.5 ~ 1.0 的數值</p>
 <blockquote>
 <p>sign(1) + exponent(11) + significand(52)
@@ -118,15 +125,29 @@
 exponent 則是用 11個位元表示 2的次方倍，為了表示正區間到負區間所以預定有偏差值 (bias value 0x3ff)，也就是 exponent 0x000 代表的其實是 (-1 * 0x3ff)；
 significand 用剩餘 52 bit 表示，但因為浮點數表示表達為 1.X * 2^n 次方，因為<code>1</code>固定會存在，所以就可以記在記憶體中，算是額外的 bonus bit，所以最大數值表示可以到 2^53 次方</p>
 <p>幾個常見的數字對應 binary 表示</p>
-<pre><code>-0: 8000 0000 0000 0000
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">-0: 8000 0000 0000 0000
 +0: 8000 0000 0000 0000
-1：3ff0 0000 0000 0000 =&gt; 2 ^ (0x3ff - 0x3ff) * 2^53 (別忘了 bonus bit) = 1
-最大數： 7fef ffff ffff ffff =&gt; (2^54 -1) * 2^971 = 2 ^ (0x7fe - 0x3ff) * (2^54 - 1)
+1：3ff0 0000 0000 0000 =&gt; 2 ^ (0x3ff - 0x3ff) <span style="font-style:italic">* 2^53 (別忘了 bonus bit) = 1
+</span><span style="font-style:italic">最大數： 7fef ffff ffff ffff =&gt; (2^54 -1) *</span> 2^971 = 2 ^ (0x7fe - 0x3ff) * (2^54 - 1)
 
 特殊字
 無限大：0x7ff0 0000 0000 0000
 NaN：0x7ff + 後面出現任意非0的bits，這也是為什麼 NaN !== NaN
-</code></pre><p>須謹記只有在 Number.MAX_SAFE_INTEGER 到 Number.MIN_SAFE_INTEGER 之中的整數才是 1:1 mapping，也就是一個數字對應到一個真實的數值，在這個區間才保證數學運算的正確性，超過範圍的數值會喪失部分精準性，例如</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>須謹記只有在 Number.MAX_SAFE_INTEGER 到 Number.MIN_SAFE_INTEGER 之中的整數才是 1:1 mapping，也就是一個數字對應到一個真實的數值，在這個區間才保證數學運算的正確性，超過範圍的數值會喪失部分精準性，例如</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
@@ -204,7 +225,19 @@ NaN：0x7ff + 後面出現任意非0的bits，這也是為什麼 NaN !== NaN
 接著以 65,536 為單位，將 1,112,064 切割成 16個平面，每個平面含 65536 個碼位；
 其中第 0 碼位稱為 BMP，也就是基礎多語言平面，其他稱為輔助平面。</p>
 <p>UTF-16 代表用 16bits 當作儲存的最小單位，為了要支援全部的 Unicode 語言平面，UTF-16改採用 2個單位來儲存一個碼位，將 20bits 切割上下兩個 10bits，高位元加上 0xD8，低位元加上 0xDC 組合</p>
-<pre><code>U+1F4A9 =&gt; 0001 1111 0100 1010 0111
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">U+1F4A9 =&gt; 0001 1111 0100 1010 0111
 -----
 前10位元： 0001 1111 01
 後10位元： 00 1010 0111
@@ -212,7 +245,9 @@ NaN：0x7ff + 後面出現任意非0的bits，這也是為什麼 NaN !== NaN
 補足 16 bits 並加上對應的預設值
 0001 1111 01 =&gt; 0000 0000 0111 1101 + 0xD8 = 0xD83D
 00 1010 0111 =&gt; 0000 0000 1010 0111 + 0xDC = 0xDCA9
-</code></pre><p>所以 U+1F4A9 在 UTF-16 儲存方式為 <code>0xD83D 0xDCA9</code>
+</code></pre></td></tr></table>
+</div>
+</div><p>所以 U+1F4A9 在 UTF-16 儲存方式為 <code>0xD83D 0xDCA9</code>
 UTF-16 只是 Unicode 實際儲存方式的一種實作，包含常見的 UTF-8 也是指實作方式</p>
 <p>在 JS 中，要表達 Unicode 可以用</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">

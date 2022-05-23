@@ -117,9 +117,17 @@ Terminology 在 Vagrant 有幾個名詞先介紹
 </ol>
 <h2 id="get-started">Get Started!</h2>
 <p>首先建立一個檔案夾 <code>vagrant-demo</code>，先拉下等等要用的 box，</p>
-<pre><code>[Host]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">[Host]
 $ vagrant box add ubuntu/trusty64
-</code></pre><p>可以在這邊找到你想要的 box，<a href="https://app.vagrantup.com/boxes/search">Discover Vagrant Boxes</a></p>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以在這邊找到你想要的 box，<a href="https://app.vagrantup.com/boxes/search">Discover Vagrant Boxes</a></p>
 <p>接著建立 <code>Vargrantfile</code> 文件，裡頭寫入</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -136,17 +144,41 @@ $ vagrant box add ubuntu/trusty64
 </div><p>首先看一下語法，Vagrant 設定檔是用 Ruby 語法，當然不會 Ruby 也可以使用，<code>Vagrant.configure(&quot;2&quot;)</code> 定義 Vagrant 的語法版本，接著 <code>do |config| ... end</code> 定義 vm 的設定，config 是我們在這個 block 中的 vm 名稱；<br>
 <code>config.vm.box</code> 則是指定採用的 box，config.vm 底下有很多參數可以指定，請<a href="https://www.vagrantup.com/docs/vagrantfile/machine_settings.html">參考文件</a></p>
 <p>接著執行</p>
-<pre><code>[Host]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>Host<span style="color:#f92672">]</span>
 $ vagrant up
-</code></pre><p>如果安裝正確，vagrant 會直接啟動新的 vm，如果直接開 virtuabox 會看到一個新的 vm instance <br>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果安裝正確，vagrant 會直接啟動新的 vm，如果直接開 virtuabox 會看到一個新的 vm instance <br>
 <code>$vagrant up</code> 表示依序路徑讀取 <code>Vagrantfile</code>(當前路徑 &ndash;沒有找到再往&ndash;&gt; ../當前路徑 -&gt; &hellip;.)，並啟動新的 vm instance，啟動後會發現路徑下多了 <code>./.vagrant</code> 的資料夾，這主要是記錄 vagrant 執行狀態</p>
 <p>接著讓我們 ssh 進入 vm 看一下</p>
-<pre><code>[Host]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>Host<span style="color:#f92672">]</span>
 $ vagrant ssh
-</code></pre><p>ssh 用的 key 等等 vagrant 都處理好了，ssh 進入後，預設操作的 user 是 <code>vagrant</code>，先看一下 <code>/vagrant</code></p>
-<pre><code>[VM]
+</code></pre></td></tr></table>
+</div>
+</div><p>ssh 用的 key 等等 vagrant 都處理好了，ssh 進入後，預設操作的 user 是 <code>vagrant</code>，先看一下 <code>/vagrant</code></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>VM<span style="color:#f92672">]</span>
 $ ls /vagrant
-</code></pre><p>你會意外發現 /vagrant 裡頭竟然有 Vagrantfile，主要是 vagrant 預設會把本地端 Vagrantfile 同在的資料夾一並同步到 vm 底下的 /vagrant 當中<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>你會意外發現 /vagrant 裡頭竟然有 Vagrantfile，主要是 vagrant 預設會把本地端 Vagrantfile 同在的資料夾一並同步到 vm 底下的 /vagrant 當中<br>
 依照共享的不同，可能是 <code>rsync</code> 一次性複製，也可以透過 SMB 雙向同步共享資料夾</p>
 <h3 id="provisioning">provisioning</h3>
 <p>接著我們安裝上 nodejs，讓我們透過 shell script 安裝 nvm，並建立 server 資料夾放到 vm 中，接著透過 pm2 啟動<br>
@@ -189,16 +221,34 @@ $ ls /vagrant
 </ol>
 <p><code>config.vm.synced_folder</code> 則是顯示指定我們要同步到 /vagrant 底下的資料，也可以指定到其他資料夾下，不過要小心處理檔案路徑</p>
 <p>接著執行</p>
-<pre><code>[Host]
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>Host<span style="color:#f92672">]</span>
 $ vagrant provision
-</code></pre><p>注意如果這時候跑 $ vagrant up 是沒有用的，因為 vm 已經啟動了，如果是 Vagrantfile 增加 provision，記得用 <code>$ vagrant provision</code>或 <code>$ vagrant reload --provision</code>，如果是 Vagrantfile 其他設定檔有更動，請用 <code>$ vagrant reload</code></p>
+</code></pre></td></tr></table>
+</div>
+</div><p>注意如果這時候跑 $ vagrant up 是沒有用的，因為 vm 已經啟動了，如果是 Vagrantfile 增加 provision，記得用 <code>$ vagrant provision</code>或 <code>$ vagrant reload --provision</code>，如果是 Vagrantfile 其他設定檔有更動，請用 <code>$ vagrant reload</code></p>
 <p>此時 ssh 登入後可以看到 nodejs server 已經在執行了</p>
 <p>這時候好好說一下 shell 需要注意的地方，</p>
-<pre><code>....
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">....
 source ~/.nvm/nvm.sh
-nvm install 12
+nvm install <span style="color:#ae81ff">12</span>
 npm install -g pm2
-</code></pre><p>可以看到我在 init.sh / start.sh 要呼叫 nvm/pm2 之前都要 <code>$source ~/.nvm/nvm.sh</code> 而非 <code>$source ~/.bash.sh</code>，主要是因為預設 vagrant 的 .bashrc 有這一段</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到我在 init.sh / start.sh 要呼叫 nvm/pm2 之前都要 <code>$source ~/.nvm/nvm.sh</code> 而非 <code>$source ~/.bash.sh</code>，主要是因為預設 vagrant 的 .bashrc 有這一段</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1

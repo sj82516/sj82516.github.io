@@ -122,10 +122,19 @@
 <p>假使我們先提出一個演算法：找到陣列開頭最長的連續升序排序的陣列，其餘當作第二子陣列，以遞迴方式持續處理</p>
 <p>這個演算法利用了已排序的陣列去減少 merge 的次數，但有個問題 如果陣列剛好是倒序，就會落入 worst case O(n²) ，稱不上是個理想的排序演算法，所以實作時會補上如果發現連續的子陣列是降序，則 in memory 反序。</p>
 <p><strong>先退回最基本的 Merge Sort</strong></p>
-<pre><code>{{1}, {2}, {3}, {4}}  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">{{1}, {2}, {3}, {4}}  
 {{1, 2}, {3, 4}}  
 {{1, 2, 3, 4}}
-</code></pre><p>這是 Merge Sort 的流程，將陣列分拆到為一然後在逐步 merge，我們將第一步分拆的過程改為已排序好的區間(稱為 Run)，然後進行 merge。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這是 Merge Sort 的流程，將陣列分拆到為一然後在逐步 merge，我們將第一步分拆的過程改為已排序好的區間(稱為 Run)，然後進行 merge。</p>
 <p>Tim Sort 在 merge 時會盡量 Balance，所以會設定 minrun，如果這次的 RUN 長度小於 minrun，則會補足到 minrun長度後，接著使用 binary insertion sort，如何選擇 minrun 是個學問，作者提到一個實務上的設定是</p>
 <p>take the first 6 bits of N, and add 1 if any of the remaining bits are set</p>
 <p>N 是陣列長度，最主要是希望如果遇到 random array，則N 盡可能被 minrun 切成 2 次方倍 RUN，在 merge 時可以最平衡。</p>
@@ -139,20 +148,52 @@
 <h3 id="決定何時-merge"><strong>決定何時 merge?</strong></h3>
 <p>Tim Sort 會用一個 Stack 暫存 RUN，並不是一開始就輪詢整個陣列產生RUN，而是逐步進行，避免要用掉過多的記憶體。</p>
 <p>基於這兩個原則，Tim Sort 實作上有個函式 <code>merge_collapse</code> ，這個函式主要判斷目前 Stack 最上層的三個 RUN 是否符合以下規則</p>
-<pre><code>1\.  A &gt; B+C  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">1\.  A &gt; B+C  
 2\.  B &gt; C
-</code></pre><p>如果符合，則將下一個 RUN push 到 Stack上，反之則比較 A跟Ｃ，較小者與 B merge，例如</p>
-<pre><code>A:30  B:20  C:10  
-A &lt;= B + C 所以不符合 merge_collapse，又因為 C &lt; A，所以 C 跟 B merge 變成 A:30 BC: 30
-</code></pre><p>透過這樣的方式，讓保留在 Stack 上的 RUN 長度平衡，另一個重點是合併只能是 A+(B+C) 或是 (A+B)+C，因為要保持 Stable，所以 merge 一定要相鄰兩個 RUN。</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果符合，則將下一個 RUN push 到 Stack上，反之則比較 A跟Ｃ，較小者與 B merge，例如</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">A:30  B:20  C:10  
+A <span style="color:#960050;background-color:#1e0010">&lt;</span>= B + C 所以不符合 merge_collapse，又因為 C &lt; <span style="color:#f92672">A</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">所以</span> <span style="color:#a6e22e">C</span> <span style="color:#a6e22e">跟</span> <span style="color:#a6e22e">B</span> <span style="color:#a6e22e">merge</span> <span style="color:#a6e22e">變成</span> <span style="color:#a6e22e">A:30</span> <span style="color:#a6e22e">BC:</span> <span style="color:#a6e22e">30</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>透過這樣的方式，讓保留在 Stack 上的 RUN 長度平衡，另一個重點是合併只能是 A+(B+C) 或是 (A+B)+C，因為要保持 Stable，所以 merge 一定要相鄰兩個 RUN。</p>
 <h4 id="如何-merge">如何 merge</h4>
 <p>要將兩個相鄰子陣列，用 in memory 方式 merge 在實作上會有困難，實務上因為要造成大量的 memory 操作其實也不會比較快，所以 Tim Sort 使用一塊暫存記憶區，大小為 (A,B) 陣列的最小長度</p>
 <p>如果 A &lt; B，則先將 A 放進暫存記憶區，最直覺的方式是 A 跟 B 從頭開始比對，小的放進 A 的位置，直到 A 跟 B 排序完成，如同一般 merge sort 的做法，又稱為 <code>one-pair-at-a-time</code>。</p>
 <p>但因為 A 跟 B 都已經是排序好的陣列，所以有個優化的方式是找出 B[0] 在 A陣列排序的位置，然後A該位置之前都是小於 B[0]，所以可以整段放進去，接著找剩餘A[0]在 B的位置，不斷輾轉直到排列結束，也就是 <code>gollaping mode</code>。</p>
-<pre><code>A: [1,2,3,7,8,9] B: [4,5,6,8,9,10,11]  
-A &lt; B，所以 A 放入暫存區 temp
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">A: [1,2,3,7,8,9] B: [4,5,6,8,9,10,11]  
+A &lt; <span style="color:#f92672">B</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">所以</span> <span style="color:#a6e22e">A</span> <span style="color:#a6e22e">放入暫存區</span> <span style="color:#a6e22e">temp</span>
 
-先找 B[0] 在 A 的位置，也就是在 A[2]、A[3]之間，因為 B[0] &gt; A[2]，也就是 A[0]~A[2] 可以直接放回去，變成  
+<span style="color:#a6e22e">先找</span> <span style="color:#a6e22e">B</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">0</span><span style="color:#960050;background-color:#1e0010">]</span> <span style="color:#a6e22e">在</span> <span style="color:#a6e22e">A</span> <span style="color:#a6e22e">的位置</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">也就是在</span> <span style="color:#a6e22e">A</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">2</span><span style="color:#960050;background-color:#1e0010">]、</span><span style="color:#a6e22e">A</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">3</span><span style="color:#960050;background-color:#1e0010">]</span><span style="color:#a6e22e">之間</span><span style="color:#960050;background-color:#1e0010">，</span><span style="color:#a6e22e">因為</span> <span style="color:#a6e22e">B</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">0</span><span style="color:#960050;background-color:#1e0010">]</span> &gt; A[2]，也就是 A[0]~A[2] 可以直接放回去，變成  
 A: [1,2,3] B: [4,5,6,8,9,10,11]  
 temp: [7,8,9]
 
@@ -161,7 +202,9 @@ A: [1,2,3,4,5,6] B: [9,10,1]
 temp: [7,8,9]
 
 接著找 B[0] 在 temp 的位置，持續反覆
-</code></pre><p>這優化的方式大多數是有正向的效果，但如果遇到 random array，可能會比原本的 <code>one-pair-at-a-time</code> 還要慢，但作者提及</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>這優化的方式大多數是有正向的效果，但如果遇到 random array，可能會比原本的 <code>one-pair-at-a-time</code> 還要慢，但作者提及</p>
 <blockquote>
 <p>It&rsquo;s generally true in this algorithm that we&rsquo;re willing to gamble a little to win a lot, even though the net expectation is negative for random data</p>
 </blockquote>
@@ -211,18 +254,37 @@ binary search 時間複雜度為 <code>O(n)</code>，n 是查詢陣列的長度�
 <p><a href="http://www.envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/"><strong>Envisage: Engineering Virtualized Services</strong></a></p>
 <p>主要在講 java 版的實作，可能會出現 OutMemeroyBound 的問題，主要是因為在 allocate Stack 的長度時，會有以下極端狀況導致 Stack 長度預設過短而記憶體不夠用</p>
 <p>問題出在timsort本身的約束條件</p>
-<pre><code>1\. runLen[i-2] &gt; runLen[i-1] + runLen[i]  
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">1\. runLen[i-2] &gt; runLen[i-1] + runLen[i]  
 2\. runLen[i-1] &gt; runLen[i]
-</code></pre><p>在runLen為以下情況時，<code>120, 80, 25, 20, 30</code>，<code>25&lt;20+30</code>所以進行run[3]，run[4]合併，變為，<code>120, 80, 45, 30</code><br>
+</code></pre></td></tr></table>
+</div>
+</div><p>在runLen為以下情況時，<code>120, 80, 25, 20, 30</code>，<code>25&lt;20+30</code>所以進行run[3]，run[4]合併，變為，<code>120, 80, 45, 30</code><br>
 這時候由於 <code>80&gt;45+30, 45&gt;30</code> 條件滿足了，merge就終止了</p>
 <p>但此時<code>120&lt;80+45</code>是不滿足約束條件的，但我們只對上層進行判斷<br>
 如果（精心策劃）一些特殊數組造成大量這樣的情況，而在原始碼中 空間是這樣申請的</p>
-<pre><code>int stackLen = (len &lt; 120 ? 5 :  
- len &lt; 1542 ? 10 :  
- len &lt; 119151 ? 19 : 40);  
-runBase = new int[stackLen];  
-runLen = new int[stackLen];
-</code></pre><p>上面stackLen,是滿足上面提到的約束條件跟MIN_MERGE情況下去估計的最大可能數量，但剛也說了，只對上層進行判斷，會有例外狀況導致所需要的大小可能超出原本預想的，至於修復的方式是把檢查最後三個runLen變成檢查最後四個runLen</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">int stackLen = (len &lt; <span style="color:#f92672">120</span> <span style="color:#960050;background-color:#1e0010">?</span> <span style="color:#a6e22e">5</span> <span style="color:#a6e22e">:</span>  
+ <span style="color:#a6e22e">len</span> <span style="color:#960050;background-color:#1e0010">&lt;</span> <span style="color:#a6e22e">1542</span> <span style="color:#960050;background-color:#1e0010">?</span> <span style="color:#a6e22e">10</span> <span style="color:#a6e22e">:</span>  
+ <span style="color:#a6e22e">len</span> <span style="color:#960050;background-color:#1e0010">&lt;</span> <span style="color:#a6e22e">119151</span> <span style="color:#960050;background-color:#1e0010">?</span> <span style="color:#a6e22e">19</span> <span style="color:#a6e22e">:</span> <span style="color:#a6e22e">40</span><span style="color:#960050;background-color:#1e0010">);</span>  
+<span style="color:#a6e22e">runBase </span><span style="color:#f92672">=</span> <span style="color:#e6db74">new</span> <span style="color:#a6e22e">int</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">stackLen</span><span style="color:#960050;background-color:#1e0010">];</span>  
+<span style="color:#a6e22e">runLen </span><span style="color:#f92672">=</span> <span style="color:#e6db74">new</span> <span style="color:#a6e22e">int</span><span style="color:#960050;background-color:#1e0010">[</span><span style="color:#a6e22e">stackLen</span><span style="color:#960050;background-color:#1e0010">];</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>上面stackLen,是滿足上面提到的約束條件跟MIN_MERGE情況下去估計的最大可能數量，但剛也說了，只對上層進行判斷，會有例外狀況導致所需要的大小可能超出原本預想的，至於修復的方式是把檢查最後三個runLen變成檢查最後四個runLen</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1

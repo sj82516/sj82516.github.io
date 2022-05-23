@@ -77,8 +77,15 @@
 	<div class="markdown">
 		<p>從應用程式的角度，執行任務可以分成 I/O bound 與 CPU bound，而 I/O 處理相比於 CPU 運算速度慢好幾個層級，所以當 I/O 還沒準備好時會「主動讓」給其他任務，盡可能地讓 CPU 保持忙碌，等到 「I/O 準備好再重新回到 CPU 執行」</p>
 <p>在之前理解 Nodejs non-blocking I/O 時，官方文件 <a href="https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/">Overview of Blocking vs Non-Blocking</a> 寫到</p>
-<pre><code>Any code that is expected to run in a concurrent manner must allow the event loop to continue running as non-JavaScript operations, like I/O, are occurring.
-</code></pre><p>Nodejs sdk 有提供 non-blocking I/O 機制，底層 libuv 會處理 event loop 與其餘 I/O 的執行，「當 I/O 執行時可以讓其他的 JavaScript code 繼續運行不被 block」</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Any code that is expected to run in a concurrent manner must allow the event loop to <span style="color:#66d9ef">continue</span> running as non-JavaScript operations, like I/O, are occurring.
+</code></pre></td></tr></table>
+</div>
+</div><p>Nodejs sdk 有提供 non-blocking I/O 機制，底層 libuv 會處理 event loop 與其餘 I/O 的執行，「當 I/O 執行時可以讓其他的 JavaScript code 繼續運行不被 block」</p>
 <p>所有用「」括起來的地方都是我所想不透的，為什麼 I/O 運行時其他 JavaScript Code 可以繼續運行？是因為 Nodejs 有某種特殊的方法知道目前的程式在等待 I/O 所以主動切換不同的任務執行？如果不是 Nodejs runtime 切換，那會是作業系統切換的嗎？該怎麼切換？<br>
 又為什麼 I/O 的處理不需要 CPU 的介入嗎？ CPU 怎麼知道 IO 處理完了該繼續往下執行？是不是我的 IO 全部改成 asynchronous 效能就突飛猛進？那為什麼 async io 並不是每個程式語言執行時的預設支援？</p>
 <p>同樣最近在看 Golang goroutine <a href="https://medium.com/a-journey-with-go/go-goroutine-os-thread-and-cpu-management-2f5a5eaf518a">Go: Goroutine, OS Thread and CPU Management</a>時又遇到相同的問題，當讀到 goroutine 等待 I/O 回應時 M 會解除 P 並進入等待，讓其他的 M 執行；如果是遇到 network 相關的 I/O 則推至 network poll 等待 network 完成</p>
@@ -170,13 +177,25 @@ MODULE_LICENSE(<span style="color:#e6db74">&#34;GPL&#34;</span>);
 但是 kernel module 的第四階段不同，他只能解析 kernel 所註冊的 symbol，也就是 kernel 本身提供的 system call，可以在 <code>/proc/kallsyms</code> 查看</p>
 <h4 id="2-條列--安裝--移除-kernel-module">2. 條列 / 安裝 / 移除 kernel module</h4>
 <p>編譯用的 MakeFile 參考上附連結，產出 module object code 後，可以透過以下指令操作 kernel module</p>
-<pre><code>// 條列
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">// 條列
 $ sudo lsmod
 // 安裝
-$ sudo insmod {module.ko}
+$ sudo insmod <span style="color:#f92672">{</span>module.ko<span style="color:#f92672">}</span>
 // 移除
-$ sudo rmmode {module}
-</code></pre><p>可以透過 <code>$ sudo journalctl --since &quot;1 hour ago&quot; | grep kernel</code> 查看近一小時 kernel module 打印結果</p>
+$ sudo rmmode <span style="color:#f92672">{</span>module<span style="color:#f92672">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以透過 <code>$ sudo journalctl --since &quot;1 hour ago&quot; | grep kernel</code> 查看近一小時 kernel module 打印結果</p>
 <h3 id="device-driver">device driver</h3>
 <p><code>所有的裝置在 linux 中都是 file</code>，資料結構可以參考 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h">include/linux/fs.h</a>，首先要先釐清這邊的 File <code>只存在於 kernel</code>，雖然中文可能都被翻成文件或檔案，但實際上與檔案系統中的檔案概念是不同的! 後者通常是叫做 <strong>inode</strong></p>
 <p>所以每一個裝置在 linux 中都是以一個 file 存在，通常儲存於 <code>/dev/</code> 底下，而 device driver 則是 user space 應用程式與 device 溝通的管道，流程大致是</p>
@@ -187,12 +206,28 @@ $ sudo rmmode {module}
 <h4 id="1-註冊裝置">1. 註冊裝置</h4>
 <p>參考資料 <a href="https://sysprog21.github.io/lkmpg/#device-drivers">lkmpg - 5.6 Device Drivers</a>
 先觀察系統中既有的裝置</p>
-<pre><code>$ ls -l /dev/
-</code></pre><p>可以看到類似的輸出</p>
-<pre><code>brw-rw----  1 root  disk  3, 1 Jul  5  2000 /dev/hda1
-brw-rw----  1 root  disk  3, 2 Jul  5  2000 /dev/hda2
-brw-rw----  1 root  disk  3, 3 Jul  5  2000 /dev/hda3
-</code></pre><p>注意到 &ldquo;3, 1&rdquo; 這類型的字串，前面是 major number 後面是 minor number，分別代表 <code>指定 driver, 裝置 id</code>，每個 device driver 都會被分配一個 id，而可能有多個裝置都是由同一個 driver 所驅動，所以有第二個 minor id 讓 driver 區分不同的硬體</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ls -l /dev/
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到類似的輸出</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">brw-rw----  <span style="color:#ae81ff">1</span> root  disk  3, <span style="color:#ae81ff">1</span> Jul  <span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2000</span> /dev/hda1
+brw-rw----  <span style="color:#ae81ff">1</span> root  disk  3, <span style="color:#ae81ff">2</span> Jul  <span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2000</span> /dev/hda2
+brw-rw----  <span style="color:#ae81ff">1</span> root  disk  3, <span style="color:#ae81ff">3</span> Jul  <span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2000</span> /dev/hda3
+</code></pre></td></tr></table>
+</div>
+</div><p>注意到 &ldquo;3, 1&rdquo; 這類型的字串，前面是 major number 後面是 minor number，分別代表 <code>指定 driver, 裝置 id</code>，每個 device driver 都會被分配一個 id，而可能有多個裝置都是由同一個 driver 所驅動，所以有第二個 minor id 讓 driver 區分不同的硬體</p>
 <p>接著注意到最前的字元，可能會看到 <code>d / b / c</code> 三種，d 代表 directory 目錄，b 代表 block、c 代表 char；<br>
 block device 是指說操作會以 block 為單位，所以有時操作會被 buffer 後才執行，例如硬碟儲存裝置，可以最佳化讀寫的效率；<br>
 char device 則沒有 buffer，可以任意讀寫不同的大小，幾乎大多數的裝置都是 char device</p>
@@ -447,12 +482,28 @@ char device 則沒有 buffer，可以任意讀寫不同的大小，幾乎大多�
 </code></pre></td></tr></table>
 </div>
 </div><p>打包後透過 <a href="https://strace.io/">strace</a> 查看 system call 狀況</p>
-<pre><code>$ gcc -Wall -o hello hello.c
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc -Wall -o hello hello.c
 $ strace ./hello.o
-</code></pre><p>打印出蠻多東西，包含一些 memory allocate 的指令等，最終可以看到 <code>write</code> 的 system call 呼叫</p>
-<pre><code>write(1, &quot;hello world&quot;, 11hello world)
-exit_group(0)
-</code></pre><h4 id="2-修改-system-call">2. 修改 system call</h4>
+</code></pre></td></tr></table>
+</div>
+</div><p>打印出蠻多東西，包含一些 memory allocate 的指令等，最終可以看到 <code>write</code> 的 system call 呼叫</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">write<span style="color:#f92672">(</span>1, <span style="color:#e6db74">&#34;hello world&#34;</span>, 11hello world<span style="color:#f92672">)</span>
+exit_group<span style="color:#f92672">(</span>0<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="2-修改-system-call">2. 修改 system call</h4>
 <p>如果我們希望修改 system call，理論上可以直接改 sys_call_table 的 mapping，但基於安全性考量這是無法直接在 runtime 操作的，原因是避免 hacker 直接修改 system call</p>
 <p>第二個嘗試可以透過 <code>$sudo grep sys_call_table /proc/kallsyms</code> 找出 sys_call_table 所儲存的實際記憶體位置並替換，但這目前也不行，同樣是因為安全性考量， Linux kernel 在每次 boot 時會動態擾亂 kernel code 跟 data (稱為 KASLR)，增加 hacker 嘗試攻擊的難度</p>
 <p>一個可行的做法是透過 <a href="https://ztex.medium.com/kprobe-%E7%AD%86%E8%A8%98-59d4bdb1e1fe">kprobe</a>，這是一個 kernel debug 的工具，當 CPU 執行到中斷點時會保存暫存器狀態，並執行 kprobe 指定的指令，可以透過這種方式去動態調整 system call 執行</p>

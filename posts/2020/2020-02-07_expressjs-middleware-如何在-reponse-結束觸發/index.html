@@ -151,13 +151,25 @@
 </code></pre></td></tr></table>
 </div>
 </div><p>目前的 log 會變成</p>
-<pre><code>middleware 1 start
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">middleware 1 start
 middleware 2 start
 request started
 middleware 2 end
 middleware 1 end
 request finished
-</code></pre><p>如果我們希望在 Request 進來先紀錄開始時間，接著在 Response 結束時紀錄結束時間，就必須仰賴其他的實作方式</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果我們希望在 Request 進來先紀錄開始時間，接著在 Response 結束時紀錄結束時間，就必須仰賴其他的實作方式</p>
 <h2 id="on-headers--on-finished">on-headers / on-finished</h2>
 <p>爬過 <code>morgan</code> 程式碼後，發現是透過這兩個模組去實作功能的<br>
 <a href="https://github.com/jshttp/on-headers">on-headers</a>：註冊事件，當 header 被寫入時會觸發<br>
@@ -195,10 +207,19 @@ request finished
 </code></pre></td></tr></table>
 </div>
 </div><p>log 結果是</p>
-<pre><code>request started
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">request started
 request finished
 req process time: 1010 ms
-</code></pre><h3 id="on-headers-實作">on-headers 實作</h3>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="on-headers-實作">on-headers 實作</h3>
 <p>將原本的 response 中的 writeHead 複寫，只是多包一層觸發事件的機制</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">

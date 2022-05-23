@@ -80,7 +80,23 @@
 <h1 id="module---模組化">Module - 模組化</h1>
 <p>先前提到，只要在專案根目錄下，任何的 <code>*.tf</code> 檔案都是 root module，在 <code>$terraform apply</code> 時都會被執行；<br>
 如果要獨立出個別的模組，可以放在不同專案下，透過放在 github、s3 等 remote 方式載入，又或是單純獨立出一個資料夾放置，用路徑的方式載入，先重整原本的專案資料夾架構</p>
-<pre><code>---
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">---
   |--- main.tf // 進入點
   |--- input.tf // 定義參數
   |--- output.tf // 定義輸出
@@ -92,7 +108,9 @@
         ... 上一篇所有的資料
   |--- global
      |--- global.tf
-</code></pre><p>重新思考之後要部署的架構，<code>global</code> 用來存放全域的資源，例如說 IAM Role / DNS 等資源，這部分會需要先被創立，方便後續的資源綁定；</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>重新思考之後要部署的架構，<code>global</code> 用來存放全域的資源，例如說 IAM Role / DNS 等資源，這部分會需要先被創立，方便後續的資源綁定；</p>
 <p>接著把各區域相同的架構包成 module 放置在 modules 底下，程式碼移除 IAM 資源，其餘大多雷同，只是要注意如果有用到 file 相關的參數，要改變路徑位置為 <code>${path.module}</code>，否則會找不到資源；</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">

@@ -111,17 +111,33 @@
 <li>EndpointStateMapping: 一個節點會有一張針對已知的節點所紀錄的 EndpointState，同時會包含自己的狀態</li>
 </ol>
 <p>如下圖</p>
-<pre><code>EndPointState 10.0.0.1
-  HeartBeatState: generation 1259909635, version 325
-  ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45
-  ApplicationState &quot;bootstrapping&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 56
-  ApplicationState &quot;normal&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version <span style="color:#ae81ff">325</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 5.2, generation 1259909635, version <span style="color:#ae81ff">45</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">56</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">87</span>
 EndPointState 10.0.0.2
-  HeartBeatState: generation 1259911052, version 61
-  ApplicationState &quot;load-information&quot;: 2.7, generation 1259911052, version 2
-  ApplicationState &quot;bootstrapping&quot;: AujDMftpyUvebtnn, generation 1259911052, version 31
+  HeartBeatState: generation 1259911052, version <span style="color:#ae81ff">61</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 2.7, generation 1259911052, version <span style="color:#ae81ff">2</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: AujDMftpyUvebtnn, generation 1259911052, version <span style="color:#ae81ff">31</span>
 .....
-</code></pre><p>這邊可以看到節點 10.0.0.1 所保存的 <code>EndPointStateMap</code> 有兩筆 EndPointState，其中 10.0.0.1 的 HeartBeatState 是 <code>generation 1259909635, version 325</code>，這代表 10.0.0.1 是在 1259909635 時啟動的，並且他目前保存欄位中最新的版本是 325；<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>這邊可以看到節點 10.0.0.1 所保存的 <code>EndPointStateMap</code> 有兩筆 EndPointState，其中 10.0.0.1 的 HeartBeatState 是 <code>generation 1259909635, version 325</code>，這代表 10.0.0.1 是在 1259909635 時啟動的，並且他目前保存欄位中最新的版本是 325；<br>
 接著看 <code>ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45</code>，這代表節點內 &ldquo;load-information&rdquo; 這個 Key 對應的值是 5.2 以及當時收到的 generation 與 version，後兩者用來決定 <code>這個 key 收到訊息後要不要更新的依據</code></p>
 <h3 id="gossip-messaging">Gossip Messaging</h3>
 <p>接著來看每次 Gossip 的實作流程，每個節點會在每一秒啟動一個新的 gossip 回合</p>
@@ -147,38 +163,80 @@ b. 節點 B 的資料比較新，打包要更新的 ApplicationState 回傳 <cod
 </blockquote>
 <p>來看實際案例，假設
 目前有節點A (10.0.0.1)</p>
-<pre><code>EndPointState 10.0.0.1
-  HeartBeatState: generation 1259909635, version 325
-  ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45
-  ApplicationState &quot;bootstrapping&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 56
-  ApplicationState &quot;normal&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version <span style="color:#ae81ff">325</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 5.2, generation 1259909635, version <span style="color:#ae81ff">45</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">56</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">87</span>
 EndPointState 10.0.0.2
-  HeartBeatState: generation 1259911052, version 61
-  ApplicationState &quot;load-information&quot;: 2.7, generation 1259911052, version 2
-  ApplicationState &quot;bootstrapping&quot;: AujDMftpyUvebtnn, generation 1259911052, version 31
+  HeartBeatState: generation 1259911052, version <span style="color:#ae81ff">61</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 2.7, generation 1259911052, version <span style="color:#ae81ff">2</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: AujDMftpyUvebtnn, generation 1259911052, version <span style="color:#ae81ff">31</span>
 EndPointState 10.0.0.3
-  HeartBeatState: generation 1259912238, version 5
-  ApplicationState &quot;load-information&quot;: 12.0, generation 1259912238, version 3
+  HeartBeatState: generation 1259912238, version <span style="color:#ae81ff">5</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 12.0, generation 1259912238, version <span style="color:#ae81ff">3</span>
 EndPointState 10.0.0.4
-  HeartBeatState: generation 1259912942, version 18
-  ApplicationState &quot;load-information&quot;: 6.7, generation 1259912942, version 3
-  ApplicationState &quot;normal&quot;: bj05IVc0lvRXw2xH, generation 1259912942, version 7
-</code></pre><p>以及節點B (10.0.0.2)</p>
-<pre><code>EndPointState 10.0.0.1
-  HeartBeatState: generation 1259909635, version 324
-  ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45
-  ApplicationState &quot;bootstrapping&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 56
-  ApplicationState &quot;normal&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 87
+  HeartBeatState: generation 1259912942, version <span style="color:#ae81ff">18</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 6.7, generation 1259912942, version <span style="color:#ae81ff">3</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bj05IVc0lvRXw2xH, generation 1259912942, version <span style="color:#ae81ff">7</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>以及節點B (10.0.0.2)</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">EndPointState 10.0.0.1
+  HeartBeatState: generation 1259909635, version <span style="color:#ae81ff">324</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 5.2, generation 1259909635, version <span style="color:#ae81ff">45</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">56</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version <span style="color:#ae81ff">87</span>
 EndPointState 10.0.0.2
-  HeartBeatState: generation 1259911052, version 63
-  ApplicationState &quot;load-information&quot;: 2.7, generation 1259911052, version 2
-  ApplicationState &quot;bootstrapping&quot;: AujDMftpyUvebtnn, generation 1259911052, version 31
-  ApplicationState &quot;normal&quot;: AujDMftpyUvebtnn, generation 1259911052, version 62
+  HeartBeatState: generation 1259911052, version <span style="color:#ae81ff">63</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 2.7, generation 1259911052, version <span style="color:#ae81ff">2</span>
+  ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: AujDMftpyUvebtnn, generation 1259911052, version <span style="color:#ae81ff">31</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: AujDMftpyUvebtnn, generation 1259911052, version <span style="color:#ae81ff">62</span>
 EndPointState 10.0.0.3
-  HeartBeatState: generation 1259812143, version 2142
-  ApplicationState &quot;load-information&quot;: 16.0, generation 1259812143, version 1803
-  ApplicationState &quot;normal&quot;: W2U1XYUC3wMppcY7, generation 1259812143, version 6 
-</code></pre><h4 id="節點a-決定向節點b-發起-gossip">節點A 決定向節點B 發起 Gossip</h4>
+  HeartBeatState: generation 1259812143, version <span style="color:#ae81ff">2142</span>
+  ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 16.0, generation 1259812143, version <span style="color:#ae81ff">1803</span>
+  ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: W2U1XYUC3wMppcY7, generation 1259812143, version <span style="color:#ae81ff">6</span> 
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="節點a-決定向節點b-發起-gossip">節點A 決定向節點B 發起 Gossip</h4>
 <p>產生的 GossipDigestSynMessage 會是類似於 <code>10.0.0.1:1259909635:325 10.0.0.2:1259911052:61 10.0.0.3:1259912238:5 10.0.0.4:1259912942:18</code>，主要是傳送 <code>Node IP:generation:version</code></p>
 <h4 id="節點b-收到-gossipdigestsynmessage">節點B 收到 GossipDigestSynMessage</h4>
 <p>會有以下流程</p>
@@ -194,11 +252,21 @@ EndPointState 10.0.0.3
 </li>
 </ol>
 <p>組合以上結果 GossipDigestAckMessage的內容會是</p>
-<pre><code>10.0.0.1:1259909635:324
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">10.0.0.1:1259909635:324
 10.0.0.3:1259912238:0
 10.0.0.4:1259912942:0
-10.0.0.2:[ApplicationState &quot;normal&quot;: AujDMftpyUvebtnn, generation 1259911052, version 62], [HeartBeatState, generation 1259911052, version 63]
-</code></pre><p>這代表著</p>
+10.0.0.2:<span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: AujDMftpyUvebtnn, generation 1259911052, version 62<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>HeartBeatState, generation 1259911052, version 63<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>這代表著</p>
 <ul>
 <li>請給我 10.0.0.1 在 generation 1259909635 中 version 324 以後的更新資料</li>
 <li>請給我 10.0.0.3 在 generation 1259912238 全部資料 (version:0)</li>
@@ -207,10 +275,19 @@ EndPointState 10.0.0.3
 </ul>
 <h4 id="節點a-回覆-gossipdigestack2message">節點A 回覆 GossipDigestAck2Message</h4>
 <p>節點A 收到後，更新完 10.0.0.2 的資訊後，接著回覆節點B 所要的資料</p>
-<pre><code>10.0.0.1:[ApplicationState &quot;load-information&quot;: 5.2, generation 1259909635, version 45], [ApplicationState &quot;bootstrapping&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 56], [ApplicationState &quot;normal&quot;: bxLpassF3XD8Kyks, generation 1259909635, version 87], [HeartBeatState, generation 1259909635, version 325]
-10.0.0.3:[ApplicationState &quot;load-information&quot;: 12.0, generation 1259912238, version 3], [HeartBeatState, generation 1259912238, version 3]
-10.0.0.4:[ApplicationState &quot;load-information&quot;: 6.7, generation 1259912942, version 3], [ApplicationState &quot;normal&quot;: bj05IVc0lvRXw2xH, generation 1259912942, version 7], [HeartBeatState: generation 1259912942, version 18]
-</code></pre><p>這樣就完成一輪的 Gossip 了</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">10.0.0.1:<span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 5.2, generation 1259909635, version 45<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;bootstrapping&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version 56<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bxLpassF3XD8Kyks, generation 1259909635, version 87<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>HeartBeatState, generation 1259909635, version 325<span style="color:#f92672">]</span>
+10.0.0.3:<span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 12.0, generation 1259912238, version 3<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>HeartBeatState, generation 1259912238, version 3<span style="color:#f92672">]</span>
+10.0.0.4:<span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;load-information&#34;</span>: 6.7, generation 1259912942, version 3<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>ApplicationState <span style="color:#e6db74">&#34;normal&#34;</span>: bj05IVc0lvRXw2xH, generation 1259912942, version 7<span style="color:#f92672">]</span>, <span style="color:#f92672">[</span>HeartBeatState: generation 1259912942, version 18<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>這樣就完成一輪的 Gossip 了</p>
 <blockquote>
 <p>可以看出為什麼 HeartbeatState 的 version 會與 ApplicationState 共享，這邊的共享指的是在<code>同一個節點下 ApplicationState 的 version 必須是獨一無二且遞增</code>，這樣才能在 SYN 時只傳送 HeartbeatState 直接判斷有哪些欄位需要更新</p>
 </blockquote>

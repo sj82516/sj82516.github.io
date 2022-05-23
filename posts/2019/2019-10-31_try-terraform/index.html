@@ -331,9 +331,17 @@ Developer Experience 還不賴，官方的文件、教學，以及整體的設�
 </div>
 </div><p><code>source_code_hash</code> 是指說如果 hash 值改變就更新 Lambda 內容，而 <code>filebase64sha256()</code> 是 Terraform 的內建函示，自動用 sha 256 算出檔案 hash 值並用 base64 編碼</p>
 <p>題外話，Lambda 的 zip file 記得解壓縮後不要有額外的資料夾，不然會失敗，正確應該要是</p>
-<pre><code>--- lambda.zip
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">--- lambda.zip
   |--- index.js
-</code></pre><h1 id="部署架構">部署架構</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="部署架構">部署架構</h1>
 <p>編寫好架構，此時要調用 Terraform CLI 來部署架構
 首先初始化環境與載入需要的執行資源</p>
 <blockquote>
@@ -572,12 +580,23 @@ availability_zone_names<span style="color:#f92672">=</span>[<span style="color:#
 </code></pre></td></tr></table>
 </div>
 </div><p>會在 apply 成功後打印出來</p>
-<pre><code>Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 lambda-arn = arn:aws:lambda:us-east-1:.....
-</code></pre><h1 id="state---terraform-如何掌管架構的更動">State - Terraform 如何掌管架構的更動</h1>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id="state---terraform-如何掌管架構的更動">State - Terraform 如何掌管架構的更動</h1>
 <p>當架構異動的時候，Terraform 如何知道前後架構的差異呢？
 每次在執行 <code>$ terraform plan</code> 時，專案目錄底下有 <code>terraform.tfstate</code> 檔案，用 JSON 描述架構中的所有資源，每當下次執行 <code>$ terraform plan</code> 時，Terraform 會根據 tfstate 中的資源 ID 取得最新的資訊，接著與描述檔做 diff 決定哪部分資源要更新</p>
 <p>當我們要跨團隊協作時，就需要把 terraform 描述檔 + terraform.tfstate 與團隊共享，此時會有有三個要素</p>

@@ -158,13 +158,25 @@ WebRTC 並沒有硬性規定 Signaling 傳輸的機制，常見做法是透過 W
 <h4 id="media-description">Media Description</h4>
 <p>一個 Session Description 通常包含多個 Media Description，而 Media Description 則由一連串的 RTP Payload 的格式定義，實際的 codec 會以 <code>rtpmap</code> 表示
 如以下</p>
-<pre><code>v=0
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">v=0
 m=audio 4000 RTP/AVP 111
 a=rtpmap:111 OPUS/48000/2
 m=video 4000 RTP/AVP 96
 a=rtpmap:96 VP8/90000
 a=my-sdp-value
-</code></pre><p>這裡定義兩個 Media Description<br>
+</code></pre></td></tr></table>
+</div>
+</div><p>這裡定義兩個 Media Description<br>
 一個是 audio 帶著 fmt 111，並指定 codec 為 OPUS
 另一個是 video 帶著 fmt 96，codec 為 VP8，並帶著第二個屬性值為 my-sdp-value</p>
 <h3 id="webrtc-如何利用-sdp">WebRTC 如何利用 SDP</h3>
@@ -337,9 +349,17 @@ Sender 再發送時打上當時的時間戳記 t1，Receiver 收到後加上自�
 <li>REMB<br>
 Reciver 根據統計 packet loss，跟 Sender 回報預期的 bitrate</li>
 </ol>
-<pre><code>if (packetLoss &lt; 2%) video_bitrate *= 1.08
-if (packetLoss &gt; 10%) video_bitrate *= (1 - 0.5*lossRate)
-</code></pre><p>但這個方法理論上看起來不錯，實際應用上卻很糟糕，因為 encoder 在動態改變 bitrate 下沒有這麼有效率
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">if (packetLoss &lt; <span style="color:#f92672">2</span><span style="color:#960050;background-color:#1e0010">%)</span> <span style="color:#a6e22e">video_bitrate</span> <span style="color:#960050;background-color:#1e0010">*=</span> <span style="color:#a6e22e">1</span><span style="color:#960050;background-color:#1e0010">.</span><span style="color:#a6e22e">08</span>
+<span style="color:#a6e22e">if</span> <span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">packetLoss</span> &gt; 10%) video_bitrate *= (1 - 0.5*lossRate)
+</code></pre></td></tr></table>
+</div>
+</div><p>但這個方法理論上看起來不錯，實際應用上卻很糟糕，因為 encoder 在動態改變 bitrate 下沒有這麼有效率
 3. TWCC<br>
 追蹤每一個封包的狀況，可以讓 Sender 有更即時、清楚的網路狀況</p>
 <p>這一段理解不這麼全面，未來有機會補上</p>

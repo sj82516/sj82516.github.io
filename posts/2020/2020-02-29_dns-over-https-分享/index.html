@@ -94,12 +94,23 @@
 <h3 id="http-method">HTTP Method</h3>
 <p>支援 GET / POST 兩種方式查詢<br>
 例如說要查詢 <a href="http://www.example.com">www.example.com</a> 長這樣</p>
-<pre><code>:method = GET
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">:method = GET
 :scheme = https
 :authority = dnsserver.example.net
 :path = /dns-query?dns=AAABAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB
 accept = application/dns-message
-</code></pre><h3 id="建議-http2-為最低版本">建議 HTTP2 為最低版本</h3>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="建議-http2-為最低版本">建議 HTTP2 為最低版本</h3>
 <p>對比 DNS 採用的 UDP/TCP 來說，HTTP 開銷大很多，採用 HTTP2 有一些性能上優化的部分，例如重用連結、重整封包順序、Header 壓縮等，相比更舊的 HTTP 版本已儘可能減輕通訊上的負擔</p>
 <h2 id="實際使用與測試">實際使用與測試</h2>
 <p>要實際使用的方式有幾種，一種是在自己電腦裝上 DoH Client，接著將 DNS 查詢指向 DoH Client 經由他代理查詢，好處是透過代理不用擔心應用程式的支援問題，這部分可以安裝 cloudflare 提供的 <a href="https://developers.cloudflare.com/1.1.1.1/dns-over-https/cloudflared-proxy/">cloudflared</a></p>

@@ -98,8 +98,15 @@ Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client �
 <p>再考量分散式設計之前，讓我們先思考單一台 Redis 如何實作 Lock 機制</p>
 <h3 id="取得-lock">取得 Lock</h3>
 <p>當要取得 Lock，可以用以下的指令</p>
-<pre><code>SET resource_name my_random_value NX PX 30000
-</code></pre><p><code>NX</code> 表示只有當 <code>resource_name</code> 不存在才創建這個 Key，避免重複建立，符合第一點原則 <br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md">SET resource_name my_random_value NX PX 30000
+</code></pre></td></tr></table>
+</div>
+</div><p><code>NX</code> 表示只有當 <code>resource_name</code> 不存在才創建這個 Key，避免重複建立，符合第一點原則 <br>
 <code>Px 30000</code> 表示 Key 的 TTL 是 30秒，符合第二點原則</p>
 <h3 id="釋放-lock">釋放 Lock</h3>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
@@ -119,11 +126,21 @@ Lock 必須在一段時間後(TTL) 自動釋放，避免握住 Lock 的 Client �
 </code></pre></td></tr></table>
 </div>
 </div><p>在釋放 Key 時，必須先檢查 Key 對應的 Value是不是我們一開始塞進去的值，也就是上個步驟的 <code>my_random_value</code>，這是要確保移除的 Lock 是當初我們取得的 Lock，試想一下情況</p>
-<pre><code>1. Client A 取得 Lock  
-2. Client A 時間超過 TTL，Redis 移除 Lock  
-3. Client B 取得相同 Lock，因為 Client A 超時所以 Client B 可以取得 Lock  
-4. Client A 此時要釋放 Lock  
-</code></pre><p>步驟四如果沒有檢查，Client A 不小心移除了 Client B 的 Lock，此時就會破壞第一點原則</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-md" data-lang="md"><span style="color:#66d9ef">1.</span> Client A 取得 Lock  
+<span style="color:#66d9ef">2.</span> Client A 時間超過 TTL，Redis 移除 Lock  
+<span style="color:#66d9ef">3.</span> Client B 取得相同 Lock，因為 Client A 超時所以 Client B 可以取得 Lock  
+<span style="color:#66d9ef">4.</span> Client A 此時要釋放 Lock  
+</code></pre></td></tr></table>
+</div>
+</div><p>步驟四如果沒有檢查，Client A 不小心移除了 Client B 的 Lock，此時就會破壞第一點原則</p>
 <h3 id="random-string">Random String</h3>
 <p>Random String 的產生機制，可以取 <code>/dev/urandom</code> 的 20 bytes，/dev/urandom 是*unix 系統產生偽亂數的方式，依據設定的不同可能是從環境噪音、網路數據封包等外在物理現象，這樣的做法可以保證較好的隨機性，也可以用其他簡單的方式，例如取系統時間加上 client_id 等等，取決於實作者的設計</p>
 <h2 id="套用至分散式系統">套用至分散式系統</h2>

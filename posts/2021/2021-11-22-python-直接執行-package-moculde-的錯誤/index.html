@@ -99,21 +99,46 @@
 如果 Module 是 <code>top-level modules</code>，也就是 <code>__name__ == __main__</code>，則 __package__ 為 None</li>
 </ol>
 <p>以下參考自 <a href="https://stackoverflow.com/questions/16981921/relative-imports-in-python-3">Relative imports in Python 3</a>，假設目前的專案目錄是</p>
-<pre><code>main.py
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">main.py
 mypackage/
     __init__.py
     mymodule.py
     myothermodule.py
-</code></pre><p>在 myothermodule.py 中，載入 mymodule，可以透過完整路徑 <code>import mypackage.mymodule</code> 或是相對路徑 <code>import .mymodule</code> 的方式，但如果直接執行 $python myothermodule 會分別遇到以下錯誤</p>
+</code></pre></td></tr></table>
+</div>
+</div><p>在 myothermodule.py 中，載入 mymodule，可以透過完整路徑 <code>import mypackage.mymodule</code> 或是相對路徑 <code>import .mymodule</code> 的方式，但如果直接執行 $python myothermodule 會分別遇到以下錯誤</p>
 <ol>
 <li>完整路徑</li>
 </ol>
-<pre><code>ModuleNotFoundError: No module named 'mypackage'
-</code></pre><ol start="2">
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ModuleNotFoundError: No module named <span style="color:#e6db74">&#39;mypackage&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>相對路徑</li>
 </ol>
-<pre><code>ImportError: attempted relative import with no known parent package
-</code></pre><p>完整路徑的錯誤原因是因為 sys.path 中沒有 mypackage，sys.path 是加入<code>script 當前的資料夾 (./mypackage)</code>而不是 ./，所以 mypackage 是無法被載入的；<br>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ImportError: attempted relative import with no known parent package
+</code></pre></td></tr></table>
+</div>
+</div><p>完整路徑的錯誤原因是因為 sys.path 中沒有 mypackage，sys.path 是加入<code>script 當前的資料夾 (./mypackage)</code>而不是 ./，所以 mypackage 是無法被載入的；<br>
 相對路徑的錯誤則是因為當前 myothermodule.py 是 top-level module， __package__ 被設定為 None，所以相對路徑解析會失敗</p>
 <h2 id="如何解決">如何解決</h2>
 <p>分別針對完整路徑與相對路徑提出解決方案</p>
