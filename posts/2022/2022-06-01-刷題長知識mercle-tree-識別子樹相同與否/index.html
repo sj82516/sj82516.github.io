@@ -76,6 +76,8 @@
 	</div>
 	<div class="markdown">
 		<p>今天在解 <a href="https://leetcode.com/problems/binary-tree-longest-consecutive-sequence-ii/">549. Binary Tree Longest Consecutive Sequence II</a>，在評論區發現有趣的解法 Merkle Tree，說來解法也很單純，就是 tree 節點會 (左子樹的 hash value + 右子樹的 hash value + 自己的 hash value) 再取一次 hash value 代表整棵 tree，所以需要 O(n) 的時間複雜度與空間複雜度，n 為節點數</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Hash_Tree.svg/310px-Hash_Tree.svg.png" alt=""><br>
+圖片來自 wiki</p>
 <p>#549 程式碼大致是，以下代碼的來源是 <a href="https://leetcode.com/problems/find-duplicate-subtrees/discuss/106030/Python-O(N)-Merkle-Hashing-Approach">awice-Python, O(N) Merkle Hashing Approach</a></p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
