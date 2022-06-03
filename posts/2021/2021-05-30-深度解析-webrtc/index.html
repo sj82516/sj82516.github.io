@@ -90,7 +90,7 @@
 <p>以下內容理解自 <a href="https://webrtcforthecurious.com/">WebRTC For The Curious</a></p>
 <p>WebRTC 是 Web Real-Time Communication 縮寫，本身是 API 也是 Protocol，主要是可以讓兩個 WebRTC Agent 建立 <code>即時、雙向、安全</code>的串流，WebRTC API 則是遵守 Protocol 定義所提供的實作，目前多家瀏覽器都有實作 WebRTC API，也有非 Javascript 的 WebRTC API 實作</p>
 <p>WebRTC protocol 本身只是集合了多個已知、穩定的協定而提供的完整解決方案，主要包含以下步驟</p>
-<h4 id="signaling">Signaling：</h4>
+<h3 id="一-signaling">一. Signaling：</h3>
 <p>當兩個 Agent 要互相溝通時，他們不知道彼此的位置、彼此支援的影音版本等等，此時會需要 <code>SDP</code> 描述雙方狀態，並透過管道溝通，SDP 是一個由 Key-Pair 組成的文本協定，只要包含以下幾個項目：</p>
 <ol>
 <li>IP/Port (Candidate)</li>
@@ -100,44 +100,44 @@
 <li>安全性資訊 (如 Fingerprint 等)</li>
 </ol>
 <p>需注意<code>如何交換 SDP</code> 不再 WebRTC 定義中，可以使用任意協定如 HTTP / Websocket / XMPP 等，只要 Agent 之間能夠交換即可</p>
-<h4 id="connecting">Connecting</h4>
+<h3 id="二-connecting">二. Connecting</h3>
 <p>WebRTC Agent 要準備建立連線時，會透過 <code>ICE (Interactive Connectivity Establishment)</code>，Agent 本身可能在同個 Local 區網下，也可能在世界的兩端，透過 ICE 找出兩個 Agent 能夠直接連線的方式，這背後隱藏了 NAT Traversal 與 STUN/TURN 細節，會在後續介紹</p>
-<h4 id="security">Security</h4>
+<h3 id="三-security">三. Security</h3>
 <p>建立雙向連線後，WebRTC 會在增加連線的安全性，透過 DTLS (Datagram Transport Layer Security) UDP over TLS 與 SRTP (Secure Real-time Transport Protocol)</p>
 <p>DTLS 主要用於 Data Channel，WebRTC 透過 DTLS 交握建立安全連線，其中 TLS 驗證部分略與 HTTPS 過程不同，在 WebRTC 中沒有去向 CA 驗證憑證，而是透過先前 Signaling 交換的 fingerprint 檢查</p>
 <p>而 Audio/Video 串流則是透過 RTP，為了多疊加一層安全性採用 SRTP 傳輸 RTP 內容，所採用的加密金鑰則是透過 Data Channel 所交換</p>
 <p>目前就成功建立雙向、安全的連線後，但是影音串流還必須考量到網路狀況，如封包遺失、頻寬限制等問題</p>
-<h4 id="communicating">Communicating</h4>
+<h3 id="四-communicating">四. Communicating</h3>
 <p>採用 SCTP (Stream Control Transmission Protocol) 做傳輸狀況的監控、流量管制，實際上 SCTP 的封包是透過 Data Channel 走 DTLS</p>
 <p>全部總結，WebRTC 就是由這些協定所集結而成的
 <img src="/posts/img/20210108/webrtc-protocol.png" alt=""></p>
-<h3 id="webrtc-api">WebRTC API</h3>
+<h2 id="webrtc-api">WebRTC API</h2>
 <p>快速過一下 API 設計</p>
-<h4 id="new-peerconnection">new PeerConnection</h4>
+<h3 id="1-new-peerconnection">1. new PeerConnection</h3>
 <p>建立 WebRTC Session，也就是上述的所有 Protocol 集合</p>
-<h4 id="addtrack">addTrack</h4>
+<h3 id="2-addtrack">2. addTrack</h3>
 <p>建立 RTP Stream，並綁定一個隨機產生的 SSRC，之後在 createOffer 時會帶在 SDP 當中並建立對應的 media session，每當 addTrack 一次都會建立新的 RTP Stream</p>
 <p>只要 ICE 後成功建立 SRTP 連線，media packets 就會馬上傳送出去</p>
-<h4 id="createdatachannel">createDataChannel</h4>
+<h3 id="3-createdatachannel">3. createDataChannel</h3>
 <p>如果 SCTP 連線還沒建立則新建立一個，預設只有在某一方要求 data channel 才會建立</p>
 <p>當 DTLS 成功建立連線後，SCTP packets 就會開始傳送</p>
-<h4 id="createoffer">createOffer</h4>
+<h3 id="4-createoffer">4. createOffer</h3>
 <p>建立 local SDP</p>
-<h4 id="setlocaldescription">setLocalDescription</h4>
+<h3 id="5-setlocaldescription">5. setLocalDescription</h3>
 <p>先前的 addTrack / createDataChannel 只是暫時性的，只有當呼叫 setLocalDescription 才確定套用修改</p>
 <p>通常呼叫 setLocalDescription 就會傳送 offer 讓對方 setRemoteDescription</p>
-<h4 id="setremotedescription">setRemoteDescription</h4>
+<h3 id="6-setremotedescription">6. setRemoteDescription</h3>
 <p>setRemoteDescription 通知 local agent 對方的 candidate 狀態，如果雙方都 setRemoteDescription就可以開始 connecting</p>
-<h4 id="addicecandidate">addIceCandidate</h4>
+<h3 id="7-addicecandidate">7. addIceCandidate</h3>
 <p>通知 WebRTC Agent 增加 remote ICE candidate</p>
-<h4 id="ontrack">ontrack</h4>
+<h3 id="8-ontrack">8. ontrack</h3>
 <p>當 RTP stream 接收到封包時觸發事件，封包應該會吻合 setRemoteDescription 時指定的格式</p>
 <p>WebRTC 會透過 SSRC 確認對應的 Media Stream</p>
-<h4 id="oniceconnectionstatechange">oniceconnectionstatechange</h4>
+<h3 id="9-oniceconnectionstatechange">9. oniceconnectionstatechange</h3>
 <p>如果 ICE Agent 有異動會觸發事件，像是遇到網路狀況等</p>
-<h4 id="onstatechange">onstatechange</h4>
+<h3 id="10-onstatechange">10. onstatechange</h3>
 <p>ICE Agent / DTLS Agent 狀態異動時會觸發事件</p>
-<h2 id="一-signaling">一. Signaling</h2>
+<h2 id="一-signaling-1">一. Signaling</h2>
 <p>WebRTC Agent 一開始建立時並不知道該與誰通訊、也不知道該用什麼格式，所以會需要在初始化時做 Signaling，讓後續的連線有機會發生<br>
 WebRTC 並沒有硬性規定 Signaling 傳輸的機制，常見做法是透過 Websocket</p>
 <h3 id="什麼是-sdp">什麼是 SDP</h3>
@@ -230,7 +230,7 @@ Media Stream 的 ID</p>
 </li>
 </ol>
 <p>範例 SDP 可以在這邊產生 <a href="https://webrtc.github.io/samples/src/content/peerconnection/munge-sdp/">WebRTC samples Munge SDP</a></p>
-<h2 id="二-connecting">二. Connecting</h2>
+<h2 id="二-connecting-1">二. Connecting</h2>
 <p>上一步 Signaling 交換完連線資訊，接著就要建立雙方 P2P 連線，但現實的網路世界在有不同種的 NAT 存在，使得建立連線時會有一些阻礙，為了克服衍生出了 NAT 穿越機制 <a href="https://datatracker.ietf.org/doc/html/rfc8445">Interactive Connectivity Establishment (ICE)</a></p>
 <h3 id="nat-種類">NAT 種類</h3>
 <p>NAT 是在一個區域網路下，由統一的對外路由器共用 public ip，而內部的機器則使用 private ip，如果內部機器需要與外部網路溝通，則透過路由器收發，路由器會記住哪些封包要轉送到對應的內部機器；<br>
@@ -238,18 +238,18 @@ Media Stream 的 ID</p>
 <img src="https://webrtcforthecurious.com/docs/images/03-nat-mapping.png" alt=""><br>
 *圖片來自 webrtcforthecurious</p>
 <p>而路由器針對封包的發送會有不同的對應產生，假設 Machine A 向 public Host 1 發送請求，則會在路由器註冊一個 Mapping</p>
-<h4 id="endpoint-independent-mapping">Endpoint-Independent Mapping</h4>
+<h4 id="1-endpoint-independent-mapping">1. Endpoint-Independent Mapping</h4>
 <p>如果 Machine A 要向 public Host 2 發送請求，則可以復用同一個 Mapping</p>
-<h4 id="address-dependent-mapping">Address Dependent Mapping</h4>
+<h4 id="2-address-dependent-mapping">2. Address Dependent Mapping</h4>
 <p>如果 Machine A 要向 public Host 2 發送請求，則會產生新的 Mapping</p>
-<h4 id="address-and-port-dependent-mapping">Address and Port Dependent Mapping</h4>
+<h4 id="3-address-and-port-dependent-mapping">3. Address and Port Dependent Mapping</h4>
 <p>如果 Machine A 要向 public Host 1 但是不同的 port 發送請求，則會產生新的 Mapping</p>
 <p>針對外部封包的接收會有不同的限制</p>
-<h4 id="endpoint-independent-filtering">Endpoint-Independent Filtering</h4>
+<h4 id="4-endpoint-independent-filtering">4. Endpoint-Independent Filtering</h4>
 <p>任何 public Host 都可以對同一個 Mapping 送封包給 Machine A</p>
-<h4 id="address-dependent-filtering">Address Dependent Filtering</h4>
+<h4 id="5-address-dependent-filtering">5. Address Dependent Filtering</h4>
 <p>只有 Machine A 先送過 public Host 1，則 public Host 1 才可以透過此 Mapping 送封包給 Machine A</p>
-<h4 id="address-and-port-dependent-filtering">Address and Port Dependent Filtering</h4>
+<h4 id="6-address-and-port-dependent-filtering">6. Address and Port Dependent Filtering</h4>
 <p>只有 Machine A 先送過 public Host 1 + port 1，則 public Host 1 + port 1 才可以透過此 Mapping 送封包給 Machine A</p>
 <blockquote>
 <p>小結，可以看到 NAT 限制由上往下越來越嚴謹，一開始任何 public ip 都可以送，接著限制 ip address，最嚴格是要 ip address + port 都吻合才可以送</p>
