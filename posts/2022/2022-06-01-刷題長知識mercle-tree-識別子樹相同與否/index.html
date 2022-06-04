@@ -238,7 +238,17 @@ $ git cat-file -p e9e2bd5dfa2916e3b1cba933bd9250a9822406e4
 </div>
 </div><p>可以看到 test.txt 因為內容改變而 SHA key 也改變，同樣的 test1 、test2 對應的 tree object SHA key 已經變成了，所以只要底下的 blob 改變 tree SHA key也會跟著改變</p>
 <p>我暫時沒有找到直接把資料夾轉成 hash code 並儲存的方式，在文件中只有記載當在 staging 區增加檔案時，git 會幫忙建立 index 與 tree</p>
-<h3 id="commit-objects">Commit Objects</h3>
+<h4 id="每次變動-git-都會儲存整份檔案內容這樣-gitobjects-就會超肥">每次變動 git 都會儲存整份檔案內容，這樣 .git/objects 就會超肥？</h4>
+<p>沒錯，會非常肥，所以 git 提供指令可以清除檔案太舊的資料，參考 <a href="https://stackoverflow.com/questions/5613345/how-to-shrink-the-git-folder">How to shrink the .git folder</a>，在 git 文件中有更詳細描述 <a href="https://git-scm.com/book/zh-tw/v2/Git-Internals-Maintenance-and-Data-Recovery">10.7 Git Internals - Maintenance and Data Recovery</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git repack -a -d --depth<span style="color:#f92672">=</span><span style="color:#ae81ff">250</span> --window<span style="color:#f92672">=</span><span style="color:#ae81ff">250</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="commit-objects">Commit Objects</h3>
 <p>在 git 中 commit 儲存是樹狀結構，當執行 $ git commit 時，git 會產生 commit object 並記錄 commit 訊息 / 時間 / 作者與 parent commit，如</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -318,7 +328,10 @@ puts <span style="color:#66d9ef">Digest</span><span style="color:#f92672">::</sp
 <span style="color:#75715e"># 得到 &#34;4135fc4add3332e25ab3cd5acabe1bd9ea0450fb&#34;</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="結語">結語</h2>
+</div><blockquote>
+<p>總結：在 Git 中檔案與 Commit 都是以樹狀結構儲存，只要節點下的子節點有變動，往上一路到跟節點的 Hash key 都會跟著改變，透過 Mercle Tree 就可以在 O(N) 找到變動的地方</p>
+</blockquote>
+<h2 id="結語">結語</h2>
 <p>刷題有時候有趣的不是單純答案寫出來，而是看到討論區有各種牛鬼蛇神的強大解法，許多資料結構或演算法在日常的系統中都扮演重要的角色</p>
 
 	</div>
