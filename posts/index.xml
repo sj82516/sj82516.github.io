@@ -6,10 +6,22 @@
 		<description>Recent content in Posts on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Wed, 01 Jun 2022 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sat, 27 Aug 2022 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/posts/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>【程式設計】謹慎使用 Mixin - 淺談 RoR Module 使用的陷阱</title>
+			<link>https://yuanchieh.page/posts/2022/2022-08-27-%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%E8%AC%B9%E6%85%8E%E4%BD%BF%E7%94%A8-mixin-%E6%B7%BA%E8%AB%87-ror-module-%E4%BD%BF%E7%94%A8%E7%9A%84%E9%99%B7%E9%98%B1/</link>
+			<pubDate>Sat, 27 Aug 2022 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2022/2022-08-27-%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%E8%AC%B9%E6%85%8E%E4%BD%BF%E7%94%A8-mixin-%E6%B7%BA%E8%AB%87-ror-module-%E4%BD%BF%E7%94%A8%E7%9A%84%E9%99%B7%E9%98%B1/</guid>
+			<description>
+				
+				Ruby 提供 Module 用來跨 class reuse code (Mixin)，但如果隨意使用會造成可讀性與維護性困難，淺談問題與分享解法
+				
+			</description>
+		</item>
 		<item>
 			<title>【刷題長知識】Mercle Tree - O(n) 識別子樹相同與否</title>
 			<link>https://yuanchieh.page/posts/2022/2022-06-01-%E5%88%B7%E9%A1%8C%E9%95%B7%E7%9F%A5%E8%AD%98mercle-tree-%E8%AD%98%E5%88%A5%E5%AD%90%E6%A8%B9%E7%9B%B8%E5%90%8C%E8%88%87%E5%90%A6/</link>
