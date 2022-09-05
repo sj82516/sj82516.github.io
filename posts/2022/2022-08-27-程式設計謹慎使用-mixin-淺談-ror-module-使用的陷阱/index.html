@@ -259,7 +259,43 @@ s1 <span style="color:#f92672">&lt;</span> s2
 </div><p>可以看出 module 在使用 instance variable 後會有很多耦合的地方，包含 initialzie 的時機 / 暴露過多細節等問題</p>
 <h3 id="壞味道3-多個-module-間可能會有命名衝突">壞味道3. 多個 Module 間可能會有命名衝突</h3>
 <p>如果今天兩個 Module 命名重複怎麼辦？ 在 Ruby 中會依照繼承鏈決定套用到的 method，但可能不符合 caller 的預期，這邊可以參考前端 React 圈的討論 <a href="https://reactjs.org/blog/2016/07/13/mixins-considered-harmful.html">Mixins Considered Harmful</a></p>
-<h2 id="如何解決">如何解決</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#66d9ef">module</span> A
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">method_a</span>
+    <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+
+<span style="color:#66d9ef">module</span> B
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">method_b</span>
+    <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+
+<span style="color:#75715e"># 如果 module B 不小心也定義了 method_a，就會覆蓋過去</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">C</span>
+    <span style="color:#66d9ef">include</span> A
+    <span style="color:#66d9ef">include</span> B
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="如何解決">如何解決</h2>
 <h3 id="建議-1-composition-over-inheritance">建議 1. Composition over Inheritance</h3>
 <p>Module 某種程度是多重繼承，也可以用 class.ancestors 看到 included Module 在繼承鏈上，要解決這樣的臭味可以改用 <code>Composition</code></p>
 <p>Composition 是指說把類似的行為封裝成 class，直接在原本的 class 中使用，這帶來的好處是</p>
