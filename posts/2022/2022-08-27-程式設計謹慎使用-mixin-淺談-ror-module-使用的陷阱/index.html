@@ -225,35 +225,35 @@ s1 <span style="color:#f92672">&lt;</span> s2
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby"><span style="color:#66d9ef">module</span> SharedFunction
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update_method</span>
-        self<span style="color:#f92672">.</span>var <span style="color:#f92672">+=</span> <span style="color:#ae81ff">10</span>
-    <span style="color:#66d9ef">end</span>
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">module</span> <span style="color:#a6e22e">SharedFunction</span>
+    <span style="color:#a6e22e">def</span> <span style="color:#a6e22e">update_method</span>
+        <span style="color:#a6e22e">self</span>.<span style="color:#66d9ef">var</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">10</span>
+    <span style="color:#a6e22e">end</span>
 
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print</span>
-        puts self<span style="color:#f92672">.</span>var <span style="color:#f92672">+</span> self<span style="color:#f92672">.</span>var2
-    <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
+    <span style="color:#a6e22e">def</span> <span style="color:#a6e22e">print</span>
+        <span style="color:#a6e22e">puts</span> <span style="color:#a6e22e">self</span>.<span style="color:#66d9ef">var</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">self</span>.<span style="color:#a6e22e">var2</span>
+    <span style="color:#a6e22e">end</span>
+<span style="color:#a6e22e">end</span>
 
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Hello</span>
-    <span style="color:#66d9ef">include</span> <span style="color:#66d9ef">SharedFunction</span>
+    <span style="color:#a6e22e">include</span> <span style="color:#a6e22e">SharedFunction</span>
 
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>
-        self<span style="color:#f92672">.</span>var <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-        self<span style="color:#f92672">.</span>var2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
-        <span style="color:#f92672">//</span> <span style="color:#960050;background-color:#1e0010">耦合點</span><span style="color:#ae81ff">1</span>: <span style="color:#66d9ef">class</span> <span style="color:#960050;background-color:#1e0010">必須先</span> initial var<span style="color:#960050;background-color:#1e0010">，否則</span> update_method <span style="color:#960050;background-color:#1e0010">就會出錯</span>
-        <span style="color:#e6db74">//</span> <span style="color:#960050;background-color:#1e0010">耦合點</span><span style="color:#ae81ff">2</span>: <span style="color:#960050;background-color:#1e0010">必需要知道</span> <span style="color:#66d9ef">module</span> method <span style="color:#960050;background-color:#1e0010">呼叫順序，變成是要知道</span> module <span style="color:#960050;background-color:#1e0010">所有細節才能使用，缺少封裝的意義</span>
-        update_method
-        print
-    <span style="color:#66d9ef">end</span>
+    <span style="color:#a6e22e">def</span> <span style="color:#a6e22e">initialize</span>
+        <span style="color:#a6e22e">self</span>.<span style="color:#66d9ef">var</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+        <span style="color:#a6e22e">self</span>.<span style="color:#a6e22e">var2</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+        <span style="color:#75715e">// 耦合點1: class 必須先 initial var，否則 update_method 就會出錯
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 耦合點2: 必需要知道 module method 呼叫順序，變成是要知道 module 所有細節才能使用，缺少封裝的意義
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">update_method</span>
+        <span style="color:#a6e22e">print</span>
+    <span style="color:#a6e22e">end</span>
 
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update_var</span>
-        <span style="color:#e6db74">//</span> <span style="color:#960050;background-color:#1e0010">耦合點</span><span style="color:#ae81ff">3</span><span style="color:#f92672">.</span> var <span style="color:#960050;background-color:#1e0010">這邊也有機會變動，未來在找</span> var <span style="color:#960050;background-color:#1e0010">的值到底是什麼會很困難</span>
-        self<span style="color:#f92672">.</span>var <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>
-    <span style="color:#66d9ef">end</span>
+    <span style="color:#a6e22e">def</span> <span style="color:#a6e22e">update_var</span>
+        <span style="color:#75715e">// 耦合點3. var 這邊也有機會變動，未來在找 var 的值到底是什麼會很困難
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">self</span>.<span style="color:#66d9ef">var</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>
+    <span style="color:#a6e22e">end</span>
 
-    <span style="color:#66d9ef">attr_accessor</span> var
-<span style="color:#66d9ef">end</span>
+    <span style="color:#a6e22e">attr_accessor</span> <span style="color:#66d9ef">var</span>
+<span style="color:#a6e22e">end</span>
 </code></pre></td></tr></table>
 </div>
 </div><p>可以看出 module 在使用 instance variable 後會有很多耦合的地方，包含 initialzie 的時機 / 暴露過多細節等問題</p>
