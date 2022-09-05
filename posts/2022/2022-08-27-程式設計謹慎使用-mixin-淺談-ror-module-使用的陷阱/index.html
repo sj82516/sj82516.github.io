@@ -538,7 +538,7 @@ A<span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>modu
 </div><h2 id="爭議rails-activesupportconcern">爭議：Rails ActiveSupport::Concern</h2>
 <p>ActiveSupport::Concern 是 Rails 中蠻有趣的設計，類似於 Module 但有增加更多的 <code>魔法</code>，可以把太大的 orm class 以 module 的形式分拆出去，算是 orm 版的 Module，在使用的心法與上述雷同，就不贅述，也可以參考 <a href="https://blog.appsignal.com/2020/09/16/rails-concers-to-concern-or-not-to-concern.html">Rails Concerns: To Concern Or Not To Concern</a></p>
 <p>基本上也都是提到 <code>如果 module 與 class 產生了 circular dependency</code>，如果有人沒注意到直接改 class，那 module 就可能會壞掉；解法同樣是降低依賴的機會，讓 module 做的事情簡單一些</p>
-<p>但有趣的是 DHH 本身看起來很喜歡這樣的寫法，或許這也是一種 convention over configuration 的體現 XD 但蠻多人抱持反對立場，就大家斟酌使用</p>
+<p>但有趣的是 <a href="https://twitter.com/jubiweb/status/964346236588494848">DHH 本人看起來很喜歡這樣的寫法</a> ，或許這也是一種 convention over configuration 的體現 XD 但蠻多人抱持反對立場，就大家斟酌使用</p>
 <h2 id="結語">結語</h2>
 <p>Ruby 是一門有趣的物件導向語言，所有的東西都是物件，所以在設計上如果多使用物件導向的思維去設計，會讓程式碼更好維護</p>
 <p>另外在 DRY 的原則上，我覺得要小心使用，<code>抽共用看起來避免了重複代碼，但這樣造成了很強的耦合</code>，在理解 Clean Architecture 後會發現很多看似重複都是<code>隱性的重複</code>，其實沒有必要抽共用導致耦合的存在，這點未來有機會再延伸探討</p>
