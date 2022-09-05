@@ -118,7 +118,8 @@
 </code></pre></td></tr></table>
 </div>
 </div><h4 id="2-code-reuse">2. Code Reuse</h4>
-<p>在 Ruby 中繼承只能夠 <code>單一繼承</code>，另外繼承設計的理念偏向是 <code>is-a</code>，如果想更廣泛的賦予 class 某種能力 <code>could-do</code>，那用 module 的方式會更加的適合，在 module 嵌入的數量上 Ruby 並沒有限制 (參考 <a href="https://railsbook.tw/chapters/08-ruby-basic-4">類別（Class）與模組（Module）</a>)</p>
+<p>在 Ruby 中繼承只能夠 <code>單一繼承</code>，繼承設計的理念偏向是 <code>is-a</code>；<br>
+如果想更廣泛的賦予 class 某種能力 <code>could-do</code>，那用 module 的方式會更加的適合，在 module 嵌入的數量上 Ruby 並沒有限制 (參考 <a href="https://railsbook.tw/chapters/08-ruby-basic-4">類別（Class）與模組（Module）</a>)</p>
 <p>最基本的例子是 Ruby Core Module <a href="https://ruby-doc.org/core-2.5.0/Comparable.html"><code>Comparable</code></a>，當 class include Module 後只要實作 <code>&lt;=&gt;</code> method，就可以使用 Comparable 定義的功能如 <code>&lt;、&gt;、==、between?</code> 等</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
