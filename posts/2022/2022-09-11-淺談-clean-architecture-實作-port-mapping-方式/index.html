@@ -509,7 +509,7 @@
 <ol>
 <li>Controller 有獨立的 Request / Response Object</li>
 <li>Controller 會去建立 In Port Command，並呼叫 Use Case</li>
-<li>Use Case 跟 Entity 被保護在紅線內</li>
+<li>Use Case 實作 In Port Interface，外界是與 Interface 相依</li>
 <li>透過 Out Port 與 Repository 溝通</li>
 <li>Repository 定義 DAO 儲存資料到 DB</li>
 <li>因為 return 都偷懶用 Entity，所以大家都與 Entity 相依</li>
