@@ -75,9 +75,9 @@
 		</div>
 	</div>
 	<div class="markdown">
-		<p>在一月初時上 Teddy 的 DDD 課程時，第一次見識到 DDD 結合 Clean Architecture，可以將設計跟實作完美的結合，打造出彈性、易懂、好維護的程式碼，就一直對 Clean Architecture 很感興趣 (<a href="https://gitlab.com/-/ide/project/TeddyChen/dddcleankanban/tree/master/-/board/">原始碼</a>)；<br>
+		<p>在一月初時上 Teddy 的 DDD 課程時，第一次見識到 DDD 結合 Clean Architecture，可以將設計跟實作完美的結合，打造出彈性、易懂、好維護的程式碼，就一直對 Clean Architecture 很感興趣 (<a href="https://gitlab.com/-/ide/project/TeddyChen/dddcleankanban/tree/master/-/board/">課程 ezKanban 原始碼</a>)；<br>
 後來在 2022 Coscup 上聽到強者 Jalex 分享 <a href="https://slides.com/jalex-chang/go-clean-arch-cresclab">Clean Architecture in Go: The Crescendo Way</a> 提供了另一種實作的方式；<br>
-最後在看【Clean Architecture 實作篇】時，作者又提供另一種方式，以六角架構為基底的實作</p>
+最後在看【Clean Architecture 實作篇】時，作者又提供另一種方式以六角架構為基底的實作</p>
 <p>在看了這幾種不同實作的角度後，整理一下在實作 Clean Architecture 中不同層轉換的實作取捨</p>
 <h2 id="clean-architecture-的解讀">Clean Architecture 的解讀</h2>
 <p>【Clean Architecture】一書談了非常多的觀念，整理後自己的解讀是 <code>架構是為了降低後續的開發、維運成本並最大化工程師的產能</code>，而在這樣的原則下提出了以下的依賴原則</p>
@@ -480,8 +480,42 @@
 <h3 id="小作弊">小作弊</h3>
 <p>上述的案例我們只有管 <code>input port</code>，當 Controller 要呼叫 Use Case 時 Input 用獨立的 Command Object</p>
 <p>但是 Use Case 回傳給 Controller 還是用 Entity，這還是違反了 Clean Architecture 物件不可跨層原則，這邊主要是方便使用，這也是【Clean Architecture 實作篇】作者在 p. 112 建議的做法</p>
-<h2 id="總結">總結</h2>
+<p>如果 in / out port 的輸入輸出都要有 DTO，建議參考 Teddy 的實做 <a href="https://gitlab.com/TeddyChen/dddcleankanban/-/blob/master/board/src/main/java/ntut/csie/sslab/kanban/board/usecase/service/GetBoardContentService.java">dddcleankanban</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 在 Use Case 中回傳 output 而非 Entity
+</span><span style="color:#75715e"></span>output<span style="color:#f92672">.</span><span style="color:#a6e22e">setBoardId</span><span style="color:#f92672">(</span>input<span style="color:#f92672">.</span><span style="color:#a6e22e">getBoardId</span><span style="color:#f92672">())</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">setBoardMemberDtos</span><span style="color:#f92672">(</span>boardMemberDtos<span style="color:#f92672">)</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">setWorkflowDtos</span><span style="color:#f92672">(</span>workflowDtos<span style="color:#f92672">)</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">setCommittedWorkflowDtos</span><span style="color:#f92672">(</span>committedWorkflowDtos<span style="color:#f92672">)</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">setCardDtos</span><span style="color:#f92672">(</span>cardDtosInBoard<span style="color:#f92672">);</span>
+
+<span style="color:#66d9ef">return</span> output
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="總結">總結</h2>
+<p><img src="/posts/2022/img/0911/overview.png" alt="">
+總結整體架構大致是</p>
+<ol>
+<li>Controller 有獨立的 Request / Response Object</li>
+<li>Controller 會去建立 In Port Command，並呼叫 Use Case</li>
+<li>Use Case 跟 Entity 被保護在紅線內</li>
+<li>透過 Out Port 與 Repository 溝通</li>
+<li>Repository 定義 DAO 儲存資料到 DB</li>
+<li>因為 return 都偷懶用 Entity，所以大家都與 Entity 相依</li>
+</ol>
 <p>採用 Clean Architecture 可以讓每一層變得更獨立、更好測試，開發的模式也可以更固定，在團隊增加人數時也更好上手，增加生產力</p>
+<p>剛好公司的專案一邊是 Rails，框架本身就帶有很強烈的架構風格；另一邊微服務用 Golang 實作 Clean Architecture 試著讓框架與架構解耦，算是蠻有趣的衝突與相互印證</p>
 
 	</div>
 	
