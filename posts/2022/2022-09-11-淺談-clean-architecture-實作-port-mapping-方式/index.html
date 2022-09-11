@@ -488,8 +488,8 @@
 </blockquote>
 <p>缺點就是如果是 CRUD 的話 DTO 會寫起來很瑣碎，建議是在 Controller -&gt; Use Case 這一層使用</p>
 <h3 id="小作弊">小作弊</h3>
-<p>上述的案例我們只有管 <code>input port</code>，當 Controller 要呼叫 Use Case 時 Input 用獨立的 Command Object</p>
-<p>但是 Use Case 回傳給 Controller 還是用 Entity，這還是違反了 Clean Architecture 物件不可跨層原則，這邊主要是方便使用，這也是【Clean Architecture 實作篇】作者在 p. 112 建議的做法</p>
+<p>上述的案例我們只有管輸入，當 Controller 要呼叫 Use Case 時 輸入參數用獨立的 Command Object</p>
+<p>但是 Use Case 回傳值還是用 Entity，這還是違反了 Clean Architecture 物件不可跨層原則，這邊主要是方便使用，這也是【Clean Architecture 實作篇】作者在 p. 112 建議的做法</p>
 <p>如果 in / out port 的輸入輸出都要有 DTO，建議參考 Teddy 的實做 <a href="https://gitlab.com/TeddyChen/dddcleankanban/-/blob/master/board/src/main/java/ntut/csie/sslab/kanban/board/usecase/service/GetBoardContentService.java">dddcleankanban</a></p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
