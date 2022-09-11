@@ -78,7 +78,7 @@
 		<p>在一月初時上 Teddy 的 DDD 課程時，第一次見識到 DDD 結合 Clean Architecture，可以將設計跟實作完美的結合，打造出彈性、易懂、好維護的程式碼，就一直對 Clean Architecture 很感興趣 (<a href="https://gitlab.com/-/ide/project/TeddyChen/dddcleankanban/tree/master/-/board/">課程 ezKanban 原始碼</a>)；<br>
 後來在 2022 Coscup 上聽到強者 Jalex 分享 <a href="https://slides.com/jalex-chang/go-clean-arch-cresclab">Clean Architecture in Go: The Crescendo Way</a> 提供了另一種實作的方式；<br>
 最後在看【Clean Architecture 實作篇】時，作者又提供另一種方式以六角架構為基底的實作</p>
-<p>在看了這幾種不同實作的角度後，整理一下在實作 Clean Architecture 中不同層轉換的實作取捨</p>
+<p>在看了這幾種不同實作的角度後，整理一下實作 Clean Architecture 中不同層轉換的取捨</p>
 <h2 id="clean-architecture-的解讀">Clean Architecture 的解讀</h2>
 <p>【Clean Architecture】一書談了非常多的觀念，整理後自己的解讀是 <code>架構是為了降低後續的開發、維運成本並最大化工程師的產能</code>，而在這樣的原則下提出了以下的依賴原則</p>
 <p><img src="/posts/2022/img/0911/dep.png" alt=""></p>
@@ -193,7 +193,8 @@
 </div>
 </div><h4 id="優缺點">優缺點</h4>
 <p>如果是很單純的 CRUD，API / DB 的資料格式都一模一樣才會使用，減少不必要的跨層轉換；</p>
-<p>但缺點是如果 API / DB 格式開始分歧，Entity 就會受到污染，出現部分欄位只有在特定用途使用，而不是跟業務邏輯有關，就像是 CreatedAt 欄位只是為了 DB 紀錄，卻出現在業務邏輯上不太合理；再加上如果未來不用 json 而走 gRPC，那 Entity 就要重新改 tag，違反了 Clean Architecture 原則</p>
+<p>但缺點是如果 API / DB 格式開始分歧，Entity 就會受到污染，出現部分欄位只有在特定用途使用，而不是跟業務邏輯有關，就像是 CreatedAt 欄位只是為了 DB 紀錄，卻出現在業務邏輯上不太合理；<br>
+再加上如果未來不用 json 而走 gRPC，那 Entity 就要重新改 tag，因為 IO 變化而改動 Entity 違反了 Clean Architecture 原則</p>
 <p>所以建議還是少用</p>
 <h3 id="2-two-way-mapping">2. Two way mapping</h3>
 <p><img src="/posts/2022/img/0911/two-way_mapping.jpeg" alt="">
@@ -260,9 +261,10 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">//  獨立 DAO 定義
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">//  Repo  獨立 DAO 定義
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">OrderDAO</span> <span style="color:#66d9ef">struct</span> {
 	<span style="color:#a6e22e">Id</span>        <span style="color:#66d9ef">int</span> <span style="color:#e6db74">`gorm:&#34;autoincrement&#34;`</span>
 	<span style="color:#a6e22e">Price</span>     <span style="color:#66d9ef">int</span>
@@ -283,7 +285,8 @@
 	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">Error</span>)
 }
 
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderController</span>) <span style="color:#a6e22e">CreateOrder</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {
+<span style="color:#75715e">// Controller 獨立 Request Object
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderController</span>) <span style="color:#a6e22e">CreateOrder</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {
 	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">srv</span> = <span style="color:#a6e22e">service</span>.<span style="color:#a6e22e">NewCreateOrder</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">repo</span>)
 
     <span style="color:#75715e">// 獨立 DTO 
@@ -403,7 +406,7 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// CreateOrder Use Case 改吃 CreateOrderCommand 當作參數而非 Order
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// CreateOrder Use Case 改吃 CreateOrderCommand 當作參數而非 Entity
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">CreateOrder</span> <span style="color:#66d9ef">interface</span> {
 	<span style="color:#a6e22e">Action</span>(<span style="color:#a6e22e">command</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">CreateOrderCommand</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">domain</span>.<span style="color:#a6e22e">Order</span>
 }
@@ -413,7 +416,7 @@
 	<span style="color:#a6e22e">Count</span> <span style="color:#66d9ef">int</span>
 }
 
-<span style="color:#75715e">// Command 還可以多驗證參數
+<span style="color:#75715e">// Command 可以負責驗證參數
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewCreateOrderCommand</span>(<span style="color:#a6e22e">price</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">count</span> <span style="color:#66d9ef">int</span>) (<span style="color:#a6e22e">CreateOrderCommand</span>, <span style="color:#66d9ef">error</span>) {
 	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">price</span> &lt; <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">count</span> &lt; <span style="color:#ae81ff">0</span> {
 		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">CreateOrderCommand</span>{}, <span style="color:#a6e22e">errors</span>.<span style="color:#a6e22e">New</span>(<span style="color:#e6db74">&#34;params error&#34;</span>)
@@ -447,9 +450,11 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderController</span>) <span style="color:#a6e22e">CreateOrder</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// Controller 呼叫 Command Object
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">OrderController</span>) <span style="color:#a6e22e">CreateOrder</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">Context</span>) {
 	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">srv</span> = <span style="color:#a6e22e">service</span>.<span style="color:#a6e22e">NewCreateOrder</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">repo</span>)
 
 	<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">CreateOrderRequest</span> <span style="color:#66d9ef">struct</span> {
@@ -472,8 +477,13 @@
 </div>
 </div><h4 id="優缺點-2">優缺點</h4>
 <p>多了一個 CreateOrderCommand 最大好處是可以進一步分散職責，由 Port 物件協助<code>驗證資料</code>，這樣 Use Case 可以專心驗證業務規則，而基本的資料驗證可以由 Port (也就是 CreateOrderCommand) 負責</p>
+<p>其他地方驗證資料的考量點</p>
+<ol>
+<li>Use Case: 要驗證資料同時驗證業務規則，這樣會比較複雜，讓 Use Case 專注業務規則會比較好</li>
+<li>Controller: 不適合驗證資料，如果有其他地方要呼叫 Use Case 那驗證規則要在重複寫一次</li>
+</ol>
 <blockquote>
-<p>資料驗證 vs 業務規則
+<p>資料驗證 vs 業務規則<br>
 業務規則通常指的是與 Entity 本身狀態有關，例如 <code>轉帳餘額不可為空</code>，至於資料驗證比較是一般性的規則檢查例如 Email 格式、金額不可小於零等</p>
 </blockquote>
 <p>缺點就是如果是 CRUD 的話 DTO 會寫起來很瑣碎，建議是在 Controller -&gt; Use Case 這一層使用</p>
