@@ -111,31 +111,31 @@
 <p>採用 SCTP (Stream Control Transmission Protocol) 做傳輸狀況的監控、流量管制，實際上 SCTP 的封包是透過 Data Channel 走 DTLS</p>
 <p>全部總結，WebRTC 就是由這些協定所集結而成的
 <img src="/posts/img/20210108/webrtc-protocol.png" alt=""></p>
-<h2 id="webrtc-api">WebRTC API</h2>
+<h3 id="webrtc-api">WebRTC API</h3>
 <p>快速過一下 API 設計</p>
-<h3 id="1-new-peerconnection">1. new PeerConnection</h3>
+<h4 id="1-new-peerconnection">1. new PeerConnection</h4>
 <p>建立 WebRTC Session，也就是上述的所有 Protocol 集合</p>
-<h3 id="2-addtrack">2. addTrack</h3>
+<h4 id="2-addtrack">2. addTrack</h4>
 <p>建立 RTP Stream，並綁定一個隨機產生的 SSRC，之後在 createOffer 時會帶在 SDP 當中並建立對應的 media session，每當 addTrack 一次都會建立新的 RTP Stream</p>
 <p>只要 ICE 後成功建立 SRTP 連線，media packets 就會馬上傳送出去</p>
-<h3 id="3-createdatachannel">3. createDataChannel</h3>
+<h4 id="3-createdatachannel">3. createDataChannel</h4>
 <p>如果 SCTP 連線還沒建立則新建立一個，預設只有在某一方要求 data channel 才會建立</p>
 <p>當 DTLS 成功建立連線後，SCTP packets 就會開始傳送</p>
-<h3 id="4-createoffer">4. createOffer</h3>
+<h4 id="4-createoffer">4. createOffer</h4>
 <p>建立 local SDP</p>
-<h3 id="5-setlocaldescription">5. setLocalDescription</h3>
+<h4 id="5-setlocaldescription">5. setLocalDescription</h4>
 <p>先前的 addTrack / createDataChannel 只是暫時性的，只有當呼叫 setLocalDescription 才確定套用修改</p>
 <p>通常呼叫 setLocalDescription 就會傳送 offer 讓對方 setRemoteDescription</p>
-<h3 id="6-setremotedescription">6. setRemoteDescription</h3>
+<h4 id="6-setremotedescription">6. setRemoteDescription</h4>
 <p>setRemoteDescription 通知 local agent 對方的 candidate 狀態，如果雙方都 setRemoteDescription就可以開始 connecting</p>
-<h3 id="7-addicecandidate">7. addIceCandidate</h3>
+<h4 id="7-addicecandidate">7. addIceCandidate</h4>
 <p>通知 WebRTC Agent 增加 remote ICE candidate</p>
-<h3 id="8-ontrack">8. ontrack</h3>
+<h4 id="8-ontrack">8. ontrack</h4>
 <p>當 RTP stream 接收到封包時觸發事件，封包應該會吻合 setRemoteDescription 時指定的格式</p>
 <p>WebRTC 會透過 SSRC 確認對應的 Media Stream</p>
-<h3 id="9-oniceconnectionstatechange">9. oniceconnectionstatechange</h3>
+<h4 id="9-oniceconnectionstatechange">9. oniceconnectionstatechange</h4>
 <p>如果 ICE Agent 有異動會觸發事件，像是遇到網路狀況等</p>
-<h3 id="10-onstatechange">10. onstatechange</h3>
+<h4 id="10-onstatechange">10. onstatechange</h4>
 <p>ICE Agent / DTLS Agent 狀態異動時會觸發事件</p>
 <h2 id="一-signaling-1">一. Signaling</h2>
 <p>WebRTC Agent 一開始建立時並不知道該與誰通訊、也不知道該用什麼格式，所以會需要在初始化時做 Signaling，讓後續的連線有機會發生<br>
@@ -277,6 +277,7 @@ Media Stream 的 ID</p>
 <li>為了避免其他人亂寄資料，client 必須在 Relay Server 幫對方增加 <code>Permission</code></li>
 <li>Allocation / Permission 都有時間限制(LIFETIME參數控制)，可以後續 Refresh</li>
 </ol>
+<p>另外一種對於 NAT 的分類 (錐形、對稱型) 道理也是類似，Peer A 註冊的 Mapping 要在什麼情況下 Peer B 可以直接拿來用，如果不行 (對稱型) 就要走 TURN Server，可參考 <a href="https://ithelp.ithome.com.tw/articles/10209590"> 30-28之 WebRTC 連線前傳 - 為什麼 P2P 連線很麻煩 ? ( NAT ) </a></p>
 <h3 id="ice">ICE</h3>
 <p>結合以上的連線方法，就組合成 ICE protocol，每個 ICE Agent 會分成 Controlling / Controlled，有一方主導連線過程，按照以下步驟，嘗試找出雙方可以互通的連線</p>
 <h4 id="1candidate-gathering">1.Candidate Gathering</h4>
