@@ -6,10 +6,22 @@
 		<description>Recent content in Posts on yuanchieh.page</description>
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Sun, 11 Sep 2022 01:21:40 +0000</lastBuildDate>
+		<lastBuildDate>Sat, 26 Nov 2022 01:21:40 +0000</lastBuildDate>
 		
 		<atom:link href="https://yuanchieh.page/posts/index.xml" rel="self" type="application/rss+xml" />
 		
+		<item>
+			<title>開發簡易的 Protobuf plugin</title>
+			<link>https://yuanchieh.page/posts/2022/2022-11-26-%E9%96%8B%E7%99%BC%E7%B0%A1%E6%98%93%E7%9A%84-protobuf-plugin/</link>
+			<pubDate>Sat, 26 Nov 2022 01:21:40 +0000</pubDate>
+			
+			<guid>https://yuanchieh.page/posts/2022/2022-11-26-%E9%96%8B%E7%99%BC%E7%B0%A1%E6%98%93%E7%9A%84-protobuf-plugin/</guid>
+			<description>
+				
+				透過動手做學習 Protobuf options 與對應 plugin 設計的方式
+				
+			</description>
+		</item>
 		<item>
 			<title>淺談 Clean Architecture 實作 - Port Mapping 方式</title>
 			<link>https://yuanchieh.page/posts/2022/2022-09-11-%E6%B7%BA%E8%AB%87-clean-architecture-%E5%AF%A6%E4%BD%9C-port-mapping-%E6%96%B9%E5%BC%8F/</link>
