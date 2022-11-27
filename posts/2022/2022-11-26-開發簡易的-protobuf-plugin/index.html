@@ -80,7 +80,7 @@
 <ol>
 <li>protobuf 與 plugin 的互動機制</li>
 <li>如何從 command 讀取到 plugin 設定</li>
-<li>如何設計 protobuf extend</li>
+<li>如何設計 protobuf extension</li>
 </ol>
 <p>以下內容主要參考自</p>
 <ul>
@@ -118,7 +118,7 @@
 <p>如果 plugin name 有多個字母，可以用 <code>-</code> 分隔如 protoc-gen-grpc-gateway 如此命名</p>
 <h3 id="建立專案-protoc-gen-http-client">建立專案 protoc-gen-http-client</h3>
 <p>參考程式碼：<a href="https://github.com/sj82516/protoc-gen-go-http-client/tree/feat/go-gen-p1">phase1</a></p>
-<p>我們先做到第一步，產生 protoc plugin 並成功產生空殼檔案，參考目錄</p>
+<p>第一步，產生 protoc plugin 並成功產生空殼檔案，參考目錄</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
@@ -263,9 +263,9 @@
 <p>$ protoc &ndash;go-http-client_out=. &ndash;go-http-client_opt=paths=source_relative,base_url=api.com example/*.proto</p>
 </blockquote>
 <p>在 protoc-gen-go 中，可以指定 <code>paths</code> 參數，指定輸出的資料夾位置 (與 go_out 一起影響)，參考 <a href="https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation">Compiler Invocation</a></p>
-<h2 id="3-如何設計-protobuf-extend">3. 如何設計 Protobuf extend</h2>
+<h2 id="3-如何設計-protobuf-extension">3. 如何設計 Protobuf extension</h2>
 <p>參考程式碼：<a href="https://github.com/sj82516/protoc-gen-go-http-client/tree/feat/go-gen-p3">phase3</a></p>
-<p>接著我們要來增加 plugin 的 Protobuf extend，在 proto file 中指定 options 讓 plugin 產生對應行為</p>
+<p>接著我們要來增加 plugin 的 Protobuf extension，在 proto file 中指定 options 讓 plugin 產生對應行為</p>
 <p>我們主要在</p>
 <ol>
 <li>service 中增加 method / path 的指定</li>
@@ -290,9 +290,13 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-proto" data-lang="proto"><span style="color:#75715e">// package name 要指向 proto 所在位置，而不是 golang 專案目錄
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-proto" data-lang="proto"><span style="color:#75715e">// options.proto
+</span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e">// package name 要指向 proto 所在位置，而不是 golang 專案目錄
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">option</span> go_package<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;github.com/sj82516/protoc-gen-go-http-client/protos&#34;</span>;<span style="color:#960050;background-color:#1e0010">
 </span><span style="color:#960050;background-color:#1e0010">
 </span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">message</span> <span style="color:#a6e22e">HttpClientMethodOptions</span> {<span style="color:#960050;background-color:#1e0010">
@@ -324,9 +328,13 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-proto" data-lang="proto"><span style="color:#66d9ef">import</span> <span style="color:#e6db74">&#34;example/http-client/options.proto&#34;</span>;<span style="color:#960050;background-color:#1e0010">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-proto" data-lang="proto"><span style="color:#75715e">// test.proto
+</span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">import</span> <span style="color:#e6db74">&#34;example/http-client/options.proto&#34;</span>;<span style="color:#960050;background-color:#1e0010">
 </span><span style="color:#960050;background-color:#1e0010">
 </span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">message</span> <span style="color:#a6e22e">User</span> {<span style="color:#960050;background-color:#1e0010">
 </span><span style="color:#960050;background-color:#1e0010"></span>  <span style="color:#66d9ef">int64</span> id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>[(field_opts)<span style="color:#f92672">.</span><span style="color:#66d9ef">default</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1&#34;</span>];<span style="color:#960050;background-color:#1e0010">
@@ -342,8 +350,8 @@
 </div>
 </div><p>這邊有幾點比較 tricky</p>
 <ol>
-<li>protobuf import 跟 golang package 分開，聽起來很直覺但我一開始搞混了所以卡很久，尤其是要使用第三方的 protobuf extend 要手動下載 proto file 到自己的資料夾中，參考 <a href="https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/#using-protoc">gRPC gatewate 文件：we need to copy some dependencies into our proto file structure.</a></li>
-<li>如果是 protoc-go-gen 則對應的 proto extend 同路徑要有 compiled .pb.go 檔案否則會出錯</li>
+<li>protobuf import 跟 golang package 分開，聽起來很直覺但我一開始搞混了所以卡很久，尤其是要使用第三方的 protobuf extension 要<code>手動下載 proto file 到自己的資料夾中</code>，參考 <a href="https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/#using-protoc">gRPC gatewate 文件：we need to copy some dependencies into our proto file structure.</a></li>
+<li>如果有用上 protoc-go-gen 則對應的 proto extension 同路徑要有 compiled .pb.go 檔案否則會出錯</li>
 </ol>
 <p>資料夾結構如下</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
@@ -362,8 +370,8 @@
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">protoc-gen-go-http-client
 ├── example 
-│   ├── http-client
-│   │   └── options.proto // 需要自己複製
+│   ├── http-client // 任何第三方的 proto extension 都需要自己複製
+│   │   └── options.proto
 │   └── proto
 │       ├── test.proto
 │       └── test.pb.go
