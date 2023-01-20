@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="最近看到同事準備分享驗證與授權的差異，剛好被 Youbute 影片推到類似的內容，淺談 OAuth 2.0 與 OpenID Connect 的差異"><meta property="og:title" content="驗證與授權的差別，淺談 OAuth 2.0 與 OpenID Connect" />
+<meta property="og:description" content="最近看到同事準備分享驗證與授權的差異，剛好被 Youbute 影片推到類似的內容，淺談 OAuth 2.0 與 OpenID Connect 的差異" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2023/2023-01-20-%E9%A9%97%E8%AD%89%E8%88%87%E6%8E%88%E6%AC%8A%E7%9A%84%E5%B7%AE%E5%88%A5%E6%B7%BA%E8%AB%87-oauth2.0-%E8%88%87-openid-connect/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-01-20T01:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2022-01-20T01:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="驗證與授權的差別，淺談 OAuth 2.0 與 OpenID Connect"/>
+<meta name="twitter:description" content="最近看到同事準備分享驗證與授權的差異，剛好被 Youbute 影片推到類似的內容，淺談 OAuth 2.0 與 OpenID Connect 的差異"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>驗證與授權的差別，淺談 OAuth 2.0 與 OpenID Connect | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">20</span>
+				<span class="rest">Jan 2022</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">驗證與授權的差別，淺談 OAuth 2.0 與 OpenID Connect</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<p>驗證 - 確認使用者身份、授權 - 允許操作某些行為，兩者在對於自建網站可能是等同一件事，當我讓 user A 登入通過驗證，那也就等同授權 user A 可以操作他自己的資源</p>
+<p>但今天如果驗證的服務、管理資源的服務、代替用戶操作資源的第三方服務都是獨立時，驗證與授權就有很大的區別，以下內容與截圖參考自</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=996OiexHze0&amp;t=77s">OAuth 2.0 and OpenID Connect (in plain English)</a></li>
+<li><a href="https://www.youtube.com/watch?v=M4JIvUIE17c">ID Tokens vs Access Tokens - Do you know the difference?!</a></li>
+</ul>
+<h2 id="關於登入與-oauth-20">關於登入與 OAuth 2.0</h2>
+<p>最陽春的登入機制莫過於 client 提供 account / password 給 server，server 進去資料庫比對，成功則設定 cookie or session
+<img src="/posts/2023/img/0120/simple_login.png" alt=""></p>
+<p>這樣的技術有幾個缺點</p>
+<ol>
+<li>安全性：如果用戶多個網站都用相同的帳密，則一個網站被攻破則每個網站都可能遭殃</li>
+<li>維護性：每個網站都需要維護用戶的資料</li>
+</ol>
+<p>第二個問題是如果某服務希望代替用戶操作另一個服務 (Delegated authorization)，如果透過帳密非常危險，也沒有權限的限制，例如 Yelp 曾經跟用戶要帳密去登入 Email
+<img src="/posts/2023/img/0120/old_oauth.png" alt=""></p>
+<p>OAuth 2.0 也就是在這樣的時空背景誕生</p>
+<h3 id="oauth-20-簡單介紹">OAuth 2.0 簡單介紹</h3>
+<p><img src="/posts/2023/img/0120/access-token-scenario.png" alt="">
+Authorization server 與 Resource server 有一套驗證與授權範圍管理的機制，Client app 取得 Resource Owner (user 本人) 的授權後，就可用 Access token  代為向 Resource server 發起操作</p>
+<p>主要有四種流程</p>
+<ol>
+<li>Authorization Code flow</li>
+<li>implicit flow</li>
+<li>account / password flow</li>
+<li>client credential flow</li>
+</ol>
+<p>以下僅介紹第一種</p>
+<h4 id="authorization-code-flow">Authorization Code flow</h4>
+<p><img src="/posts/2023/img/0120/code_flow.png" alt="">
+基本流程為</p>
+<ol>
+<li>User 透過 Client App 指定要透過第三方登入</li>
+<li>第三方 Auth Server 顯示授權頁面</li>
+<li>User 同意授權後，Auth Server 夾帶 code 轉導到 Client App</li>
+<li>Client App 透過 code + client 專屬資訊向 Auth Server 換 access token</li>
+<li>Client App 拿到 access token，就可以向 Resource Server 發起操作</li>
+</ol>
+<p>特別注意到 channel 的概念，這邊分成</p>
+<ul>
+<li>front channel</li>
+<li>back channel</li>
+</ul>
+<p>front channel 指的是在前端，因為這部分的流程暴露在客戶端，安全性相對較低，例如瀏覽器插件的側錄等；
+back channel 指的是後端，因為 server 是在我們掌控所以安全性相對高</p>
+<p>所以任何東西從 front channel 轉到 back channel 都需要再次驗證，例如 front 回傳 code，此時 code 必須在 back channel 跟 Authorization server 換 access token</p>
+<p>如果 front channel 直接回傳 access token，則有可能被替換的風險</p>
+<h2 id="oauth-20-與-openid-connect">OAuth 2.0 與 OpenID Connect</h2>
+<p>在一開始我們都會用 OAuth 2.0 驗證與授權一並處理，例如 <a href="https://developers.google.com/identity/protocols/oauth2/scopes#oauth2">Google OAuth 2.0 可以指定 Scope</a> <code>https://www.googleapis.com/auth/userinfo.profile	</code>，但隨著驗證的需求越來越明確，包含手機驗證登入等，所以就又基於 OAuth 2.0 推出了 OpenID Connect</p>
+<h3 id="openid-connect">OpenID Connect</h3>
+<p><img src="/posts/2023/img/0120/id-token-scenario.png" alt=""></p>
+<ol>
+<li>User 透過 Client App 指定要透過第三方登入</li>
+<li>第三方 Auth Server 顯示授權頁面</li>
+<li>User 同意授權後，Auth Server 夾帶 id token 回到 Client App</li>
+<li>Client App 驗證 id token 後就可以拿到用戶基本資料</li>
+<li>如有額外需要，Client App 可以用 id token 呼叫 Auth Server API (/userinfo 如 Google <code>https://openidconnect.googleapis.com/v1/userinfo</code>、 Line <code>https://api.line.me/oauth2/v2.1/userinfo</code>) 拿額外的用戶資訊</li>
+</ol>
+<p>乍看之下 OpenID Connect 跟 OAuth 2.0 流程很像，但有個最巨大的差異</p>
+<blockquote>
+<p>OpenID Connect 拿到的 id token 可以直接解析並讀取用戶資訊；
+而 OAuth 2.0 拿到的 access token 並不是 Client App 要解讀，而是單純送給 Resource Server 驗證</p>
+</blockquote>
+<p>所以從驗證角度，Server 透過 OpenID Connect 可以直接解析 id token，而不用多打一次 Api 去要用戶的資料</p>
+<p>所以 <code>OpenID Connect 有明文規定 token 必須是 jwt 格式</code>，Client App 收到後要拿 Auth Server public key 檢查核發單位是否正確 (數位簽章的概念)<br>
+而 <code>OAuth 2.0 用的 access token 不一定要是 jwt，任意的 string 都可以，只要 Auth Server 跟 Resource Server 認得就好</code></p>
+<h3 id="為什麼不拿-id-token-當作-access-token">為什麼不拿 id token 當作 access token</h3>
+<ol>
+<li>OAuth 2.0 有規範 sender contraint，限定 client 可以發送 access token，如果有實作那即使 token 被 hacker 偷走也沒關係，因為發送到 Resource server 會被擋下來</li>
+<li>Access Token 有更多的檢查，包含 scope (ID token 沒有) / Aud / token format validation</li>
+</ol>
+<h3 id="為什麼不拿-access-token-當作-id-token">為什麼不拿 access token 當作 id token</h3>
+<ol>
+<li>access token 不是要給 client 解析，而是給 resource server，client 最好把 access token 當作任意字串</li>
+<li>並沒有統一標準取得用戶資訊</li>
+</ol>
+<h2 id="single-sign-on-sso-與-oauth-20--openid-connect-關係">Single Sign On (SSO) 與 OAuth 2.0 / OpenID Connect 關係</h2>
+<p>我們常會看到 SSO 與 OAuth 2.0 / OIDC 出現，SSO 主要是描述一種概念，用戶只需要一組帳密登入驗證機構，多個服務都用此驗證機構驗明身份</p>
+<blockquote>
+<p>authentication method that enables users to securely authenticate with multiple applications and websites by using just one set of credentials.</p>
+</blockquote>
+<p>所以 OAuth 2.0 / OpenID Connect 都是 SSO 的一種實作，其他常見做法包含 SAML / LDAP 等</p>
+<p>參考自 <a href="https://www.onelogin.com/learn/how-single-sign-on-works">How Does Single Sign-On Work?</a></p>
+
+	</div>
+	
+	
+	
+	
+	
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
