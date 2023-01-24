@@ -152,6 +152,40 @@ back channel 指的是後端，因為 server 是在我們掌控所以安全性�
 <li>並沒有統一標準取得用戶資訊</li>
 </ol>
 <h2 id="在-microservice-下的-authentication-與-authorization">在 Microservice 下的 Authentication 與 Authorization</h2>
+<p>參考 <a href="https://youtu.be/SLc3cTlypwM">Authentication as a Microservice</a>，在微服務架構下要處理驗證與授權，通常有個中央的驗證機構，並核發 JWT token<br>
+之所以用 JWT Token 是希望每個服務可以 透過 token 夾帶足夠的用戶資訊(避免額外的 API 取得用戶資訊) / 在 local 就可以驗證 token 正確性</p>
+<h3 id="使用-jwt-的一些資安考量">使用 JWT 的一些資安考量</h3>
+<p>因為 Token 是採用 JWT，在核發與驗證上要特別注意，否則會有資安上的漏洞</p>
+<h4 id="1-務必檢查-iss--aud--exp-等基本訊息">1. 務必檢查 iss / aud / exp 等基本訊息</h4>
+<p><a href="https://www.rfc-editor.org/rfc/rfc7519#section-4">RFC 7591</a> 中的 payload 保留字段通常都是需要驗證的，包含</p>
+<ul>
+<li>iss (issuer)：誰核發的 token</li>
+<li>aud (audience)：誰應該收到此 token</li>
+<li>sub (subject)：token 核發的目的</li>
+<li>exp (expiration)：token 何時過期</li>
+<li>nbf (Not Before)：token 何時開始生效</li>
+<li>iat (issued at)：token 核發的時間</li>
+<li>jti (JWT id)：jwt ID，只有在可能發生碰撞才需要</li>
+</ul>
+<h4 id="2-務必移除-alg-none-支援">2. 務必移除 alg: none 支援</h4>
+<p><img src="/posts/2023/img/0120/algo_none_atk.png" alt="">
+JWT 的合法性需要透過 signature 去驗證，而 Hacker 可能指定 alg: &ldquo;none&rdquo; 跳過驗證，如果實作沒寫好就會真的被跳過；
+<a href="https://github.com/jwt/ruby-jwt/blob/d795d5fc6e6893542df3cbf484fe8be3b3ffac78/lib/jwt/decode.rb#L54">看了一下 Ruby 實作沒有這個問題，會去檢查 alg 有沒有在指定的範圍內</a></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">valid_alg_in_header?</span>
+    allowed_algorithms<span style="color:#f92672">.</span>any? { <span style="color:#f92672">|</span>alg<span style="color:#f92672">|</span> alg<span style="color:#f92672">.</span>valid_alg?(alg_in_header) }
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="3-小心-alg-被調整">3. 小心 alg 被調整</h4>
+<p><img src="/posts/2023/img/0120/replace_atk.png" alt="">
+同樣是 alg 被調整，如果從非對稱加密被改成對稱加密，實作不恰當可能就會被繞過，記得要分清楚非對稱加密的 key 與對稱加密的 key</p>
 <h2 id="single-sign-on-sso-與-oauth-20--openid-connect-關係">Single Sign On (SSO) 與 OAuth 2.0 / OpenID Connect 關係</h2>
 <p>我們常會看到 SSO 與 OAuth 2.0 / OIDC 出現，SSO 主要是描述一種概念，用戶只需要一組帳密登入驗證機構，多個服務都用此驗證機構驗明身份</p>
 <blockquote>
