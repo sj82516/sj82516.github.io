@@ -238,7 +238,7 @@
 <li>某台機器開發者是不是可以 ssh</li>
 <li>DB 是不是可以被第三方廠商 access</li>
 </ul>
-<p>Open Policy Agent (簡稱 OPA) 針對 cloud native 架構設計驗證規則的解法，<code>中心化管理驗證規則與其他邏輯解耦</code>，支援 Kubernetes / Envoy / Terraform (決定用戶是否能用 tf 調整某種資源) / Kafka 等，也開放 HTTP API 所以應用程式層也可以使用</p>
+<p>Open Policy Agent (簡稱 OPA) 針對 cloud native 架構設計驗證規則的解法，<code>中心化管理驗證規則與其他邏輯解耦，整個架構統一一套驗證規則語言</code>，支援 Kubernetes / Envoy / Terraform (決定用戶是否能用 tf 調整某種資源) / Kafka 等，也開放 HTTP API 所以應用程式層也可以使用，另外也有提供 Golang Libary 與 WASM 可以整合</p>
 <p>流程大概是
 <img src="/posts/2023/img/0128/opa-service.svg" alt=""></p>
 <ol>
@@ -321,7 +321,8 @@ rsp <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</
 <span style="color:#66d9ef">if</span> rsp<span style="color:#f92672">.</span>json()[<span style="color:#e6db74">&#34;allow&#34;</span>]:
 </code></pre></td></tr></table>
 </div>
-</div><p>以上的機制是聽到 Netflix 的分享 <a href="https://www.youtube.com/watch?v=R6tUNpRpdnY&amp;list=WL&amp;index=18">How Netflix Is Solving Authorization Across Their Cloud [I] - Manish Mehta &amp; Torin Sandall, Netflix</a></p>
+</div><p>data 部份不一定要寫死，而是可以從外部的 DB 撈取或是擷取 request 中的 jwt token，參考 <a href="https://www.openpolicyagent.org/docs/latest/external-data/">External Data</a>，算是蠻有彈性的</p>
+<p>以上的機制是聽到 Netflix 的分享 <a href="https://www.youtube.com/watch?v=R6tUNpRpdnY&amp;list=WL&amp;index=18">How Netflix Is Solving Authorization Across Their Cloud [I] - Manish Mehta &amp; Torin Sandall, Netflix</a></p>
 <h2 id="總結">總結</h2>
 <p>驗證比我想像中的複雜許多，Google 設計了 Zanzibar / Netflix 部分採用的 Open Policy Agent 機制，前者針對負責的巢狀規則與極大規模的驗證需求、後者則針對 Cloud Native 環境統一了架構層的驗證規則</p>
 
