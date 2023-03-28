@@ -104,7 +104,7 @@
 </code></pre><p>以下將介紹透過 rails generator 簡單魔改達到我們要的效果</p>
 <h2 id="實作">實作</h2>
 <h3 id="1-透過-generator-產生-migration-script-template">1. 透過 Generator 產生 migration script template</h3>
-<p>透過 Rails Generator 基於模板產生對應的檔案，透過 generator 產生 generator <code>$ bin/rails generate generator initializer</code></p>
+<p>透過 <a href="https://guides.rubyonrails.org/generators.html">Rails Generator</a> 基於模板產生對應的檔案，透過 generator 產生 generator <code>$ bin/rails generate generator initializer</code></p>
 <p>在 generator 中可以定義產生檔案的方式，也可以從 CLI 吃不同的參數</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -203,9 +203,11 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
 </span></code></pre></td>
 <td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#75715e"># lib/tasks/post_sync.rake</span>
+
 namespace <span style="color:#e6db74">:post_sync</span> <span style="color:#66d9ef">do</span>
   task <span style="color:#e6db74">:migrate</span> <span style="color:#66d9ef">do</span>
     <span style="color:#66d9ef">DataMigrate</span><span style="color:#f92672">.</span>configure <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>config<span style="color:#f92672">|</span>
@@ -287,7 +289,8 @@ namespace <span style="color:#e6db74">:post_sync</span> <span style="color:#66d9
 <span style="color:#66d9ef">end</span>
 </code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+</div><p>夾在測試中執行</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
