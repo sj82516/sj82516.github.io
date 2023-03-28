@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	
+	<meta name="generator" content="Hugo 0.81.0" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="description" content="公司一開始在 pre sync 階段採用 data-migration 在部署前觸發事件，例如回補資料等，但後來在一些場景需要在 post sync 機器部署後也觸發事件，分享自己簡單魔改 data-migration 完成需求"><meta property="og:title" content="Rails 部署優化: 魔改 data-migration 實作 post sync 機制" />
+<meta property="og:description" content="公司一開始在 pre sync 階段採用 data-migration 在部署前觸發事件，例如回補資料等，但後來在一些場景需要在 post sync 機器部署後也觸發事件，分享自己簡單魔改 data-migration 完成需求" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://yuanchieh.page/posts/2023/2023-03-28-rails-%E9%83%A8%E7%BD%B2%E5%84%AA%E5%8C%96-%E9%AD%94%E6%94%B9-data-migration-%E5%AF%A6%E4%BD%9C-post-sync-%E6%A9%9F%E5%88%B6/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-28T02:21:40&#43;00:00" />
+<meta property="article:modified_time" content="2023-03-28T02:21:40&#43;00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Rails 部署優化: 魔改 data-migration 實作 post sync 機制"/>
+<meta name="twitter:description" content="公司一開始在 pre sync 階段採用 data-migration 在部署前觸發事件，例如回補資料等，但後來在一些場景需要在 post sync 機器部署後也觸發事件，分享自己簡單魔改 data-migration 完成需求"/>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/all.css" />
+	<title>Rails 部署優化: 魔改 data-migration 實作 post sync 機制 | Yuanchieh&#39;s Blog</title><meta name="google-site-verification" content="Zmi0DCwmB_paCE45T_J552m4NDDpaMH6dqZLMYgM7Js" />
+</head>
+<body><header>
+	
+	<div id="avatar">
+		<a href="https://yuanchieh.page">
+		  <img src="https://avatars0.githubusercontent.com/u/6858460?s=460&amp;v=4" alt="Yuanchieh&#39;s Blog">
+		</a>
+	</div>
+	
+	<div id="titletext"><h2 id="title"><a href="https://yuanchieh.page">Yuanchieh&#39;s Blog</a></h2></div>
+	<div id="title-description"><p id="subtitle">生命是長期而持續的累積</p><div id="social">
+			<nav>
+				<ul>
+					<li><a href="https://github.com/sj82516"><i title="Github" class="icons fab fa-github"></i></a></li><li><a href="mailto:sj82516@gmail.com"><i title="Email" class="icons fas fa-envelope"></i></a></li>
+					<li><a href="/index.xml"><i title="RSS" class="icons fas fa-rss"></i></a></li></ul>
+			</nav>
+		</div>
+	</div>
+	
+	<div id="mainmenu">
+		<nav>
+			<ul>
+				
+				<li><a href="/posts">All Posts</a></li>
+				
+				<li><a href="/about">About</a></li>
+				
+				<li><a href="/categories">Categories</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	
+</header>
+<main><div class="post">
+	
+	<div class="author">
+	
+	</div>
+	<div class="post-header">
+	
+		<div class="meta">
+			
+			<div class="date">
+				<span class="day">28</span>
+				<span class="rest">Mar 2023</span>
+			</div>
+			
+		</div>
+		
+		<div class="matter">
+			<h1 class="title">Rails 部署優化: 魔改 data-migration 實作 post sync 機制</h1>
+		</div>
+	</div>
+	<div class="markdown">
+		<h2 id="前言">前言</h2>
+<p>公司當前是透過 GitOps ArgoCD 這套工具來管理持續部署的流程，ArgoCD 有個方便的 hook 機制 <code>pre sync</code> 和 <code>post sync</code>，可以在機器部署前與部署後執行對應的腳本</p>
+<p>在我們原本的 Rails 部署機制，會於 pre sync 階段執行</p>
+<ul>
+<li><code>db:migration</code>：負責 DB schema 改動</li>
+<li><code>data:migration</code>：<a href="https://github.com/ilyakatz/data-migrate">data-migrate</a> 負責跑一些 Rails script 回補資料等
+避免 API server 上線因為有髒資料或錯誤的 DB schema 而執行錯誤</li>
+</ul>
+<pre><code>.
+└── db/
+    ├── data =&gt; data migration at presync
+    └── migrate =&gt; schema change
+</code></pre><p>但有時候我們會需要在機器部署完成後觸發 script，例如說當我們新增了 sidekiq job 需要觸發時，必須等到 sidekiq server 都更新到最新的版本才可以觸發，否則會 sidekiq server 會認不得新的 job</p>
+<p>簡而言之，我們會需要在 pre sync 有一套 data-migration，在 post sync 也需要在一套 data-migration，但同一套 data-migration 是不能直接用在兩個觸發點，執行時會無法區分哪些 migration script 該在什麼時間點觸發</p>
+<p>化成具體的需求是提供一套基於 data-migration 的 post sync 觸發機制，希望封裝出類似於 data-migration 的效果</p>
+<ol>
+<li>透過指令可以簡單產生 migration script template <code>$ $ bin/rails generate post_sync hello_post_sync</code></li>
+<li>執行指令 <code>$ bin/rake post_sync:migrate</code></li>
+<li>紀錄在 DB 中避免 script 反覆執行</li>
+<li>不影響現有的 pre sync 機制</li>
+</ol>
+<pre><code>.
+└── db/
+    ├── data =&gt; data migration at presync
+    ├── migrate =&gt; schema change
+    └── post_sync =&gt; data migration at post sync
+</code></pre><p>以下將介紹透過 rails generator 簡單魔改達到我們要的效果</p>
+<h2 id="實作">實作</h2>
+<h3 id="1-透過-generator-產生-migration-script-template">1. 透過 Generator 產生 migration script template</h3>
+<p>透過 Rails Generator 基於模板產生對應的檔案，透過 generator 產生 generator <code>$ bin/rails generate generator initializer</code></p>
+<p>在 generator 中可以定義產生檔案的方式，也可以從 CLI 吃不同的參數</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InitializerGenerator</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">Rails</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Generators</span><span style="color:#f92672">::</span><span style="color:#66d9ef">NamedBase</span>
+  source_root <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>expand_path(<span style="color:#e6db74">&#39;templates&#39;</span>, __dir__)
+
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">copy_initializer_file</span>
+    copy_file <span style="color:#e6db74">&#34;initializer.rb&#34;</span>, <span style="color:#e6db74">&#34;config/initializers/</span><span style="color:#e6db74">#{</span>file_name<span style="color:#e6db74">}</span><span style="color:#e6db74">.rb&#34;</span>
+  <span style="color:#66d9ef">end</span>
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_helper_file</span>
+    create_file <span style="color:#e6db74">&#34;app/helpers/</span><span style="color:#e6db74">#{</span>file_name<span style="color:#e6db74">}</span><span style="color:#e6db74">_helper.rb&#34;</span>, <span style="color:#e6db74">&lt;&lt;-FILE
+</span><span style="color:#e6db74"></span>module <span style="color:#75715e">#{class_name}Helper</span>
+  <span style="color:#66d9ef">attr_reader</span> :<span style="color:#75715e">#{plural_name}, :#{plural_name.singularize}</span>
+<span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">FILE</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>file_name 是從 Rails::Generators::NamedBase 繼承而來，從 CLI 讀取，例如 <code>$ bin/rails generate initializer core_extensions</code> file_name 就是 core_extensions</li>
+<li>copy_file 複製檔案</li>
+<li>create_file 直接輸入檔案內容</li>
+<li>其他更多有趣的 method <a href="https://guides.rubyonrails.org/generators.html#generator-methods">10 Generator methods</a></li>
+</ul>
+<h4 id="generator-實作">Generator 實作</h4>
+<p>目標是打造一個類似 data-migrate 的 generator，儲存在獨立的 folder 下，並有著 timestamp 結尾的檔案</p>
+<p>在閱讀 <a href="https://github.com/ilyakatz/data-migrate/blob/86f10f277deaf9aac4844f12ffea727442690d47/lib/data_migrate/config.rb#L20-L23">data-migrate 原始碼時</a>，看到可以針對 data_migrations script 的 folder 進行調整</p>
+<pre><code>@data_migrations_path = &quot;db/data/&quot;
+</code></pre><p>所以靈機一動就想說在 generator 中如果可以動態置換，並觸發 data-migrate 就可以產生新的檔案到對應的資料夾下，而不會污染於本的 data-migrate</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#75715e"># lib/generators/post_sync_generator.rb</span>
+
+<span style="color:#66d9ef">class</span> post syncGenerator <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">Rails</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Generators</span><span style="color:#f92672">::</span><span style="color:#66d9ef">NamedBase</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">copy_initializer_file</span>
+    <span style="color:#66d9ef">DataMigrate</span><span style="color:#f92672">.</span>configure <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>config<span style="color:#f92672">|</span>
+      config<span style="color:#f92672">.</span>data_migrations_path <span style="color:#f92672">=</span> <span style="color:#66d9ef">POST_SYNC_PATH</span>
+    <span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">Rails</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Generators</span><span style="color:#f92672">.</span>invoke(<span style="color:#e6db74">&#34;data_migration&#34;</span>, <span style="color:#f92672">[</span>file_name<span style="color:#f92672">]</span>)
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>data-migrate 本身就有提供 data_migration 的 generator，而且可以直接在 generator 中觸發另一個 generator，再加上 file_name 可以從 CLI 讀取，這樣就可以串起來</p>
+<p>成果是輸入 <code>$ rails generate post_sync xxxx_xxx</code>，會在指定的路徑下產生</p>
+<pre><code>.
+└── rails/
+    └── db/
+        ├── data/
+        │   └── 20210408091311_migration.rb
+        └── post_sync/
+            └── 20210429100009_post_sync.rb
+</code></pre><h3 id="2-註冊-rake-指令">2. 註冊 Rake 指令</h3>
+<p>當我們希望透過 CLI 觸發特定指令時，可以透過 <a href="https://github.com/ruby/rake">Rake</a>，處理任務與任務間相依性的 gem 套件</p>
+<p>這邊的用法相當簡單，同樣去改 migrations_path，並觸發原本 data migrate 的 Rake task 即可</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#75715e"># lib/tasks/post_sync.rake</span>
+namespace <span style="color:#e6db74">:post_sync</span> <span style="color:#66d9ef">do</span>
+  task <span style="color:#e6db74">:migrate</span> <span style="color:#66d9ef">do</span>
+    <span style="color:#66d9ef">DataMigrate</span><span style="color:#f92672">.</span>configure <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>config<span style="color:#f92672">|</span>
+      config<span style="color:#f92672">.</span>data_migrations_path <span style="color:#f92672">=</span> <span style="color:#66d9ef">POST_SYNC_PATH</span>
+    <span style="color:#66d9ef">end</span>
+
+    <span style="color:#66d9ef">Rake</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Task</span><span style="color:#f92672">[</span><span style="color:#e6db74">&#39;data:migrate&#39;</span><span style="color:#f92672">].</span>invoke
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="3-避免-timestamp-collision">3. 避免 timestamp collision</h3>
+<p>前面我們透過 generator 與 rake 成功產生 migration script template 與執行 post sync，並且在檔案路徑上與原本的 data migration 分開</p>
+<p>但目前還有個問題是最後 data-migrate 紀錄 script 是否曾經跑過<code>還是在同一張 DB table</code> 中，這邊沒有 config 可以直接調整</p>
+<p>後來跟同事討論後，決定手寫一個檢查在 CI 執行時確認 db/data 跟 db/post_sync 下的 timestamp 沒有重複</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#66d9ef">class</span> post syncChecker
+  <span style="color:#66d9ef">CHECK_FOLDER</span> <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>
+    <span style="color:#66d9ef">DataMigrate</span><span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>data_migrations_path,
+    <span style="color:#66d9ef">POST_SYNC_PATH</span>
+  <span style="color:#f92672">]</span>
+
+  <span style="color:#66d9ef">class</span> <span style="color:#f92672">&lt;&lt;</span> self
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_collision?</span>
+      (pre sync_versions, post sync_versions) <span style="color:#f92672">=</span> <span style="color:#66d9ef">CHECK_FOLDER</span><span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>path<span style="color:#f92672">|</span>
+        list_migration_versions(<span style="color:#e6db74">path</span>: <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>join(<span style="color:#66d9ef">Rails</span><span style="color:#f92672">.</span>root, path))
+      <span style="color:#66d9ef">end</span>
+
+      puts pre sync_versions
+      (pre sync_versions <span style="color:#f92672">&amp;</span> post sync_versions)<span style="color:#f92672">.</span>present?
+    <span style="color:#66d9ef">end</span>
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">list_migration_versions</span>(<span style="color:#e6db74">path</span>:)
+      <span style="color:#66d9ef">Dir</span><span style="color:#f92672">.</span>entries(path)
+         <span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>filename<span style="color:#f92672">|</span> parse_version(<span style="color:#e6db74">filename</span>: filename) }
+         <span style="color:#f92672">.</span>compact
+    <span style="color:#66d9ef">end</span>
+
+    <span style="color:#75715e"># ref: https://github.com/ilyakatz/data-migrate/blob/2dd90c495b4d57e4dc700e3f9be149c7e2b93b57/lib/data_migrate/data_migrator_five.rb#L44</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse_version</span>(<span style="color:#e6db74">filename</span>:)
+      result <span style="color:#f92672">=</span> <span style="color:#e6db74">/(\d{14})_(.+)\.rb$/</span><span style="color:#f92672">.</span>match(filename)
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">unless</span> result<span style="color:#f92672">.</span>present?
+      result<span style="color:#f92672">[</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>
+    <span style="color:#66d9ef">end</span>
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rb" data-lang="rb"><span style="color:#75715e"># spec/unit/lib/post_sync_checker_spec.rb</span>
+require <span style="color:#e6db74">&#39;rails_helper&#39;</span>
+
+describe <span style="color:#e6db74">&#34;post syncChecker&#34;</span> <span style="color:#66d9ef">do</span>
+  let(<span style="color:#e6db74">:version</span>) { <span style="color:#ae81ff">12345678901234</span> }
+  let(<span style="color:#e6db74">:file_paths</span>) {
+    <span style="color:#f92672">::</span>post syncChecker<span style="color:#f92672">::</span><span style="color:#66d9ef">CHECK_FOLDER</span><span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>path<span style="color:#f92672">|</span>
+      <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>join(<span style="color:#66d9ef">Rails</span><span style="color:#f92672">.</span>root, path, <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">#{</span>version<span style="color:#e6db74">}</span><span style="color:#e6db74">_test.rb&#34;</span>)
+    <span style="color:#66d9ef">end</span>
+  }
+
+  context <span style="color:#e6db74">&#34;when there are two file with same version&#34;</span> <span style="color:#66d9ef">do</span>
+    before <span style="color:#66d9ef">do</span>
+      file_paths<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>file_path<span style="color:#f92672">|</span>
+        <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>new(file_path, <span style="color:#66d9ef">File</span><span style="color:#f92672">::</span><span style="color:#66d9ef">CREAT</span>)
+      <span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">end</span>
+
+    after <span style="color:#66d9ef">do</span>
+      file_paths<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>file_path<span style="color:#f92672">|</span>
+        <span style="color:#66d9ef">File</span><span style="color:#f92672">.</span>delete(file_path)
+      <span style="color:#66d9ef">end</span>
+    <span style="color:#66d9ef">end</span>
+
+    it <span style="color:#e6db74">&#39;should failed&#39;</span> <span style="color:#66d9ef">do</span>
+      expect(<span style="color:#f92672">::</span>post syncChecker<span style="color:#f92672">.</span>is_collision?)<span style="color:#f92672">.</span>to eq(<span style="color:#66d9ef">true</span>)
+    <span style="color:#66d9ef">end</span>
+  <span style="color:#66d9ef">end</span>
+
+  it <span style="color:#e6db74">&#34;check when running test&#34;</span> <span style="color:#66d9ef">do</span>
+    expect(<span style="color:#f92672">::</span>post syncChecker<span style="color:#f92672">.</span>is_collision?)<span style="color:#f92672">.</span>to eq(<span style="color:#66d9ef">false</span>)
+  <span style="color:#66d9ef">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="總結">總結</h2>
+<p>這是一個小小的工具，不過在對於整個部署流程有還不錯的幫助</p>
+
+	</div>
+	
+	
+	
+	
+	
+		
+	
+		
+	
+		
+		
+	</div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function() {
+	    
+	    
+	    if (window.location.hostname == "localhost")
+	        return;
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    var disqus_shortname = 'yuanchieh';
+	    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to load the comments.</noscript>
+
+
+</div>
+
+  </main>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-82837682-4', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
